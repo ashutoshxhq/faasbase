@@ -1,0 +1,2 @@
+# faasly
+Faasly application

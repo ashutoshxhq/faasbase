@@ -1,0 +1,347 @@
+import { useAuth0 } from '@auth0/auth0-react'
+import { Box, Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, FormControl, FormLabel, IconButton, Input, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { FiMoreHorizontal, FiPackage } from 'react-icons/fi'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useRecoilState } from 'recoil'
+import { createApplication, deleteApplication, getApplications } from '../../api/applications'
+import { deleteFunction, getFunctions } from '../../api/functions'
+import { CustomSelect, Option } from '../../components/CustomSelect/CustomSelect'
+import { RadioCard, RadioCardGroup } from '../../components/RadioCardGroup/RadioCardGroup'
+import { currentWorkspaceState } from '../../store/workspaces'
+
+const Applications = () => {
+
+  const toast = useToast()
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { getAccessTokenSilently } = useAuth0();
+  const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
+  const navigate = useNavigate()
+  const query = useQuery(['applications', { getAccessTokenSilently, currentWorkspace }], getApplications)
+  const queryClient = useQueryClient()
+  const deleteMutation = useMutation((applicationId: string) => deleteApplication(applicationId, getAccessTokenSilently), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`applications`])
+      toast({
+        title: "Success",
+        description: "Application deleted successfully",
+        status: "success",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+
+    onError: () => {
+      toast({
+        title: "Failed",
+        description: "Unable to delete application",
+        status: "error",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  })
+
+  useEffect(() => {
+    document.title = "Faasly Console | Applications"
+  }, [])
+
+
+  return (
+    <Box height={"calc(100vh - 40px)"} overflowY={"scroll"}>
+      <CreateApplication isOpen={isOpen} onClose={onClose} />
+      <Box as="section" mt={4} py={4} px={4} borderBottom={"solid 1px #42424252"} data-tauri-drag-region>
+        <Stack spacing="5">
+          <Stack
+            data-tauri-drag-region
+            spacing="4"
+            direction={{ base: "column", sm: "row" }}
+            justify="space-between"
+            alignItems={"center"}
+          >
+            <Box display="flex" gap={4} justifyContent={"center"} alignItems={"center"}>
+              <FiPackage size={"40px"} />
+              <Box>
+                <Text fontSize="2xl" fontWeight="medium">
+                  Applications
+                </Text>
+                <Text color="muted" fontSize="sm">
+                  Manage all your applications here
+                </Text>
+              </Box>
+            </Box>
+            <Stack direction="row">
+              <Button onClick={onOpen} variant="solid" bgGradient='linear(to-r, orange.500, orange.600)' _hover={{ backgroundColor: "orange.500" }} _active={{ backgroundColor: "orange.500" }}>Create New Application</Button>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Box>
+      {/* <Link
+        to={"/applications/1"}
+        as={NavLink}
+        display="flex"
+        alignItems={"start"}
+        justifyContent={"start"}
+        flex={1}
+        textDecoration={"none"}
+        _hover={{ textDecoration: "none" }}
+      >Link</Link> */}
+      <Box
+        display={"flex"}
+        justifyContent={"start"}
+        alignContent={"start"}
+        flexWrap={"wrap"}
+        mt={2}
+        py={4}
+        gap={"20px"}
+      >
+        {query.data?.data?.data?.map((faaslyApplication: any, index: number) => (
+          <Box
+            key={index}
+            borderRadius={8}
+            bg={"#1e1e1e"}
+            boxShadow={"2xl"}
+            border={"solid 0px #424242fd"}
+            px={8}
+            py={6}
+            width={"460px"}
+            display="flex"
+            alignItems={"start"}
+            justifyContent={"start"}
+            cursor={"pointer"}
+            _hover={{ background: "#1e1e1e" }}
+          >
+
+            <Link
+              to={"/workspaces/" + currentWorkspace?.name + "/applications/" + faaslyApplication?.id}
+              as={NavLink}
+              display="flex"
+              alignItems={"start"}
+              justifyContent={"start"}
+              flex={1}
+              textDecoration={"none"}
+              _hover={{ textDecoration: "none" }}
+            >
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                justifyContent={"center"}
+                alignItems={"start"}
+                flex={1}
+              >
+                <Text fontSize={"md"} fontWeight={"semibold"} color="#e3e3e3" mb={1}>
+                  {faaslyApplication.name}
+                </Text>
+                <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1} mb={2}>
+                  {faaslyApplication.description}
+                </Text>
+                <Box display={"flex"} gap={2} mt={6}>
+                  <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
+                    {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
+                    {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
+                    {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
+                    {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
+
+                  </Tag>
+                  {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.latest_version}</Tag>}
+                </Box>
+              </Box>
+            </Link>
+            <Box ml={4}>
+              <Menu size={"2xl"}>
+                <MenuButton
+                  as={IconButton}
+                  _hover={{ backgroundColor: "whiteAlpha.200" }}
+                  _active={{ backgroundColor: "whiteAlpha.200" }}
+                  aria-label="Options"
+                  icon={<FiMoreHorizontal size={26} />}
+                  variant="ghost"
+                />
+                <MenuList bg={"#1e1e1e"} minW={"10px"}>
+                  <MenuItem
+                    onClick={() => { }}
+                  >
+                    Settings
+                  </MenuItem>
+
+                  <MenuItem
+                    onClick={async () => {
+                      deleteMutation.mutate(faaslyApplication.id)
+                    }}
+                  >
+                    Delete
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </Box>
+          </Box>
+        )
+        )}
+
+      </Box>
+    </Box>
+  )
+}
+
+export default Applications
+
+
+
+interface CreateApplicationProp {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function CreateApplication(props: CreateApplicationProp) {
+  const toast = useToast();
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [visibility, setVisibility] = useState("PUBLIC")
+  const [applicationType, setApplicationType] = useState("WEB_SERVICE");
+  const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
+  const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
+  const queryClient = useQueryClient()
+
+  const createApplicationMutation = useMutation((data: any) => createApplication(data, getAccessTokenSilently), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`applications`])
+      toast({
+        title: "Success",
+        description: "Application created successfully",
+        status: "success",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      props.onClose()
+      setName("")
+      setDescription("")
+      setApplicationType("WEB_SERVICE")
+    },
+
+    onError: () => {
+      toast({
+        title: "Failed",
+        description: "Unable to create application",
+        status: "error",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  })
+
+  return (
+    <>
+      <Drawer isOpen={props.isOpen} onClose={props.onClose} size="lg" >
+        <DrawerOverlay />
+        <DrawerContent mx={"23px"} my={"53px"} borderRadius={"8px"} bg={"#1e1e1e"} overflowY={"scroll"}>
+          <DrawerCloseButton />
+          <DrawerHeader data-tauri-drag-region>Create New Application</DrawerHeader>
+          <DrawerBody>
+            <FormControl isRequired mt={4}>
+              <FormLabel htmlFor="application-name">Application Name</FormLabel>
+              <Input
+                id="application-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl isRequired mt={8}>
+              <FormLabel htmlFor="application-desc">Application Description</FormLabel>
+              <Textarea
+                id="application-desc"
+                height={"180px"}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Write your application description here..."
+              />
+            </FormControl>
+
+            <FormControl isRequired mt={8}>
+              <FormLabel htmlFor="application_type" fontSize={"xl"} mb="4">Application Type</FormLabel>
+              <RadioCardGroup id="application_type" value={applicationType} onChange={(value) => setApplicationType(value)}>
+
+                <RadioCard value={"WEB_SERVICE"}>
+                  <Text color="emphasized" fontWeight="medium" fontSize="sm">
+                    Custom Web Service
+                  </Text>
+                  <Text color="muted" fontSize="sm" mt={2}>
+                    Compose a custom web service using functions
+                  </Text>
+                </RadioCard>
+
+                <RadioCard value={"CLOUD_FUNCTION"}>
+                  <Text color="emphasized" fontWeight="medium" fontSize="sm">
+                    Cloud Function
+                  </Text>
+                  <Text color="muted" fontSize="sm" mt={2}>
+                    Build a cloud function from faasly functions.
+                  </Text>
+                </RadioCard>
+
+                <RadioCard value={"DOCKER"}>
+                  <Text color="emphasized" fontWeight="medium" fontSize="sm">
+                    Docker
+                  </Text>
+                  <Text color="muted" fontSize="sm" mt={2}>
+                    Build an application with a docker file.
+                  </Text>
+                </RadioCard>
+
+                <RadioCard value={"SINGLE_PAGE_APPLICATION"}>
+                  <Text color="emphasized" fontWeight="medium" fontSize="sm">
+                    Single page application
+                  </Text>
+                  <Text color="muted" fontSize="sm" mt={2}>
+                    Deploy a SPA using S3 and cloudfront
+                  </Text>
+                </RadioCard>
+
+              </RadioCardGroup>
+            </FormControl>
+
+            <FormControl isRequired mt={8}>
+              <FormLabel htmlFor="function-desc">Visibility</FormLabel>
+              <CustomSelect value={visibility} onChange={(val) => {
+                setVisibility(val)
+              }}>
+                <Option value={"PUBLIC"}>Public</Option>
+                <Option value={"PRIVATE"}>Private</Option>
+              </CustomSelect>
+            </FormControl>
+          </DrawerBody>
+          <DrawerFooter>
+            <Button variant='solid' colorScheme={"gray"} mr={3} onClick={() => props?.onClose()}>
+              Cancel
+            </Button>
+            <Button
+
+              isLoading={createApplicationMutation.isLoading}
+              loadingText={"Creating"}
+              onClick={() => {
+                createApplicationMutation.mutate({
+                  name: name,
+                  description: description,
+                  visibility: visibility,
+                  application_type: applicationType,
+                  workspace_id: currentWorkspace?.id
+                })
+              }}
+              variant="solid"
+              bgGradient='linear(to-r, orange.500, orange.600)'
+              _hover={{ backgroundColor: "orange.500" }}
+              _active={{ backgroundColor: "orange.500" }}
+            >
+              Create Application
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+}

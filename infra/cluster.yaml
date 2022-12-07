@@ -1,0 +1,12 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: faasly
+  region: us-west-2
+
+nodeGroups:
+  - name: ng-t2-medium
+    instanceType: t2.medium
+    desiredCapacity: 1
+    volumeSize: 40

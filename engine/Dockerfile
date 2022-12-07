@@ -1,0 +1,39 @@
+FROM rust:1.65 as builder
+
+RUN USER=root cargo new --bin faasly-engine-service
+WORKDIR ./faasly-engine-service
+COPY ./Cargo.toml ./Cargo.toml
+RUN cargo build --release
+RUN rm src/*.rs
+
+ADD . ./
+
+RUN rm ./target/release/deps/faasly_engine_service*
+RUN cargo build --release
+
+
+FROM debian:bullseye-slim
+
+ARG APP=/usr/src/app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates tzdata libpq-dev gcc libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8000
+
+ENV TZ=Etc/UTC \
+    APP_USER=appuser
+
+RUN groupadd $APP_USER \
+    && useradd -g $APP_USER $APP_USER \
+    && mkdir -p ${APP}
+
+COPY --from=builder /faasly-engine-service/target/release/faasly-engine-service ${APP}/faasly-engine-service
+
+RUN chown -R $APP_USER:$APP_USER ${APP}
+
+USER $APP_USER
+WORKDIR ${APP}
+
+CMD ["./faasly-engine-service"]
