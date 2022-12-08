@@ -125,17 +125,17 @@ function ApplicationBuildsAndDeployments() {
                     variant="ghost"
                   />
                   <MenuList bg={"#1e1e1e"} minW={"10px"}>
-                    <MenuItem
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                       onClick={() => { }}
                     >
                       Deploy Build
                     </MenuItem>
-                    <MenuItem
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                       onClick={() => { }}
                     >
                       Clone Build
                     </MenuItem>
-                    <MenuItem
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                       onClick={() => { }}
                     >
                       Show Build Logs

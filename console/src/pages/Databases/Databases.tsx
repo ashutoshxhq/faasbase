@@ -162,13 +162,13 @@ export default function Databases () {
                 variant="ghost"
               />
               <MenuList bg={"#1e1e1e"} minW={"10px"}>
-                <MenuItem
+                <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                   onClick={() => { }}
                 >
                   Settings
                 </MenuItem>
 
-                <MenuItem
+                <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                   onClick={async () => {
                     // deleteMutation.mutate(db.id)
                   }}

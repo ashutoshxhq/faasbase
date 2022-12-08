@@ -159,7 +159,7 @@ function MarketplaceFunctions({ searchQuery }: MFProps) {
                   variant="ghost"
                 />
                 <MenuList bg={"#1e1e1e"} minW={"10px"}>
-                  <MenuItem
+                  <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                     onClick={() => { }}
                   >
                     Clone
