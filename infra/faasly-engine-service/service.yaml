@@ -11,7 +11,8 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: faasly-engine-service
+    app: faasly
+    api.faasly.dev: proxy
   ports:
     - name: http 
       protocol: TCP

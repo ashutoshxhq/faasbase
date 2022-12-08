@@ -10,11 +10,13 @@ spec:
   selector:
     matchLabels:
       app: faasly
+      api.faasly.dev: proxy
   template:
     metadata:
       name: faasly-engine-service-pod
       labels:
         app: faasly
+        api.faasly.dev: proxy
     spec:
       containers:
         - name: faasly-engine-service-pod
