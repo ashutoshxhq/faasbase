@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: faasly-engine-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:194872849581:certificate/0733fb19-ab8b-4994-80ff-1735e92cd253
+  labels:
+    app: faasly-engine-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: faasly-engine-service
+  ports:
+    - name: http 
+      protocol: TCP
+      port: 80
+      targetPort: 8000
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8000 
