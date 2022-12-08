@@ -56,7 +56,7 @@ const WorkspacesMenu = () => {
                 </Tooltip>
                 <MenuList bg={"#1e1e1e"}>
                     <MenuGroup title='WORKSPACES' textColor={"#949494"} >
-                        {query.data?.data?.data?.map((workspace: any) => <MenuItem fontSize={"sm"} key={workspace.id} onClick={() => {
+                        {query.data?.data?.data?.map((workspace: any) => <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} key={workspace.id} onClick={() => {
                             setCurrentWorkspace(workspace)
                             navigate(`/workspaces/${workspace?.name}/dashboard`)
                         }}>{workspace.name}</MenuItem>)}
