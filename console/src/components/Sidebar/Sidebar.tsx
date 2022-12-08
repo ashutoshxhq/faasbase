@@ -132,8 +132,8 @@ export const SideBar = () => {
                 <UserProfile name={user?.nickname || ""} email={user?.email || ""} />
               </MenuButton>
               <MenuList bg={"#1e1e1e"}>
-                <MenuItem fontSize={"sm"} onClick={() => { navigate("/account") }} icon={<FiUser size={"20px"} />}>Update Profile</MenuItem>
-                <MenuItem fontSize={"sm"} onClick={() => {
+                <MenuItem bg={"#1e1e1e"} fontSize={"sm"} onClick={() => { navigate("/account") }} icon={<FiUser size={"20px"} />}>Update Profile</MenuItem>
+                <MenuItem bg={"#1e1e1e"} fontSize={"sm"} onClick={() => {
                   localStorage.clear()
                   logout({ returnTo: APP_URI })
                 }} icon={<FiLogOut size={"20px"} />}>Logout</MenuItem>

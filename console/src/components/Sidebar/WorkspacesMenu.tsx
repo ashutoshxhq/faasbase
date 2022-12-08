@@ -62,8 +62,8 @@ const WorkspacesMenu = () => {
                         }}>{workspace.name}</MenuItem>)}
                     </MenuGroup>
                     <MenuDivider />
-                    <MenuItem fontSize={"sm"} onClick={onOpen} icon={<FiPlus size={"20px"} />}>Create Workspace</MenuItem>
-                    <MenuItem fontSize={"sm"} onClick={() => {
+                    <MenuItem bg={"#1e1e1e"} fontSize={"sm"} onClick={onOpen} icon={<FiPlus size={"20px"} />}>Create Workspace</MenuItem>
+                    <MenuItem bg={"#1e1e1e"} fontSize={"sm"} onClick={() => {
                         setCurrentWorkspace(null)
                         navigate("/workspaces")
                     }} icon={<FiList size={"20px"} />}>View All Workspaces</MenuItem>
