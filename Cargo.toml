@@ -2,4 +2,7 @@
 
 members = [
     "engine",
+    "registry",
+    "runtimes/rust",
+    "clients/rust"
 ]

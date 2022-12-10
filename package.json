@@ -1,6 +1,8 @@
 {
   "private": true,
   "workspaces": [
-    "console"
+    "console",
+    "docs",
+    "clients/typescript"
   ]
 }
