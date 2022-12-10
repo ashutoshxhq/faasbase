@@ -13,7 +13,7 @@ export const NavButton = (props: NavButtonProps) => {
   return (
     <Tooltip label={label} placement='right'>
       <Button variant="ghost" justifyContent="center" {...buttonProps} _hover={{ backgroundColor: "whiteAlpha.200" }} _active={{ backgroundColor: "whiteAlpha.200" }} w={12} h={12} borderRadius={"8px"} p={0} mt={4}>
-          <Icon as={icon} boxSize="6" color="subtle" />
+          <Icon as={icon} boxSize="5" color="subtle" />
       </Button>
     </Tooltip>
 

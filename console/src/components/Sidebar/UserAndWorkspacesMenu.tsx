@@ -2,20 +2,23 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Button, FormControl, FormLabel, Icon, Input, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Textarea, Tooltip, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { FiLayers, FiList, FiPlus } from 'react-icons/fi'
+import { FiLayers, FiList, FiLogOut, FiPlus, FiUser } from 'react-icons/fi'
+import { HiSwitchHorizontal } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { createWorkspace, getWorkspaces } from '../../api/workspaces';
+import { APP_URI } from '../../config/constants';
 import { currentWorkspaceState } from '../../store/workspaces';
+import { UserProfile } from './UserProfile';
 
-const WorkspacesMenu = () => {
+const UserAndWorkspacesMenu = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [currentWorkspace, setCurrentWorkspace] = useRecoilState(currentWorkspaceState);
     const toast = useToast()
     const navigate = useNavigate()
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
-    const { getAccessTokenSilently } = useAuth0();
+    const { getAccessTokenSilently, logout, user } = useAuth0();
     const query = useQuery(['workspaces', { getAccessTokenSilently }], getWorkspaces)
     const queryClient = useQueryClient()
 
@@ -50,23 +53,35 @@ const WorkspacesMenu = () => {
             <Menu>
                 <Tooltip label={"Workspace -" + currentWorkspace?.name} placement='right'>
 
-                    <MenuButton as={Button} variant="ghost" justifyContent="center" _hover={{ backgroundColor: "whiteAlpha.200" }} _active={{ backgroundColor: "whiteAlpha.200" }} w={12} h={12} borderRadius={"8px"} p={0} mt={4}>
-                        <Icon as={FiLayers} boxSize="6" color="subtle" />
+                    <MenuButton>
+                        <UserProfile name={user?.nickname || ""} email={user?.email || ""} />
                     </MenuButton>
                 </Tooltip>
                 <MenuList bg={"#1e1e1e"}>
-                    <MenuGroup title='WORKSPACES' textColor={"#949494"} >
-                        {query.data?.data?.data?.map((workspace: any) => <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} key={workspace.id} onClick={() => {
+                    {currentWorkspace && <>
+                        <MenuGroup title={currentWorkspace?.name} textColor={"#949494"} >
+                            {/* {query.data?.data?.data?.map((workspace: any) => <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} key={workspace.id} onClick={() => {
                             setCurrentWorkspace(workspace)
                             navigate(`/workspaces/${workspace?.name}/dashboard`)
-                        }}>{workspace.name}</MenuItem>)}
+                        }}>{workspace.name}</MenuItem>)} */}
+                            <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={() => { navigate("workspaces/" + currentWorkspace?.name + "/settings") }} icon={<FiLayers size={"20px"} />}>Workspace Settings</MenuItem>
+                            <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={() => {
+                                setCurrentWorkspace(null)
+                                navigate("/workspaces")
+                            }} icon={<HiSwitchHorizontal size={"20px"} />}>Switch Workspace</MenuItem>
+                            <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={onOpen} icon={<FiPlus size={"20px"} />}>Create Workspace</MenuItem>
+                        </MenuGroup>
+                        <MenuDivider />
+                    </>}
+
+
+                    <MenuGroup title='USER' textColor={"#949494"} >
+                        <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={() => { navigate("/account") }} icon={<FiUser size={"20px"} />}>Update Profile</MenuItem>
+                        <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={() => {
+                            localStorage.clear()
+                            logout({ returnTo: APP_URI })
+                        }} icon={<FiLogOut size={"20px"} />}>Logout</MenuItem>
                     </MenuGroup>
-                    <MenuDivider />
-                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={onOpen} icon={<FiPlus size={"20px"} />}>Create Workspace</MenuItem>
-                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={() => {
-                        setCurrentWorkspace(null)
-                        navigate("/workspaces")
-                    }} icon={<FiList size={"20px"} />}>View All Workspaces</MenuItem>
                 </MenuList>
             </Menu>
 
@@ -114,4 +129,4 @@ const WorkspacesMenu = () => {
     )
 }
 
-export default WorkspacesMenu
+export default UserAndWorkspacesMenu

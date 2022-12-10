@@ -34,12 +34,14 @@ import {
   MenuDivider,
 } from '@chakra-ui/react'
 
+import { TbUserSearch } from "react-icons/tb";
 import { useAuth0 } from "@auth0/auth0-react";
 import { APP_URI } from "../../config/constants";
 import { useRecoilState } from "recoil";
 import { currentWorkspaceState } from "../../store/workspaces";
-import WorkspacesMenu from "./WorkspacesMenu";
+import UserAndWorkspacesMenu from "./UserAndWorkspacesMenu";
 import CommandBar from "../CommandBar/CommandBar";
+import { NavGroup } from "./NavGroup";
 
 export const SideBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -59,15 +61,15 @@ export const SideBar = () => {
         flex="1"
         bg="#1e1e1e"
         py={{ base: "8", sm: "8" }}
-        px={{ base: "6", sm: "6" }}
+        px={{ base: "4", sm: "4" }}
       >
         <Stack justify="space-between" spacing="1" data-tauri-drag-region>
 
-          <Stack spacing={{ base: "5", sm: "6" }} shouldWrapChildren>
+          <Stack spacing={2} shouldWrapChildren>
             <Box mb={2} display="flex" justifyContent={"center"} alignItems={"center"}>
               <Image src="/faasly.svg" width={10} height={10} />
             </Box>
-            <Stack spacing="4">
+            <Stack spacing="4" justifyContent={"center"} alignItems={"center"}>
               {currentWorkspace ? <>
                 <NavButton
                   as={NavLink}
@@ -75,36 +77,48 @@ export const SideBar = () => {
                   label="Dashboard"
                   icon={FiHome}
                 />
-                <NavButton
-                  as={NavLink}
-                  to={"workspaces/" + currentWorkspace?.name + "/applications"}
-                  label="Applications"
-                  icon={FiPackage}
-                />
-                <NavButton
-                  as={NavLink}
-                  to={"workspaces/" + currentWorkspace?.name + "/functions"}
-                  label="Functions"
-                  icon={FiCommand}
-                />
-                <NavButton
-                  as={NavLink}
-                  to={"workspaces/" + currentWorkspace?.name + "/databases"}
-                  label="Database"
-                  icon={FiDatabase}
-                />
-                <NavButton
-                  as={NavLink}
-                  to="/marketplace"
-                  label="Marketplace"
-                  icon={FiShoppingBag}
-                />
-                <NavButton
+                {/* <NavButton
                   as={NavLink}
                   to={"workspaces/" + currentWorkspace?.name + "/settings"}
                   label="Settings"
                   icon={FiSettings}
-                />
+                /> */}
+                <NavGroup label="DEVELOP">
+                  <NavButton
+                    as={NavLink}
+                    to={"workspaces/" + currentWorkspace?.name + "/applications"}
+                    label="Applications"
+                    icon={FiPackage}
+                  />
+                  <NavButton
+                    as={NavLink}
+                    to={"workspaces/" + currentWorkspace?.name + "/functions"}
+                    label="Functions"
+                    icon={FiCommand}
+                  />
+                  <NavButton
+                    as={NavLink}
+                    to={"workspaces/" + currentWorkspace?.name + "/databases"}
+                    label="Database"
+                    icon={FiDatabase}
+                  />
+                </NavGroup>
+                <NavGroup label="Collab">
+                  <NavButton
+                    as={NavLink}
+                    to="/marketplace"
+                    label="Marketplace"
+                    icon={FiShoppingBag}
+                  />
+                  <NavButton
+                    as={NavLink}
+                    to={"/experts"}
+                    label="Faasly Experts"
+                    icon={TbUserSearch}
+                  />
+                </NavGroup>
+
+                
               </> : <>
                 <NavButton
                   as={NavLink}
@@ -124,21 +138,10 @@ export const SideBar = () => {
 
 
           </Stack>
-          <Stack spacing={{ base: "5", sm: "6" }}>
-            <CommandBar />
-            <WorkspacesMenu />
-            <Menu>
-              <MenuButton>
-                <UserProfile name={user?.nickname || ""} email={user?.email || ""} />
-              </MenuButton>
-              <MenuList bg={"#1e1e1e"}>
-                <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={() => { navigate("/account") }} icon={<FiUser size={"20px"} />}>Update Profile</MenuItem>
-                <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }} fontSize={"sm"} onClick={() => {
-                  localStorage.clear()
-                  logout({ returnTo: APP_URI })
-                }} icon={<FiLogOut size={"20px"} />}>Logout</MenuItem>
-              </MenuList>
-            </Menu>
+          <Stack spacing={{ base: "5", sm: "6" }} alignItems={"center"}>
+            {/* <CommandBar /> */}
+            <UserAndWorkspacesMenu />
+            
           </Stack>
         </Stack>
       </Flex>
