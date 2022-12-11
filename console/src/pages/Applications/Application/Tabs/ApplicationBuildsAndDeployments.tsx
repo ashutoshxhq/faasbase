@@ -28,7 +28,7 @@ function ApplicationBuildsAndDeployments() {
         alignContent={"start"}
         flexWrap={"wrap"}
         px={0}
-        maxW={"8xl"}
+        maxW={"full"}
         gap={"30px"}
       >
         <Box display={"flex"} flex={1} justifyContent="space-between" alignItems={"center"}>

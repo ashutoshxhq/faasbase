@@ -115,7 +115,7 @@ function ApplicationSettings() {
 
   return (
     <Box as="section">
-      <Container px={0} maxW={"8xl"}>
+      <Container px={0} maxW={"full"}>
         <Box
           bg={"#1e1e1e"}
           boxShadow={useColorModeValue("sm", "sm-dark")}
@@ -170,7 +170,7 @@ function ApplicationSettings() {
 
         
         <Box as="section" my={6}>
-          <Container px={0} maxW={"8xl"}>
+          <Container px={0} maxW={"full"}>
             <Box
               bg={"#1e1e1e"}
               boxShadow={useColorModeValue("sm", "sm-dark")}

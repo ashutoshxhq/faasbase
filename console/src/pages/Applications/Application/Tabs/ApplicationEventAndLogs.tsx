@@ -26,7 +26,7 @@ function ApplicationEventAndLogs() {
         alignContent={"start"}
         flexWrap={"wrap"}
         px={0}
-        maxW={"8xl"}
+        maxW={"full"}
         gap={"30px"}
       >
         {query?.data?.data?.data?.map((event: any, index: number) => (

@@ -70,7 +70,7 @@ function ApplicationVariables() {
 
   return (
     <Box as="section">
-      <Container px={0} maxW={"8xl"}>
+      <Container px={0} maxW={"full"}>
 
         <Box
           bg={"#1e1e1e"}
