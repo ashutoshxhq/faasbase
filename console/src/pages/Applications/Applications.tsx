@@ -2,7 +2,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { Box, Button, Card, Divider, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, FormControl, FormLabel, IconButton, Input, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { FiMoreHorizontal, FiPackage, FiPlus } from 'react-icons/fi'
+import { FiGlobe, FiMoreHorizontal, FiPackage, FiPlus } from 'react-icons/fi'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import { createApplication, deleteApplication, getApplications } from '../../api/applications'
@@ -100,14 +100,17 @@ const Applications = () => {
                 <Text fontSize={"xs"} color={"subtle"}>{faaslyApplication.description}</Text>
               </Box>
               <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
-                <Tag color={"muted"} py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>
+                <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>
                   {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
                   {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
                   {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
                   {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
 
                 </Tag>
-                {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag py={2} px={4}  color={"muted"} letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag color={"muted"} py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faaslyApplication.latest_version}</Tag>}
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
+                  {faaslyApplication.visibility === "PUBLIC" ? "Public" : "Private"}
+                </Tag>
+                {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faaslyApplication.latest_version}</Tag>}
                 <Menu size={"2xl"}>
                   <MenuButton
                     color={"whiteAlpha.800"}
@@ -194,14 +197,14 @@ const Applications = () => {
                   {faaslyApplication.description}
                 </Text>
                 <Box display={"flex"} gap={2} mt={6}>
-                  <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
+                  <Tag letterSpacing={"0.2px"} fontSize={"xs"}>
                     {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
                     {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
                     {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
                     {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
 
                   </Tag>
-                  {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.latest_version}</Tag>}
+                  {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.latest_version}</Tag>}
                 </Box>
               </Box>
             </Link>

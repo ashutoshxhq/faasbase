@@ -98,10 +98,7 @@ const Functions = () => {
               </Box>
               <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
                 <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
-                  45 stars
-                </Tag>
-                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
-                  12 forks
+                  {faaslyFunction.visibility === "PUBLIC" ? "Public" : "Private"}
                 </Tag>
                 <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>{faaslyFunction.latest_version === "" || !faaslyFunction.latest_version ? "No Builds" : "v"+faaslyFunction.latest_version}</Tag>
                 <Menu size={"2xl"}>
