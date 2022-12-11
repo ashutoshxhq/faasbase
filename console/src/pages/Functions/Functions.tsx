@@ -103,7 +103,7 @@ const Functions = () => {
                 <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
                   12 forks
                 </Tag>
-                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>v{faaslyFunction.latest_version === "" || !faaslyFunction.latest_version ? "0.0.1" : faaslyFunction.latest_version}</Tag>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>{faaslyFunction.latest_version === "" || !faaslyFunction.latest_version ? "No Builds" : "v"+faaslyFunction.latest_version}</Tag>
                 <Menu size={"2xl"}>
                   <MenuButton
                     as={IconButton}
