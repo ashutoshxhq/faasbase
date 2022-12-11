@@ -21,7 +21,7 @@ export const NavGroup = (props: NavGroupProps) => {
       >
         {label}
       </Text>
-      <Stack justifyContent={'center'} alignItems={'center'} spacing="1">
+      <Stack justifyContent={'center'} alignItems={'center'} spacing="2">
         {children}
       </Stack>
     </Box>
