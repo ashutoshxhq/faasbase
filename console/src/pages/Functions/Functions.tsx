@@ -1,8 +1,8 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Box, Button, IconButton, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, useDisclosure, useToast } from '@chakra-ui/react'
+import { Box, Button, Card, Divider, IconButton, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { FiCommand, FiMoreHorizontal, FiMoreVertical } from 'react-icons/fi';
+import { FiCommand, FiMoreHorizontal, FiMoreVertical, FiPlus } from 'react-icons/fi';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { deleteFunction, getFunctions } from '../../api/functions';
@@ -13,7 +13,7 @@ const Functions = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { getAccessTokenSilently } = useAuth0();
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
-
+  const navigate = useNavigate()
   const query = useQuery(['functions', { getAccessTokenSilently, currentWorkspace }], getFunctions)
   const queryClient = useQueryClient()
 
@@ -75,144 +75,73 @@ const Functions = () => {
           </Stack>
         </Stack>
       </Box>
-      <Box
-        display={"flex"}
-        justifyContent={"start"}
-        alignContent={"start"}
-        flexDirection={"column"}
-        flexWrap={"wrap"}
-        gap={"20px"}
-        mt={2}
-        p={4}
-      >
 
-        {query.data?.data?.data?.map((faaslyFunction: any, index: number) => (
-          <Box
-            key={index}
-            borderRadius={8}
-            bg={"#1e1e1e"}
-            boxShadow={"2xl"}
-            border={"solid 0px #424242fd"}
-            px={6}
-            py={4}
-            flex={1}
-            w={"full"}
-            display="flex"
-            alignItems={"center"}
-            justifyContent={"space-between"}
-            cursor={"pointer"}
-            _hover={{ background: "#1e1e1e" }}
-          >
-            <Link
-              to={"/workspaces/" + currentWorkspace?.name + "/functions/" + faaslyFunction?.id}
-              as={NavLink}
-              display="flex"
-              alignItems={"center"}
-              justifyContent={"start"}
-              flex={1}
-              gap={4}
-              textDecoration={"none"}
-              _hover={{ textDecoration: "none" }}
-            >
-              <Box bg={"whiteAlpha.200"} p={2} borderRadius={6}>
-                <FiCommand size={24} />
-              </Box>
 
-              <Box
-                display={"flex"}
-                flexDirection={"column"}
-                justifyContent={"center"}
-                alignItems={"start"}
-                flex={1}
-              >
-                <Text fontSize={"md"} fontWeight={"semibold"} color="#e3e3e3" mb={1}>
-                  {faaslyFunction.name}
-                </Text>
-                <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1}>
-                  {faaslyFunction.description}
-                </Text>
-              </Box>
-            </Link>
-            <Box display={"flex"} gap={"4"} justifyContent={"center"} alignItems={"center"} ml={4}>
-              <Box
-                display={"flex"}
-                flexDirection={"column"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                minW={"80px"}
-              >
-                <Text fontSize={"lg"} fontWeight={"semibold"} color="#e3e3e3">
-                  42
-                </Text>
-                <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1}>
-                  Forks
-                </Text>
-              </Box>
-              <Box
-                display={"flex"}
-                flexDirection={"column"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                minW={"80px"}
-              >
-                <Text fontSize={"lg"} fontWeight={"semibold"} color="#e3e3e3">
-                  42
-                </Text>
-                <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1}>
-                  Stars
-                </Text>
-              </Box>
-              <Box
-                display={"flex"}
-                flexDirection={"column"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                minW={"100px"}
-              >
-                <Text fontSize={"lg"} fontWeight={"semibold"} color="#e3e3e3">
-                  {faaslyFunction.latest_version === "" || !faaslyFunction.latest_version ? "0.0.1" : faaslyFunction.latest_version}
-                </Text>
-                <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1}>
-                  Version
-                </Text>
-              </Box>
-
-              <Menu size={"2xl"}>
-                <MenuButton
-                  as={IconButton}
-                  _hover={{ backgroundColor: "whiteAlpha.200" }}
-                  _active={{ backgroundColor: "whiteAlpha.200" }}
-                  aria-label="Options"
-                  icon={<FiMoreVertical size={26} />}
-                  variant="ghost"
-                />
-                <MenuList bg={"#1e1e1e"} minW={"10px"}>
-                  <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                    onClick={() => { }}
-                  >
-                    Clone
-                  </MenuItem>
-                  <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                    onClick={() => { }}
-                  >
-                    Settings
-                  </MenuItem>
-
-                  <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                    onClick={async () => {
-                      deleteMutation.mutate(faaslyFunction.id)
-                    }}
-                  >
-                    Delete
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            </Box>
+      <Card bg={"#1e1e1e"} w={"full"} mt={"4"}>
+        <Box w={"full"} display="flex" justifyContent={"space-between"} alignItems={"center"} p={4}>
+          <Box display="flex" justifyContent={"space-between"} alignItems={"center"} gap={2}>
+            <Tag> Filter By</Tag>
+            <Tag> <FiPlus /></Tag>
           </Box>
-        )
-        )}
 
-      </Box>
+        </Box>
+        <Divider />
+        <Box display={"flex"} flexDirection={"column"} mb={6}>
+          {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
+          {query.data?.data?.data?.map((faaslyFunction: any, index: number) => (
+            <Box display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
+              <Box cursor={"pointer"} onClick={() => {
+                navigate(`/workspaces/${currentWorkspace?.name}/functions/${faaslyFunction.id}`)
+              }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
+                <Text fontSize={"lg"} fontWeight={"medium"}>{faaslyFunction.name}</Text>
+                <Text fontSize={"xs"} color={"subtle"}>{faaslyFunction.description}</Text>
+              </Box>
+              <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
+                  45 stars
+                </Tag>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
+                  12 forks
+                </Tag>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>v{faaslyFunction.latest_version === "" || !faaslyFunction.latest_version ? "0.0.1" : faaslyFunction.latest_version}</Tag>
+                <Menu size={"2xl"}>
+                  <MenuButton
+                    as={IconButton}
+                    _hover={{ backgroundColor: "whiteAlpha.200" }}
+                    _active={{ backgroundColor: "whiteAlpha.200" }}
+                    aria-label="Options"
+                    icon={<FiMoreHorizontal size={26} />}
+                    variant="ghost"
+                  />
+                  <MenuList bg={"#1e1e1e"} minW={"10px"}>
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={() => { }}
+                    >
+                      Clone
+                    </MenuItem>
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={() => { }}
+                    >
+                      Settings
+                    </MenuItem>
+
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={async () => {
+                        deleteMutation.mutate(faaslyFunction.id)
+                      }}
+                    >
+                      Delete
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+
+              </Box>
+            </Box>
+          ))}
+        </Box>
+
+      </Card>
+
     </Box>
   )
 }

@@ -96,18 +96,18 @@ const Applications = () => {
               <Box cursor={"pointer"} onClick={()=>{
                 navigate(`/workspaces/${currentWorkspace?.name}/applications/${faaslyApplication.id}`)
               }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
-                <Text fontSize={"md"} fontWeight={"medium"}>{faaslyApplication.name}</Text>
+                <Text fontSize={"lg"} fontWeight={"medium"}>{faaslyApplication.name}</Text>
                 <Text fontSize={"xs"} color={"subtle"}>{faaslyApplication.description}</Text>
               </Box>
               <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
-                <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
+                <Tag color={"muted"} py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>
                   {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
                   {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
                   {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
                   {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
 
                 </Tag>
-                {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.latest_version}</Tag>}
+                {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag py={2} px={4}  color={"muted"} letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag color={"muted"} py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faaslyApplication.latest_version}</Tag>}
                 <Menu size={"2xl"}>
                   <MenuButton
                     color={"whiteAlpha.800"}

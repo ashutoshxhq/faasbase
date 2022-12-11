@@ -18,7 +18,7 @@ const FunctionBuilds = () => {
         justifyContent={"center"}
         alignContent={"start"}
         flexWrap={"wrap"}
-        px={0} maxW={"8xl"}
+        px={0} maxW={"full"}
         gap={"30px"}
       >
         {query?.data?.data?.data?.map((build: any, index: number) => (
