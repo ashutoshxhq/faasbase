@@ -65,7 +65,7 @@ export const SideBar = () => {
       >
         <Stack justify="space-between" spacing="1" data-tauri-drag-region>
 
-          <Stack spacing={2} shouldWrapChildren>
+          <Stack spacing={6} shouldWrapChildren>
             <Box mb={2} display="flex" justifyContent={"center"} alignItems={"center"}>
               <Image src="/faasly.svg" width={10} height={10} />
             </Box>

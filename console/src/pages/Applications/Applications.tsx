@@ -97,7 +97,7 @@ const Applications = () => {
                 navigate(`/workspaces/${currentWorkspace?.name}/applications/${faaslyApplication.id}`)
               }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
                 <Text fontSize={"md"} fontWeight={"medium"}>{faaslyApplication.name}</Text>
-                <Text fontSize={"sm"} color={"subtle"}>{faaslyApplication.description}</Text>
+                <Text fontSize={"xs"} color={"subtle"}>{faaslyApplication.description}</Text>
               </Box>
               <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
                 <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
