@@ -9,6 +9,7 @@ import ApplicationResources from './Tabs/ApplicationResources';
 import ApplicationSettings from './Tabs/ApplicationSettings';
 import { useQuery } from '@tanstack/react-query';
 import { ApplicationCollaborator } from './Tabs/ApplicationCollaborator';
+import ApplicationVariables from './Tabs/ApplicationVariables';
 
 function Application() {
   const { applicationId } = useParams();
@@ -56,6 +57,7 @@ function Application() {
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Resources</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Deployments</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Collaborators</Tab>
+              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Variables</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Settings</Tab>
             </TabList>
           </Stack>
@@ -78,6 +80,9 @@ function Application() {
             </TabPanel>
             <TabPanel>
               <ApplicationCollaborator />
+            </TabPanel>
+            <TabPanel>
+              <ApplicationVariables />
             </TabPanel>
             <TabPanel>
               <ApplicationSettings />

@@ -65,7 +65,7 @@ create table application_builds (
     version varchar not null,
     changelog text,
     config jsonb,
-    application_id uuid not null references applications,
+    application_id uuid not null references applications ON DELETE CASCADE,
     user_id uuid references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
@@ -77,7 +77,7 @@ create table application_resources (
     resource_type varchar not null,
     config jsonb,
     resource_id uuid,
-    application_id uuid not null references applications,
+    application_id uuid not null references applications ON DELETE CASCADE,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
     deleted_at timestamp
@@ -86,7 +86,7 @@ create table application_resources (
 create table application_logs (
     id uuid default uuid_generate_v4() not null primary key,
     log_type varchar not null,
-    application_id uuid not null references applications,
+    application_id uuid not null references applications ON DELETE CASCADE,
     resource_type varchar not null,
     resource_id uuid not null,
     data jsonb not null,
@@ -98,7 +98,7 @@ create table application_logs (
 create table application_collaborators (
     id uuid default uuid_generate_v4() not null primary key,
     permission varchar not null,
-    application_id uuid not null references applications,
+    application_id uuid not null references applications ON DELETE CASCADE,
     collaborator_id uuid not null references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
@@ -107,7 +107,7 @@ create table application_collaborators (
 
 create table application_stars (
     id uuid default uuid_generate_v4() not null primary key,
-    application_id uuid not null references applications,
+    application_id uuid not null references applications ON DELETE CASCADE,
     user_id uuid not null references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
@@ -116,7 +116,7 @@ create table application_stars (
 
 create table application_forks (
     id uuid default uuid_generate_v4() not null primary key,
-    application_id uuid not null references applications,
+    application_id uuid not null references applications ON DELETE CASCADE,
     user_id uuid not null references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
@@ -145,7 +145,7 @@ create table function_builds (
     version varchar not null,
     changelog text,
     config jsonb,
-    function_id uuid not null references functions,
+    function_id uuid not null references functions ON DELETE CASCADE,
     user_id uuid references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
@@ -155,7 +155,7 @@ create table function_builds (
 create table function_collaborators (
     id uuid default uuid_generate_v4() not null primary key,
     permission varchar not null,
-    function_id uuid not null references functions,
+    function_id uuid not null references functions ON DELETE CASCADE,
     collaborator_id uuid not null references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
@@ -164,7 +164,7 @@ create table function_collaborators (
 
 create table function_stars (
     id uuid default uuid_generate_v4() not null primary key,
-    function_id uuid not null references functions,
+    function_id uuid not null references functions ON DELETE CASCADE,
     user_id uuid not null references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,

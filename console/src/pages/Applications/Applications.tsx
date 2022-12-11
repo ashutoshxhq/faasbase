@@ -1,8 +1,8 @@
 import { useAuth0 } from '@auth0/auth0-react'
-import { Box, Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, FormControl, FormLabel, IconButton, Input, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
+import { Box, Button, Card, Divider, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, FormControl, FormLabel, IconButton, Input, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { FiMoreHorizontal, FiPackage } from 'react-icons/fi'
+import { FiMoreHorizontal, FiPackage, FiPlus } from 'react-icons/fi'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import { createApplication, deleteApplication, getApplications } from '../../api/applications'
@@ -79,17 +79,70 @@ const Applications = () => {
           </Stack>
         </Stack>
       </Box>
-      {/* <Link
-        to={"/applications/1"}
-        as={NavLink}
-        display="flex"
-        alignItems={"start"}
-        justifyContent={"start"}
-        flex={1}
-        textDecoration={"none"}
-        _hover={{ textDecoration: "none" }}
-      >Link</Link> */}
-      <Box
+
+      <Card bg={"#1e1e1e"} w={"full"} mt={"4"}>
+        <Box w={"full"} display="flex" justifyContent={"space-between"} alignItems={"center"} p={4}>
+          <Box display="flex" justifyContent={"space-between"} alignItems={"center"} gap={2}>
+            <Tag> Filter By</Tag>
+            <Tag> <FiPlus /></Tag>
+          </Box>
+
+        </Box>
+        <Divider />
+        <Box display={"flex"} flexDirection={"column"} mb={6}>
+          {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
+          {query.data?.data?.data?.map((faaslyApplication: any, index: number) => (
+            <Box display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
+              <Box cursor={"pointer"} onClick={()=>{
+                navigate(`/workspaces/${currentWorkspace?.name}/applications/${faaslyApplication.id}`)
+              }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
+                <Text fontSize={"md"} fontWeight={"medium"}>{faaslyApplication.name}</Text>
+                <Text fontSize={"sm"} color={"subtle"}>{faaslyApplication.description}</Text>
+              </Box>
+              <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
+                <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
+                  {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
+                  {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
+                  {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
+                  {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
+
+                </Tag>
+                {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.latest_version}</Tag>}
+                <Menu size={"2xl"}>
+                  <MenuButton
+                    color={"whiteAlpha.800"}
+                    as={IconButton}
+                    _hover={{ backgroundColor: "whiteAlpha.200" }}
+                    _active={{ backgroundColor: "whiteAlpha.200" }}
+                    aria-label="Options"
+                    icon={<FiMoreHorizontal size={26} />}
+                    variant="ghost"
+                  />
+                  <MenuList bg={"#1e1e1e"} minW={"10px"}>
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={() => { }}
+                    >
+                      Settings
+                    </MenuItem>
+
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={async () => {
+                        deleteMutation.mutate(faaslyApplication.id)
+                      }}
+                    >
+                      Delete
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+
+      </Card>
+
+
+      {/* <Box
         display={"flex"}
         justifyContent={"start"}
         alignContent={"start"}
@@ -98,6 +151,8 @@ const Applications = () => {
         py={4}
         gap={"20px"}
       >
+
+
         {query.data?.data?.data?.map((faaslyApplication: any, index: number) => (
           <Box
             key={index}
@@ -181,7 +236,10 @@ const Applications = () => {
         )
         )}
 
-      </Box>
+      </Box> */}
+
+
+
     </Box>
   )
 }

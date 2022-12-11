@@ -56,7 +56,7 @@ export const LayoutComponent = () => {
                         </Box>
                     </Box>
                 </div>
-                <Box maxW={"8xl"} margin={"0 auto"}>
+                <Box maxW={"8xl"} px={8} margin={"0 auto"}>
                     <Outlet />
 
                 </Box>

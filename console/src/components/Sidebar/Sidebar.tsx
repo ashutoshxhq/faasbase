@@ -77,12 +77,6 @@ export const SideBar = () => {
                   label="Dashboard"
                   icon={FiHome}
                 />
-                {/* <NavButton
-                  as={NavLink}
-                  to={"workspaces/" + currentWorkspace?.name + "/settings"}
-                  label="Settings"
-                  icon={FiSettings}
-                /> */}
                 <NavGroup label="DEVELOP">
                   <NavButton
                     as={NavLink}

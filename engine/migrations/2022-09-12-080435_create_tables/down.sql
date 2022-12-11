@@ -29,12 +29,12 @@ drop table clusters;
 
 drop table audit_logs;
 
-drop table users;
-
-drop table workspaces;
-
 drop table fields;
 
 drop table tables;
 
 drop table databases;
+
+drop table workspaces;
+
+drop table users;
