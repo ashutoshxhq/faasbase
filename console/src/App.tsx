@@ -42,11 +42,11 @@ function App() {
     } else {
       setIsOnline(false)
     }
-    window.onoffline = (event) => {
+    window.onoffline = (_event) => {
       console.log("Connection Lost")
       setIsOnline(false)
     };
-    window.ononline = (event) => {
+    window.ononline = (_event) => {
       setIsOnline(true)
       console.log("Back Online")
     };

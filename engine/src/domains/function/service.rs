@@ -162,7 +162,7 @@ impl FunctionService {
             }
         }
 
-        let region_provider = RegionProviderChain::first_try(Region::new("ap-south-1"));
+        let region_provider = RegionProviderChain::first_try(Region::new("us-west-2"));
 
         let shared_config = aws_config::from_env().region(region_provider).load().await;
         let client = Client::new(&shared_config);

@@ -18,7 +18,7 @@ pub struct Output {
 	pub data: Value,
 }
 
-pub fn handler(data: Input) -> Result<Output, Box<dyn Error>> {
+pub fn hello(data: Input) -> Result<Output, Box<dyn Error>> {
 	// TODO: implement your function here
 
 	let output = Output {
