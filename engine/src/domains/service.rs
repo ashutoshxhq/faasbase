@@ -2,7 +2,7 @@ use super::{
     function::service::FunctionService, function_build::service::FunctionBuildService,
     function_collaborator::service::FunctionCollaboratorService,
     workspaces::service::WorkspaceService, workspace_audit_logs::service::AuditLogService,
-    workspace_members::service::WorkspaceMemberService, user::service::UserService, cluster::service::ClusterService, application::service::ApplicationService, application_build::service::ApplicationBuildService, application_collaborator::service::ApplicationCollaboratorService, application_log::service::ApplicationLogService, application_resource::service::ApplicationResourceService, authn::service::AuthNService, database::service::DatabaseService, database_table::service::DatabaseTableService,
+    workspace_members::service::WorkspaceMemberService, user::service::UserService, cluster::service::ClusterService, application::service::ApplicationService, application_build::service::ApplicationBuildService, application_collaborator::service::ApplicationCollaboratorService, application_log::service::ApplicationLogService, application_resource::service::ApplicationResourceService, authn::service::AuthNService, database::service::DatabaseService, database_table::service::DatabaseTableService, database_table_field::{model::DatabaseTableField, service::DatabaseTableFieldService},
 };
 use crate::state::DbPool;
 
@@ -23,7 +23,8 @@ pub struct FaaslyService {
     pub application_log: ApplicationLogService,
     pub application_resource: ApplicationResourceService,
     pub databases: DatabaseService,
-    pub tables: DatabaseTableService
+    pub tables: DatabaseTableService,
+    pub fields: DatabaseTableFieldService
 }
 
 impl FaaslyService {
@@ -44,7 +45,8 @@ impl FaaslyService {
             application_log: ApplicationLogService::new(pool.clone()),
             application_resource: ApplicationResourceService::new(pool.clone()),
             databases: DatabaseService::new(pool.clone()),
-            tables: DatabaseTableService::new(pool.clone())
+            tables: DatabaseTableService::new(pool.clone()),
+            fields: DatabaseTableFieldService::new(pool.clone())
         }
     }
 }
