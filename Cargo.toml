@@ -2,8 +2,5 @@
 
 members = [
     "engine",
-    "registry",
-    "runtimes/rust",
     "clients/rust",
-    "examples/functions/hello_wrapper",
 ]
