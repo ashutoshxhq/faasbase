@@ -135,7 +135,6 @@ diesel::table! {
         password -> Varchar,
         port -> Varchar,
         database_type -> Varchar,
-        user_id -> Uuid,
         workspace_id -> Uuid,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
@@ -150,7 +149,6 @@ diesel::table! {
         visibility -> Varchar,
         default_value -> Nullable<Varchar>,
         relationship_config -> Nullable<Jsonb>,
-        user_id -> Uuid,
         table_id -> Uuid,
         database_id -> Uuid,
         created_at -> Nullable<Timestamp>,
@@ -232,7 +230,6 @@ diesel::table! {
         name -> Varchar,
         description -> Nullable<Text>,
         readme -> Nullable<Text>,
-        user_id -> Uuid,
         database_id -> Uuid,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
@@ -303,11 +300,9 @@ diesel::joinable!(audit_logs -> users (actor_id));
 diesel::joinable!(audit_logs -> workspaces (workspace_id));
 diesel::joinable!(clusters -> users (user_id));
 diesel::joinable!(clusters -> workspaces (workspace_id));
-diesel::joinable!(databases -> users (user_id));
 diesel::joinable!(databases -> workspaces (workspace_id));
 diesel::joinable!(fields -> databases (database_id));
 diesel::joinable!(fields -> tables (table_id));
-diesel::joinable!(fields -> users (user_id));
 diesel::joinable!(function_builds -> functions (function_id));
 diesel::joinable!(function_builds -> users (user_id));
 diesel::joinable!(function_collaborators -> functions (function_id));
@@ -319,7 +314,6 @@ diesel::joinable!(function_stars -> users (user_id));
 diesel::joinable!(functions -> users (user_id));
 diesel::joinable!(functions -> workspaces (workspace_id));
 diesel::joinable!(tables -> databases (database_id));
-diesel::joinable!(tables -> users (user_id));
 diesel::joinable!(workspace_members -> users (user_id));
 diesel::joinable!(workspace_members -> workspaces (workspace_id));
 

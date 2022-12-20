@@ -10,7 +10,6 @@ pub struct NewDatabaseTable {
     pub name: String,
     pub description: Option<String>,
     pub readme: Option<String>,
-    pub user_id: Uuid,
     pub database_id: Uuid,
 }
 
@@ -21,7 +20,6 @@ pub struct UpdateDatabaseTable {
     pub name: Option<String>,
     pub description: Option<String>,
     pub readme: Option<String>,
-    pub user_id: Option<Uuid>,
     pub deleted_at: Option<NaiveDateTime>,
 }
 
@@ -32,7 +30,6 @@ pub struct DatabaseTable {
   pub name: String,
   pub description: Option<String>,
   pub readme: Option<String>,
-  pub user_id: Uuid,
   pub database_id: Uuid,
   pub created_at: Option<NaiveDateTime>,
   pub updated_at: Option<NaiveDateTime>,

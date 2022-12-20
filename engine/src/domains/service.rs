@@ -2,7 +2,7 @@ use super::{
     function::service::FunctionService, function_build::service::FunctionBuildService,
     function_collaborator::service::FunctionCollaboratorService,
     workspaces::service::WorkspaceService, workspace_audit_logs::service::AuditLogService,
-    workspace_members::service::WorkspaceMemberService, user::service::UserService, cluster::service::ClusterService, application::service::ApplicationService, application_build::service::ApplicationBuildService, application_collaborator::service::ApplicationCollaboratorService, application_log::service::ApplicationLogService, application_resource::service::ApplicationResourceService, authn::service::AuthNService, database::service::DatabaseService, database_table::service::DatabaseTableService, database_table_field::{model::DatabaseTableField, service::DatabaseTableFieldService},
+    workspace_members::service::WorkspaceMemberService, user::service::UserService, cluster::service::ClusterService, application::service::ApplicationService, application_build::service::ApplicationBuildService, application_collaborator::service::ApplicationCollaboratorService, application_log::service::ApplicationLogService, application_resource::service::ApplicationResourceService, authn::service::AuthNService, database_table_field::service::DatabaseTableFieldService, database_table::service::DatabaseTableService, database::service::DatabaseService,
 };
 use crate::state::DbPool;
 

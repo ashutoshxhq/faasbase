@@ -12,7 +12,6 @@ pub struct NewDatabaseTableField {
     pub visibility: String,
     pub default_value: Option<String>,
     pub relationship_config: Option<Value>,
-    pub user_id: Uuid,
     pub table_id: Uuid,
     pub database_id: Uuid,
 }
@@ -24,7 +23,6 @@ pub struct UpdateDatabaseTableField {
     pub visibility: String,
     pub default_value: Option<String>,
     pub relationship_config: Option<Value>,
-    pub user_id: Uuid,
     pub table_id: Uuid,
     pub database_id: Uuid,
     pub deleted_at: Option<NaiveDateTime>,
@@ -38,7 +36,6 @@ pub struct DatabaseTableField {
   pub visibility: String,
   pub default_value: Option<String>,
   pub relationship_config: Option<Value>,
-  pub user_id: Uuid,
   pub table_id: Uuid,
   pub database_id: Uuid,
   pub created_at: Option<NaiveDateTime>,

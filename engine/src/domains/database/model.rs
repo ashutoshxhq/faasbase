@@ -13,7 +13,6 @@ pub struct NewDatabase {
     pub password: String,
     pub port: String,
     pub database_type: String,
-    pub user_id: Uuid,
     pub workspace_id: Uuid,
 }
 
@@ -26,7 +25,6 @@ pub struct UpdateDatabase {
     pub password: Option<String>,
     pub port: Option<String>,
     pub database_type: Option<String>,
-    pub user_id: Option<Uuid>,
     pub workspace_id: Option<Uuid>,
     pub deleted_at: Option<NaiveDateTime>,
 }
@@ -41,7 +39,6 @@ pub struct Database {
     pub password: String,
     pub port: String,
     pub database_type: String,
-    pub user_id: Uuid,
     pub workspace_id: Uuid,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,
