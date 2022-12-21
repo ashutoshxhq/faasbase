@@ -29,6 +29,7 @@ import MarketplaceApplication from './pages/Marketplace/MarketplaceApplication/M
 import DatabaseTable from './pages/Databases/Database/DatabaseTable/DatabaseTable'
 import Databases from './pages/Databases/Databases'
 import FaaslyExperts from './pages/Experts/Experts'
+import DatabaseDetails from './pages/Databases/Database/DatabaseDetails'
 
 const queryClient = new QueryClient()
 
@@ -77,8 +78,10 @@ function App() {
                 <Route path="workspaces/:workspaceName/functions" element={<Functions />} />
                 <Route path="workspaces/:workspaceName/functions/:functionId" element={<Function />} />
                 <Route path="workspaces/:workspaceName/databases" element={<Databases />} />
-                <Route path="workspaces/:workspaceName/databases/:databaseId" element={<Database />} />
-                <Route path="workspaces/:workspaceName/databases/:databaseId/tables/:tableId" element={<DatabaseTable />}/>
+                <Route path="workspaces/:workspaceName/databases/:databaseId" element={<Database />}>
+                  <Route index element={<DatabaseDetails />}/>
+                  <Route path="tables/:tableId" element={<DatabaseTable />}/>
+                </Route>
                 <Route path="experts" element={<FaaslyExperts />} />
                 <Route path="workspaces/:workspaceName/settings" element={<WorkspaceSettings />} />
                 <Route path="marketplace" element={<Marketplace />} />

@@ -4,30 +4,21 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FiCommand, FiEdit2, FiMoreVertical, FiTrash2 } from 'react-icons/fi';
 import { useParams } from 'react-router-dom';
+import { getFields } from '../../../../../api/databases';
 // import { deleteFieldFunction, getFields } from '../../../../api/tables';
 import { AddField } from './AddField';
 import { EditField } from './EditField';
 
 const TableFields = () => {
   const toast = useToast()
-  const { tableId } = useParams();
+  const { tableId, databaseId } = useParams();
   const { getAccessTokenSilently } = useAuth0();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [ selectedField, setSelectedField] = useState({})
   const { isOpen: editIsOpen, onOpen: editOnOpen, onClose: editOnClose } = useDisclosure();
-  // const query = useQuery([`function-${tableId}-fields`, { getAccessTokenSilently, tableId }], getFields);
-  // const queryClient = useQueryClient();
-  const query = [
-    {
-      id: 1,
-      name: "id",
-      dataType: "INTEGER",
-      referenceTable:"",
-      referenceField:"",
-      defaultValue:10,
-      visibility:"PUBLIC"
-    }
-  ]
+  const queryClient = useQueryClient();
+  const query = useQuery([`databases-${databaseId}-tables-${tableId}-fields`, { getAccessTokenSilently, databaseId, tableId }], getFields)
+  
   // const deleteFieldMutation = useMutation((fieldId: string) => deleteFieldFunction(tableId || "", fieldId, getAccessTokenSilently), {
   //   onSuccess: () => {
   //     queryClient.invalidateQueries([`table-${tableId}-fields`])
@@ -96,7 +87,7 @@ const TableFields = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {query?.map((field: any) => (
+              {query?.data?.data?.data?.map((field: any) => (
                 <Tr key={field.id}>
                   <Td borderColor="whiteAlpha.200" >
                     <Text color="muted">{field?.name}</Text>

@@ -17,7 +17,10 @@ import {
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
+import { stringify } from "uuid";
+import { createTable } from "../../../api/databases";
 import { createFunction } from "../../../api/functions";
 import { CustomSelect, Option } from "../../../components/CustomSelect/CustomSelect";
 import { currentWorkspaceState } from "../../../store/workspaces";
@@ -28,6 +31,7 @@ interface CreateFunctionProp {
 }
 
 export function CreateTable(props: CreateFunctionProp) {
+  const {databaseId} = useParams();
   const toast = useToast();
   const [tableName, setTableName] = useState("");
   const [tableDescription, setTableDescription] = useState("");
@@ -36,13 +40,34 @@ export function CreateTable(props: CreateFunctionProp) {
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
   const queryClient = useQueryClient()
 
-  const data = {
-    id:1,
-    databaseId:1,
-    name:"",
-    description:"",
-    readme:""
-  }
+  const createTableMutation = useMutation((data: any) => createTable(data, getAccessTokenSilently), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`databases-${databaseId}-tables`])
+      toast({
+        title: "Success",
+        description: "Table created successfully",
+        status: "success",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      props.onClose()
+      setTableDescription("");
+      setTableName("");
+      setTableReadme("");
+    },
+
+    onError: () => {
+      toast({
+        title: "Failed",
+        description: "Unable to create Table",
+        status: "error",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  })
   return (
     <>
       <Drawer isOpen={props.isOpen} onClose={props.onClose} size="lg" >
@@ -83,16 +108,16 @@ export function CreateTable(props: CreateFunctionProp) {
               Cancel
             </Button>
             <Button
-              // isLoading={createFunctionMutation.isLoading}
+              isLoading={createTableMutation.isLoading}
               loadingText={"Creating"}
-              // onClick={() => {
-              //   createFunctionMutation.mutate({
-              //     name: functionName,
-              //     description: functionDesc,
-              //     visibility,
-              //     workspace_id: currentWorkspace?.id
-              //   })
-              // }}
+              onClick={() => {
+                createTableMutation.mutate({
+                  name: tableName,
+                  description: tableDescription,
+                  readme: tableReadme,
+                  database_id: databaseId,
+                })
+              }}
               variant="solid"
               bgGradient='linear(to-r, orange.500, orange.600)'
               _hover={{ backgroundColor: "orange.500" }}

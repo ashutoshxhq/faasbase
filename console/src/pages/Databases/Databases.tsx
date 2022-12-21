@@ -1,32 +1,23 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Box, Button, IconButton, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, useDisclosure, useToast } from '@chakra-ui/react'
+import { Box, Button, Card, Divider, IconButton, Link, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { FiCommand, FiDatabase, FiMoreHorizontal, FiMoreVertical } from 'react-icons/fi';
+import { FiCommand, FiDatabase, FiMoreHorizontal, FiMoreVertical, FiPlus } from 'react-icons/fi';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
+import { getDatabases } from '../../api/databases';
 // import { deleteFunction, getFunctions } from '../../api/functions';
 import { currentWorkspaceState } from '../../store/workspaces';
 import CreateDatabase from './CreateDatabase';
 // import { CreateFunction } from './CreateFunction';
 export default function Databases () {
+  const navigate = useNavigate()
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { getAccessTokenSilently } = useAuth0();
-
-  const data = [{
-    id:1,
-    hostname:"dev-faasly.ch81a3yupexa.ap-south-1.rds.amazonaws.com",
-    username:"admin_user",
-    password:"Aqbfjotld9",
-    port:5432,
-    name:"faasly",
-    type:"Postgres",
-  }]
-
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
 
-  // const query = useQuery(['functions', { getAccessTokenSilently, currentWorkspace }], getFunctions)
+  const query = useQuery(['databases', { getAccessTokenSilently, currentWorkspace }], getDatabases)
   // const queryClient = useQueryClient()
 
   // const deleteMutation = useMutation((functionId: string) => deleteFunction(functionId, getAccessTokenSilently), {
@@ -59,6 +50,8 @@ export default function Databases () {
   }, [])
 
   return (
+    <>
+  
     <Box height={"calc(100vh - 40px)"} overflowY={"scroll"}>
       <CreateDatabase isOpen={isOpen} onClose={onClose} />
       <Box as="section" mt={4} py={4} px={4} borderBottom={"solid 1px #42424252"} data-tauri-drag-region>
@@ -87,102 +80,67 @@ export default function Databases () {
           </Stack>
         </Stack>
       </Box>
-      <Box
-        display={"flex"}
-        justifyContent={"start"}
-        alignContent={"start"}
-        flexDirection={"column"}
-        flexWrap={"wrap"}
-        gap={"20px"}
-        mt={2}
-        p={4}
-      >
+      <Card bg={"#1e1e1e"} w={"full"} mt={"4"}>
+        <Box w={"full"} display="flex" justifyContent={"space-between"} alignItems={"center"} p={4}>
+          <Box display="flex" justifyContent={"space-between"} alignItems={"center"} gap={2}>
+            <Tag> Filter By</Tag>
+            <Tag> <FiPlus /></Tag>
+          </Box>
 
-        {data?.map((db: any, index: number) => (
-          <Box
-          key={index}
-          borderRadius={8}
-          bg={"#1e1e1e"}
-          boxShadow={"2xl"}
-          border={"solid 0px #424242fd"}
-          px={8}
-          py={6}
-          width={"460px"}
-          display="flex"
-          alignItems={"start"}
-          justifyContent={"start"}
-          cursor={"pointer"}
-          _hover={{ background: "#1e1e1e" }}
-        >
+        </Box>
+        <Divider />
+        <Box display={"flex"} flexDirection={"column"} mb={6}>
+          {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
+          {query.data?.data?.data?.map((db: any, index: number) => (
+            <Box display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
+              <Box cursor={"pointer"} onClick={() => {
+                navigate(`/workspaces/${currentWorkspace?.name}/databases/${db.id}`)
+              }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
+                <Text fontSize={"lg"} fontWeight={"medium"}>{db.name}</Text>
+                <Text fontSize={"xs"} color={"subtle"}>{db.hostname}</Text>
+              </Box>
+              <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
+                  {db.database_type}
+                </Tag>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>{db.port}</Tag>
+                <Menu size={"2xl"}>
+                  <MenuButton
+                    as={IconButton}
+                    _hover={{ backgroundColor: "whiteAlpha.200" }}
+                    _active={{ backgroundColor: "whiteAlpha.200" }}
+                    aria-label="Options"
+                    icon={<FiMoreHorizontal size={26} />}
+                    variant="ghost"
+                  />
+                  <MenuList bg={"#1e1e1e"} minW={"10px"}>
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={() => { }}
+                    >
+                      Clone
+                    </MenuItem>
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={() => { }}
+                    >
+                      Settings
+                    </MenuItem>
 
-          <Link
-            to={"/workspaces/" + currentWorkspace?.name + "/databases/" + db?.id}
-            as={NavLink}
-            display="flex"
-            alignItems={"start"}
-            justifyContent={"start"}
-            flex={1}
-            textDecoration={"none"}
-            _hover={{ textDecoration: "none" }}
-          >
-            <Box
-              display={"flex"}
-              flexDirection={"column"}
-              justifyContent={"center"}
-              alignItems={"start"}
-              flex={1}
-            >
-              <Text fontSize={"md"} fontWeight={"semibold"} color="#e3e3e3" mb={1}>
-                {db.name}
-              </Text>
-              <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1} mb={2}>
-                {db.username}
-              </Text>
-              <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1} mb={2}>
-                {db.hostname}
-              </Text>
-              <Box display={"flex"} gap={2} mt={6}>
-                <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
-                  Port: {db.port}
-                </Tag>
-                <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
-                  {db.type}
-                </Tag>
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={async () => {
+                        // deleteMutation.mutate(db.id)
+                      }}
+                    >
+                      Delete
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+
               </Box>
             </Box>
-          </Link>
-          <Box ml={4}>
-            <Menu size={"2xl"}>
-              <MenuButton
-                as={IconButton}
-                _hover={{ backgroundColor: "whiteAlpha.200" }}
-                _active={{ backgroundColor: "whiteAlpha.200" }}
-                aria-label="Options"
-                icon={<FiMoreHorizontal size={26} />}
-                variant="ghost"
-              />
-              <MenuList bg={"#1e1e1e"} minW={"10px"}>
-                <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                  onClick={() => { }}
-                >
-                  Settings
-                </MenuItem>
-
-                <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                  onClick={async () => {
-                    // deleteMutation.mutate(db.id)
-                  }}
-                >
-                  Delete
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          </Box>
+          ))}
         </Box>
-        )
-        )}
-
-      </Box>
+      </Card>
     </Box>
+    </>
   )
 }

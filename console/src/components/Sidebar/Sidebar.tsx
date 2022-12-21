@@ -64,7 +64,6 @@ export const SideBar = () => {
         px={{ base: "4", sm: "4" }}
       >
         <Stack justify="space-between" spacing="1" data-tauri-drag-region>
-
           <Stack spacing={6} shouldWrapChildren>
             <Box mb={2} display="flex" justifyContent={"center"} alignItems={"center"}>
               <Image src="/faasly.svg" width={10} height={10} />
@@ -129,13 +128,10 @@ export const SideBar = () => {
               </>}
 
             </Stack>
-
-
           </Stack>
           <Stack spacing={{ base: "5", sm: "6" }} alignItems={"center"}>
             {/* <CommandBar /> */}
             <UserAndWorkspacesMenu />
-            
           </Stack>
         </Stack>
       </Flex>

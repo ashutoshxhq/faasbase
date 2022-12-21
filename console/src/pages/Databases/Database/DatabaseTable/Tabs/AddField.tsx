@@ -25,11 +25,10 @@ import {
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getUsers } from "../../../../../api/users";
-import { addCollaboratorFunction } from "../../../../../api/functions";
 import { currentWorkspaceState } from "../../../../../store/workspaces";
 import { useRecoilState } from "recoil";
 import { getCurrentWorkspaceMembers } from "../../../../../api/workspaces";
+import { getFields, getTables } from "../../../../../api/databases";
 
 interface AddFieldProp {
   isOpen: boolean;
@@ -37,7 +36,7 @@ interface AddFieldProp {
 }
 
 export function AddField(props: AddFieldProp) {
-  const { tableId } = useParams();
+  const { tableId, databaseId } = useParams();
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0()
   const toast = useToast();
   const [fieldId, setFieldId] = useState("");
@@ -48,7 +47,9 @@ export function AddField(props: AddFieldProp) {
   const [refereceField, setRefereceField] = useState("");
   const [name, setName] = useState("");
 
-  const tableFieldsQuery = useQuery([`table-fields`, { getAccessTokenSilently, tableId }], getCurrentWorkspaceMembers)
+  const tables = useQuery([`databases-${databaseId}-tables`, { getAccessTokenSilently, databaseId }], getTables)
+  const fields = useQuery([`databases-${databaseId}-tables-${refereceTable}-fields`, { getAccessTokenSilently, databaseId, refereceTable }], getFields)
+
   const queryClient = useQueryClient();
   // const addFieldMutation = useMutation(() => {
   //   return addFieldFunction(tableId || "", collaboratorId, permission, getAccessTokenSilently)
@@ -78,8 +79,8 @@ export function AddField(props: AddFieldProp) {
   //   }
   // })
   useEffect (() => {
-    
-  },[])
+    queryClient.invalidateQueries([`databases-${databaseId}-tables-${refereceTable}-fields`])
+  },[refereceTable])
   return (
     <>
       <Modal isOpen={props.isOpen} onClose={props.onClose} size="lg" >
@@ -145,7 +146,9 @@ export function AddField(props: AddFieldProp) {
                 value={refereceTable}
               >
                 <option value={""}>None</option>
-                <option value={"1"}>Table1</option>
+                {
+                  tables?.data?.data?.data?.map((t: any) => t.id != tableId && <option value={t?.id}>{t?.name}</option>)
+                }
               </Select>
             </FormControl>
 
@@ -160,6 +163,9 @@ export function AddField(props: AddFieldProp) {
                     value={refereceField}
                   >
                     <option disabled value={""}>None</option>
+                    {
+                      fields?.data?.data?.data?.map((f: any) => <option value={f?.id}>{f?.name}</option>)
+                    }
                   </Select>
                 </FormControl>
               )
