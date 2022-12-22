@@ -38,7 +38,7 @@ impl DatabaseTableFieldService {
         let limit = if let Some(limit) = limit { limit } else { 10 };
         
         let results: Vec<DatabaseTableField> = dsl::fields
-            .filter(dsl::database_id.eq(table_id))
+            .filter(dsl::table_id.eq(table_id))
             .offset(offset)
             .limit(limit)
             .load(&mut conn)?;
