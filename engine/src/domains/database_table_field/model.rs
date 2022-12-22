@@ -8,6 +8,7 @@ use uuid::Uuid;
 #[derive(Debug, Insertable, Serialize, Deserialize)]
 #[diesel(table_name = fields)]
 pub struct NewDatabaseTableField {
+    pub name: String,
     pub data_type: String,
     pub visibility: String,
     pub default_value: Option<String>,
@@ -20,6 +21,7 @@ pub struct NewDatabaseTableField {
 #[diesel(table_name = fields)]
 pub struct UpdateDatabaseTableField {
     pub data_type: String,
+    pub name: String,
     pub visibility: String,
     pub default_value: Option<String>,
     pub relationship_config: Option<Value>,
@@ -32,6 +34,7 @@ pub struct UpdateDatabaseTableField {
 #[diesel(table_name = fields)]
 pub struct DatabaseTableField {
   pub id: Uuid,
+  pub name: String,
   pub data_type: String,
   pub visibility: String,
   pub default_value: Option<String>,

@@ -145,6 +145,7 @@ diesel::table! {
 diesel::table! {
     fields (id) {
         id -> Uuid,
+        name -> Varchar,
         data_type -> Varchar,
         visibility -> Varchar,
         default_value -> Nullable<Varchar>,

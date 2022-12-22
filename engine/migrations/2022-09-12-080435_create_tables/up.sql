@@ -233,6 +233,7 @@ create table tables (
 
 create table fields (
   id uuid default uuid_generate_v4() not null primary key,
+  name varchar not null,
   data_type varchar not null,
   visibility varchar not null,
   default_value varchar,
