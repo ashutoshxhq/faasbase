@@ -54,7 +54,7 @@ pub async fn get_table_field(
 pub async fn get_table_fields(
     Extension(faasly): Extension<FaaslyState>,
     Extension(_claims): Extension<TokenClaims>,
-    Path(table_id): Path<String>,
+    Path((_database_id, table_id)): Path<(String,String)>,
     query: Query<Pagination>,
 ) -> impl IntoResponse {
     let table_id = Uuid::from_str(&table_id);

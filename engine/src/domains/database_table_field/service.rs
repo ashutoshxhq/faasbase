@@ -36,7 +36,7 @@ impl DatabaseTableFieldService {
         let mut conn = self.pool.clone().get()?;
         let offset = if let Some(offset) = offset { offset } else { 0 };
         let limit = if let Some(limit) = limit { limit } else { 10 };
-
+        
         let results: Vec<DatabaseTableField> = dsl::fields
             .filter(dsl::database_id.eq(table_id))
             .offset(offset)
