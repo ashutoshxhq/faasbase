@@ -13,7 +13,7 @@ use crate::authz::auth;
 pub fn router() -> Router {
     Router::new()
       .route("/databases/:database_id/tables/:table_id/fields/:field_id", get(controller::get_table_field))
-        .route("/databases/:database_id/tables:table_id/fields", get(controller::get_table_fields))
+        .route("/databases/:database_id/tables/:table_id/fields", get(controller::get_table_fields))
         .route("/databases/:database_id/tables/:table_id/fields", post(controller::create_table_field))
         .route(
             "/databases/:database_id/tables/:table_id/fields/:field_id",
