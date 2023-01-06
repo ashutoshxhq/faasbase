@@ -15,7 +15,7 @@ use super::model::{NewDatabaseTableField, UpdateDatabaseTableField};
 
 pub async fn get_table_field(
     Extension(faasly): Extension<FaaslyState>,
-    Path((_table_id, field_id)): Path<(String, String)>,
+    Path((_database_id, _table_id, field_id)): Path<(String, String, String)>,
 ) -> impl IntoResponse {
     let field_id = Uuid::from_str(&field_id);
     match field_id {
@@ -123,7 +123,7 @@ pub async fn create_table_field(
 
 pub async fn update_table_field(
     Extension(faasly): Extension<FaaslyState>,
-    Path((_table_id, field_id)): Path<(String, String)>,
+    Path((_database_id, _table_id, field_id)): Path<(String, String, String)>,
     Json(data): Json<UpdateDatabaseTableField>,
 ) -> impl IntoResponse {
     let field_id = Uuid::from_str(&field_id);
@@ -163,9 +163,10 @@ pub async fn update_table_field(
 
 pub async fn delete_table_field(
     Extension(faasly): Extension<FaaslyState>,
-    Path((_table_id, field_id)): Path<(String, String)>,
+    Path((database_id, table_id, field_id)): Path<(String, String, String)>,
 ) -> impl IntoResponse {
     let field_id = Uuid::from_str(&field_id);
+    print!("{:?}:{:?}:{:?}", database_id, table_id, field_id);
     match field_id {
         Ok(field_id) => {
             let res = faasly
@@ -178,7 +179,7 @@ pub async fn delete_table_field(
                     StatusCode::OK,
                     Json(json!({
                         "status": "ok",
-                        "data": "table deleted successfully",
+                        "data": "field deleted successfully",
                     })),
                 ),
                 Err(err) => (
@@ -194,7 +195,7 @@ pub async fn delete_table_field(
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(json!({
                 "status": "error",
-                "error": "bad table id in url",
+                "error": "bad field id in url",
             })),
         ),
     }
