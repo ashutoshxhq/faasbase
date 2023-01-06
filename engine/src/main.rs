@@ -45,7 +45,7 @@ async fn main() {
             .with_line_number(true)
             .with_source_location(true)
             .with_ansi(false)
-            .compact();
+            .json();
         tracing_subscriber::fmt()
             .event_format(format)
             .with_env_filter(tracing_subscriber::EnvFilter::new(
