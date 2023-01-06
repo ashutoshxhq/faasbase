@@ -9,7 +9,7 @@ edition = "2021"
 axum = { version = "0.5.3", features= ["multipart"] }
 tokio = { version = "1.17", features = ["full"] }
 tracing = "0.1.34"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 hyper = "0.14"
 tower = { version = "0.4.12", features = ["util", "timeout", "load-shed", "limit"] }
 tower-http = { version = "0.3.0", features = ["add-extension", "auth", "compression-full", "trace", "map-request-body", "util", "cors"] }

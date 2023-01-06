@@ -84,6 +84,7 @@ impl AuthNService {
                 })
                 .get_result(&mut conn)?;
 
+
         let client = reqwest::Client::new();
         let audience = format!(
             "https://{}/api/v2/",
