@@ -36,18 +36,20 @@ impl AuthNService {
         data: RegisterWebhookRequest,
     ) -> Result<RegisterWebhook, Box<dyn Error + Send + Sync + 'static>> {
         let mut conn = self.pool.clone().get()?;
-
+        tracing::info!("Registering webhook for user: {}", data.email);
         let existing_user= dsl::users
             .filter(dsl::email.eq(data.email.clone()))
             .first::<User>(&mut conn).optional()?;
-        
+        tracing::info!("Existing user: {:?}", existing_user);
+
         if let Some(user) = existing_user {
+            tracing::info!("User already exists, updating user");
             return Ok(RegisterWebhook {
                 user_id: user.id,
             });
         }
         
-
+        tracing::info!("Creating new user");
         let created_user: User = diesel::insert_into(users::table)
             .values(&NewUser {
                 firstname: data.firstname.clone(),
@@ -62,7 +64,8 @@ impl AuthNService {
                 idp_user_id: data.idp_user_id.clone(),
             })
             .get_result(&mut conn)?;
-
+        
+        tracing::info!("Creating new workspace");
         let created_workspace: Workspace = diesel::insert_into(workspaces::table)
             .values(&NewWorkspace {
                 name: data.username.clone(),
@@ -75,6 +78,7 @@ impl AuthNService {
             })
             .get_result(&mut conn)?;
 
+        tracing::info!("Creating new workspace member");
         let _created_workspace_member: WorkspaceMember =
             diesel::insert_into(workspace_members::table)
                 .values(&NewWorkspaceMember {
@@ -85,6 +89,7 @@ impl AuthNService {
                 .get_result(&mut conn)?;
 
 
+        tracing::info!("Getting token");
         let client = reqwest::Client::new();
         let audience = format!(
             "https://{}/api/v2/",
@@ -106,6 +111,8 @@ impl AuthNService {
             .json::<TokenResponse>()
             .await?;
         let access_token = token_res.access_token;
+
+        tracing::info!("Updating user metadata");
         let _res = client
             .patch(format!(
                 "https://{}/api/v2/users/{}",
