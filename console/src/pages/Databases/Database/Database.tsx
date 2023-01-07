@@ -59,19 +59,6 @@ const Database = () => {
                     </Box>
                   </Box>
               </Stack>
-              <Stack
-                borderBottom={"solid 1px"}
-                borderColor="#42424252"
-                justifyContent={"center"} alignItems={"center"}>
-                  <Box display="flex" p = {4} w={"full"} justifyContent={"space-between"} alignItems={"center"} gap={2}>
-                    <Text fontSize="xl" fontWeight="medium">
-                      Tables
-                    </Text>
-                    <Tooltip label={"Create New Table"} placement='right'>
-                      <Tag onClick={onOpen} _hover={{cursor:"pointer"}} > <FiPlus /></Tag>
-                    </Tooltip>
-                  </Box>
-              </Stack>
               {
                 query?.data?.data?.data?.map((table: any) => (
                   <Stack key={table.id} alignItems={"center"}>
@@ -81,6 +68,10 @@ const Database = () => {
                   </Stack>
                 ))
               }
+              
+            </Stack>
+            <Stack p={"2"} direction="row" w={"full"} pos="sticky" bottom="0">
+              <Button onClick={onOpen} w={"full"} variant="solid" bgGradient='linear(to-r, orange.500, orange.600)' _hover={{ backgroundColor: "orange.500" }} _active={{ backgroundColor: "orange.500" }}>Create New Table</Button>
             </Stack>
           </Stack>
         </Box>

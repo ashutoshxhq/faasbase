@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import TableFields from './Tabs/TableFields';
 import { FiFileText } from 'react-icons/fi';
 import { getTable } from '../../../../api/databases';
+import TableSettings from './Tabs/TableSettings';
 
 const DatabaseTable = () => {
     const { databaseId, tableId } = useParams();
@@ -74,7 +75,7 @@ const DatabaseTable = () => {
                             <TableFields />
                         </TabPanel>
                         <TabPanel>
-                            {/* <FunctionSettings /> */}
+                            <TableSettings />
                         </TabPanel>
                     </TabPanels>
                 </Box>

@@ -26,6 +26,7 @@ import {
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { editCollaboratorFunction } from "../../../../../api/functions";
+import { updateField } from "../../../../../api/databases";
 
 interface EditFieldProp {
   field: any;
@@ -34,55 +35,56 @@ interface EditFieldProp {
 }
 
 export function EditField(props: EditFieldProp) {
-  const { tableId } = useParams();
+  const { tableId, databaseId } = useParams();
   const { onClose, isOpen, field } = props;
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0()
   const toast = useToast();
-  const [fieldId, setFieldId] = useState("");
-  const [dataType, setDataType] = useState("");
+  const [dataType, setDataType] = useState("INT");
   const [name, setName] = useState("");
   const [visibility, setVisibility] = useState("PUBLIC");
-  const [defaultValue, setDefaultValue] = useState("");
+  const [defaultValue, setDefaultValue] = useState("0");
   const [refereceTable, setReferenceTable] = useState("");
   const [refereceField, setRefereceField] = useState("");
   const queryClient = useQueryClient();
 
-  // const editFieldMutation = useMutation((data: any) => {
-  //   return editFieldFunction(tableId || "", fieldId, data, getAccessTokenSilently)
-  // }, {
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries([`table-${tableId}-fields`])
-  //     toast({
-  //       title: "Success",
-  //       description: "Field updated successfully",
-  //       status: "success",
-  //       position: "bottom-right",
-  //       duration: 5000,
-  //       isClosable: true,
-  //     });
-  //     onClose()
-  //   },
-
-  //   onError: () => {
-  //     toast({
-  //       title: "Failed",
-  //       description: "Unable to update field",
-  //       status: "error",
-  //       position: "bottom-right",
-  //       duration: 5000,
-  //       isClosable: true,
-  //     });
-  //   }
-  // })
+  const updateFieldMutation = useMutation((data: any) => updateField(data, getAccessTokenSilently), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`databases-${databaseId}-tables-${tableId}-fields`])
+      toast({
+        title: "Success",
+        description: "Field updated successfully",
+        status: "success",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      setName("");
+      setRefereceField("");
+      setDefaultValue("");
+      setReferenceTable("");
+      setDataType("");
+      setVisibility("PUBLIC");
+      props.onClose()
+    },
+    onError: () => {
+      toast({
+        title: "Failed",
+        description: "Unable to update Field",
+        status: "error",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  })
   useEffect(() => {
-    setFieldId(field?.id);
-    setDataType(field?.dataType);
+    setDataType(field?.data_type);
     setName(field?.name);
     setVisibility(field?.visibility);
-    setRefereceField(field?.refereceField || "")
-    setReferenceTable(field?.refereceTable || "")
-    setDefaultValue(field?.default);
-  }, [])
+    setRefereceField(field?.relationship_config?.reference_field || "")
+    setReferenceTable(field?.relationship_config?.reference_table || "")
+    setDefaultValue(field?.default_value);
+  }, [field])
   return (
     <>
 
@@ -111,10 +113,10 @@ export function EditField(props: EditFieldProp) {
                 onChange={(e) => setDataType(e.target.value)}
                 value={dataType}
               >
-                <option disabled value={""}>None</option>
                 <option value="INT">Integer</option>
                 <option value="FLOAT">Float</option>
                 <option value="VARCHAR">Varchar</option>
+                <option value="RELATIONSHIP">Relationship</option>
               </Select>
             </FormControl>
             <FormControl mb={8}>
@@ -140,7 +142,8 @@ export function EditField(props: EditFieldProp) {
                 
               </Select>
             </FormControl>
-            <FormControl mb={8}>
+            {
+              dataType == "RELATIONSHIP" && <FormControl mb={8}>
               <FormLabel htmlFor="reference-table">Reference Table</FormLabel>
               <Select
                 id="reference-table"
@@ -153,6 +156,8 @@ export function EditField(props: EditFieldProp) {
                 
               </Select>
             </FormControl>
+            }
+            
             {
               (refereceTable && (refereceTable.trim() !== "")) && (
                 <FormControl isRequired={(refereceTable && (refereceTable.trim() !== "")) ? true: false} mb={8}>
@@ -175,14 +180,23 @@ export function EditField(props: EditFieldProp) {
               Cancel
             </Button>
             <Button
-              // isLoading={editFieldMutation.isLoading}
+              isLoading={updateFieldMutation.isLoading}
               loadingText={"Updating"}
               onClick={() => {
-                // editFieldMutation.mutate({
-                //   function_id: field.function_id,
-                //   collaborator_id: field.collaborator_id,
-                //   permission
-                // })
+                updateFieldMutation.mutate({
+                  name:name,
+                  data_type:dataType,
+                  visibility:visibility,
+                  default_value:defaultValue,
+                  relationship_config: (dataType == "RELATIONSHIP" ? {
+                    "current_table": tableId,
+                    "reference_table": refereceTable,
+                    "reference_field": refereceField
+                  }:{}),
+                  table_id: tableId,
+                  database_id: databaseId,
+                  id: field?.id
+                })
               }}
               variant="solid"
               bgGradient='linear(to-r, orange.500, orange.600)'

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FiCommand, FiEdit2, FiMoreVertical, FiTrash2 } from 'react-icons/fi';
 import { useParams } from 'react-router-dom';
-import { getFields } from '../../../../../api/databases';
+import { deleteField, getFields } from '../../../../../api/databases';
 // import { deleteFieldFunction, getFields } from '../../../../api/tables';
 import { AddField } from './AddField';
 import { EditField } from './EditField';
@@ -18,30 +18,30 @@ const TableFields = () => {
   const { isOpen: editIsOpen, onOpen: editOnOpen, onClose: editOnClose } = useDisclosure();
   const queryClient = useQueryClient();
   const query = useQuery([`databases-${databaseId}-tables-${tableId}-fields`, { getAccessTokenSilently, databaseId, tableId }], getFields)
-  
-  // const deleteFieldMutation = useMutation((fieldId: string) => deleteFieldFunction(tableId || "", fieldId, getAccessTokenSilently), {
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries([`table-${tableId}-fields`])
-  //     toast({
-  //       title: "Success",
-  //       description: "Field deleted successfully",
-  //       status: "success",
-  //       position: "bottom-right",
-  //       duration: 5000,
-  //       isClosable: true,
-  //     });
-  //   },
-  //   onError: () => {
-  //     toast({
-  //       title: "Failed",
-  //       description: "Unable to delete field",
-  //       status: "error",
-  //       position: "bottom-right",
-  //       duration: 5000,
-  //       isClosable: true,
-  //     });
-  //   }
-  // })
+  console.log("fields--------------->",query?.data?.data?.data)
+  const deleteFieldMutation = useMutation((fieldId: string) => deleteField(fieldId, databaseId || "", tableId || "", getAccessTokenSilently), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`databases-${databaseId}-tables-${tableId}-fields`])
+      toast({
+        title: "Success",
+        description: "Field deleted successfully",
+        status: "success",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Failed",
+        description: "Unable to delete field",
+        status: "error",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  })
   return (
     <Box as="section">
       <AddField isOpen={isOpen} onClose={onClose} />
@@ -95,11 +95,11 @@ const TableFields = () => {
                   
                   <Td borderColor="whiteAlpha.200" >
                     <Badge size="sm" colorScheme={'orange'}>
-                      {field?.dataType}
+                      {field?.data_type}
                     </Badge>
                   </Td>
                   <Td borderColor="whiteAlpha.200" >
-                    <Text color="muted">{field?.defaultValue}</Text>
+                    <Text color="muted">{field?.default_value ?.trim() === "" ? "None":field?.default_value}</Text>
                   </Td>
                   <Td borderColor="whiteAlpha.200" >
                     <Badge size="sm" colorScheme={'orange'}>
@@ -107,10 +107,10 @@ const TableFields = () => {
                     </Badge>
                   </Td>
                   <Td borderColor="whiteAlpha.200" >
-                    <Text color="muted">{field && field.referenceTable?.trim() == "" ? "NULL":field.referenceTable}</Text>
+                    <Text color="muted">{(field?.relationship_config?.reference_table == null) ? "NULL":field.relationship_config?.reference_table}</Text>
                   </Td>
                   <Td borderColor="whiteAlpha.200" >
-                    <Text color="muted">{field && field.referenceField?.trim() == "" ? "NULL":field.referenceField}</Text>
+                    <Text color="muted">{(field?.relationship_config?.reference_field == null) ? "NULL":field.relationship_config?.reference_field}</Text>
                   </Td>
                   <Td borderColor="whiteAlpha.200" >
                     <HStack spacing="1">
@@ -120,7 +120,7 @@ const TableFields = () => {
                         _hover={{ backgroundColor: "whiteAlpha.200" }} _active={{ backgroundColor: "whiteAlpha.200" }}
                         aria-label="Delete member"
                         onClick={() => {
-                          // deleteFieldMutation.mutate(field?.id)
+                          deleteFieldMutation.mutate(field?.id)
                         }}
                       />
                       <IconButton

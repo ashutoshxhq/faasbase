@@ -4,25 +4,30 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { deleteFunction, getFunction, updateFunction } from '../../../../../api/functions';
+import { deleteTable, getTable, updateTable } from '../../../../../api/databases';
+import { useRecoilState } from 'recoil';
+import { currentWorkspaceState } from '../../../../../store/workspaces';
 
-const FunctionSettings = (props: any) => {
-  const { functionId } = useParams();
-  const [functionName, setFunctionName] = useState("");
-  const [functionDescription, setFunctionDescription] = useState("");
+const TableSettings = (props: any) => {
+  const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
+  const { databaseId, tableId } = useParams();
+  const [tableName, setTableName] = useState("");
+  const [tableDescription, setTableDescription] = useState("");
+  const [tableReadme, setTableReadme] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast()
   const cancelRef = React.useRef<any>();
   const navigate = useNavigate();
   const { getAccessTokenSilently } = useAuth0();
   const queryClient = useQueryClient()
-  const query = useQuery([`function-${functionId}`, { getAccessTokenSilently, functionId }], getFunction)
-  const mutation = useMutation((data: any) => updateFunction(functionId || "", data, getAccessTokenSilently), {
+  const query = useQuery([`databases-${databaseId}-tables-${tableId}`, { getAccessTokenSilently, databaseId, tableId }], getTable)
+  const updateTableMutation = useMutation((data: any) => updateTable(data, getAccessTokenSilently), {
     onSuccess: () => {
-      queryClient.invalidateQueries([`function-${functionId}`])
-      queryClient.invalidateQueries([`functions`])
+      queryClient.invalidateQueries([`databases-${databaseId}-tables-${tableId}`])
+      queryClient.invalidateQueries([`databases-${databaseId}-tables`])
       toast({
         title: "Success",
-        description: "Function updated successfully",
+        description: "Table updated successfully",
         status: "success",
         position: "bottom-right",
         duration: 5000,
@@ -33,7 +38,7 @@ const FunctionSettings = (props: any) => {
     onError: () => {
       toast({
         title: "Failed",
-        description: "Unable to update function",
+        description: "Unable to update table",
         status: "error",
         position: "bottom-right",
         duration: 5000,
@@ -42,25 +47,24 @@ const FunctionSettings = (props: any) => {
     }
   })
 
-  const deleteMutation = useMutation(() => deleteFunction(functionId || "", getAccessTokenSilently), {
+  const deleteTableMutation = useMutation(() => deleteTable(databaseId || "", tableId || "", getAccessTokenSilently), {
     onSuccess: () => {
-      queryClient.invalidateQueries([`function-${functionId}`])
-      queryClient.invalidateQueries([`functions`])
+      queryClient.invalidateQueries([`databases-${databaseId}-tables`])
       toast({
         title: "Success",
-        description: "Function deleted successfully",
+        description: "Table deleted successfully",
         status: "success",
         position: "bottom-right",
         duration: 5000,
         isClosable: true,
       });
-      navigate("/functions")
+      navigate(`/workspaces/${currentWorkspace?.name}/databases/${databaseId}`)
     },
 
     onError: () => {
       toast({
         title: "Failed",
-        description: "Unable to delete function",
+        description: "Unable to delete table",
         status: "error",
         position: "bottom-right",
         duration: 5000,
@@ -68,12 +72,12 @@ const FunctionSettings = (props: any) => {
       });
     }
   })
-
 
   useEffect(() => {
     if (query.data?.data) {
-      setFunctionName(query.data?.data?.data?.name || "")
-      setFunctionDescription(query.data?.data?.data?.description || "")
+      setTableName(query.data?.data?.data?.name || "")
+      setTableDescription(query.data?.data?.data?.description || "")
+      setTableReadme(query.data?.data?.data?.readme || "")
     }
   }, [query.data])
 
@@ -88,13 +92,13 @@ const FunctionSettings = (props: any) => {
             borderRadius="lg"
             p={{ base: "4", md: "6" }}
           >
-            <Text mb={6} fontWeight="semibold" fontSize={"xl"}>Update Funtion Details</Text>
+            <Text mb={6} fontWeight="semibold" fontSize={"xl"}>Update Table Details</Text>
             <FormControl mb={8}>
               <FormLabel htmlFor="name">Name</FormLabel>
               <Input
                 id="name"
-                value={functionName}
-                onChange={(e) => setFunctionName(e.target.value)}
+                value={tableName}
+                onChange={(e) => setTableName(e.target.value)}
                 type="text"
                 autoComplete='off'
               />
@@ -104,8 +108,16 @@ const FunctionSettings = (props: any) => {
               <FormLabel htmlFor="description">Description</FormLabel>
               <Textarea
                 id="description"
-                value={functionDescription}
-                onChange={(e) => setFunctionDescription(e.target.value)}
+                value={tableDescription}
+                onChange={(e) => setTableDescription(e.target.value)}
+              />
+            </FormControl>
+            <FormControl mb={8}>
+              <FormLabel htmlFor="readme">Readme</FormLabel>
+              <Textarea
+                id="readme"
+                value={tableReadme}
+                onChange={(e) => setTableReadme(e.target.value)}
               />
             </FormControl>
 
@@ -116,16 +128,19 @@ const FunctionSettings = (props: any) => {
                 _hover={{ backgroundColor: "orange.500" }}
                 _active={{ backgroundColor: "orange.500" }}
                 onClick={() => {
-                  mutation.mutate({
-                    name: functionName,
-                    description: functionDescription,
+                  updateTableMutation.mutate({
+                    name: tableName,
+                    description: tableDescription,
+                    readme: tableReadme,
+                    database_id: databaseId,
+                    table_id: tableId,
                   })
                 }}
 
-                isLoading={mutation.isLoading}
+                isLoading={updateTableMutation.isLoading}
                 loadingText="Updating"
               >
-                Update Function
+                Update Table
               </Button>
             </Box>
           </Box>
@@ -148,7 +163,7 @@ const FunctionSettings = (props: any) => {
             >
               <Stack>
                 <Text fontSize="lg" fontWeight="medium">
-                  Delete Function from your Account
+                  Delete Table from your current Database
                 </Text>
               </Stack>
               <Box>
@@ -159,7 +174,7 @@ const FunctionSettings = (props: any) => {
                   _active={{ backgroundColor: "red.600" }}
                   onClick={onOpen}
                 >
-                  Delete Function
+                  Delete Table
                 </Button>
               </Box>
             </Stack>
@@ -174,11 +189,11 @@ const FunctionSettings = (props: any) => {
         <AlertDialogOverlay>
           <AlertDialogContent bg={"#1e1e1e"}>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Function
+              Delete Table
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you want to delete this function ?
+              Are you sure you want to delete this table ?
             </AlertDialogBody>
 
             <AlertDialogFooter>
@@ -186,13 +201,13 @@ const FunctionSettings = (props: any) => {
                 Cancel
               </Button>
               <Button
-                isLoading={deleteMutation.isLoading}
+                isLoading={deleteTableMutation.isLoading}
                 loadingText={"Deleting"}
                 bg={"red.500"}
                 _hover={{ backgroundColor: "red.600" }}
                 _active={{ backgroundColor: "red.600" }}
                 onClick={() => {
-                  deleteMutation.mutate()
+                  deleteTableMutation.mutate()
                 }}
                 ml={3}
               >
@@ -207,4 +222,4 @@ const FunctionSettings = (props: any) => {
   )
 }
 
-export default FunctionSettings
+export default TableSettings

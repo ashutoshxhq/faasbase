@@ -25,10 +25,7 @@ import {
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { currentWorkspaceState } from "../../../../../store/workspaces";
-import { useRecoilState } from "recoil";
-import { getCurrentWorkspaceMembers } from "../../../../../api/workspaces";
-import { getFields, getTables } from "../../../../../api/databases";
+import { createField, getFields, getTables } from "../../../../../api/databases";
 
 interface AddFieldProp {
   isOpen: boolean;
@@ -39,48 +36,53 @@ export function AddField(props: AddFieldProp) {
   const { tableId, databaseId } = useParams();
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0()
   const toast = useToast();
-  const [fieldId, setFieldId] = useState("");
-  const [dataType, setDataType] = useState("");
+  const [dataType, setDataType] = useState("INT");
   const [visibility, setVisibility] = useState("PUBLIC");
-  const [defaultValue, setDefaultValue] = useState("");
+  const [defaultValue, setDefaultValue] = useState("0");
   const [refereceTable, setReferenceTable] = useState("");
   const [refereceField, setRefereceField] = useState("");
   const [name, setName] = useState("");
 
   const tables = useQuery([`databases-${databaseId}-tables`, { getAccessTokenSilently, databaseId }], getTables)
-  const fields = useQuery([`databases-${databaseId}-tables-${refereceTable}-fields`, { getAccessTokenSilently, databaseId, refereceTable }], getFields)
-
+  const fields = useQuery([`databases-${databaseId}-tables-${refereceTable}-fields`, { getAccessTokenSilently, databaseId, refereceTable }], getFields, {
+    enabled: refereceTable.trim() !== ""
+  })
   const queryClient = useQueryClient();
-  // const addFieldMutation = useMutation(() => {
-  //   return addFieldFunction(tableId || "", collaboratorId, permission, getAccessTokenSilently)
-  // }, {
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries([`table-${tableId}-field`])
-  //     toast({
-  //       title: "Success",
-  //       description: "Field added successfully",
-  //       status: "success",
-  //       position: "bottom-right",
-  //       duration: 5000,
-  //       isClosable: true,
-  //     });
-  //     props.onClose()
-  //   },
-
-  //   onError: () => {
-  //     toast({
-  //       title: "Failed",
-  //       description: "Unable to add field",
-  //       status: "error",
-  //       position: "bottom-right",
-  //       duration: 5000,
-  //       isClosable: true,
-  //     });
-  //   }
-  // })
+  const createFieldMutation = useMutation((data: any) => createField(data, getAccessTokenSilently), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([`databases-${databaseId}-tables-${tableId}-fields`])
+      toast({
+        title: "Success",
+        description: "Field created successfully",
+        status: "success",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      setName("");
+      setRefereceField("");
+      setDefaultValue("");
+      setReferenceTable("");
+      setDataType("");
+      setVisibility("PUBLIC");
+      props.onClose()
+    },
+    onError: () => {
+      toast({
+        title: "Failed",
+        description: "Unable to create Field",
+        status: "error",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  })
+  
   useEffect (() => {
     queryClient.invalidateQueries([`databases-${databaseId}-tables-${refereceTable}-fields`])
   },[refereceTable])
+
   return (
     <>
       <Modal isOpen={props.isOpen} onClose={props.onClose} size="lg" >
@@ -99,7 +101,6 @@ export function AddField(props: AddFieldProp) {
                 onChange={(e) => setName(e.target.value)} 
               />
             </FormControl>
-            
             <FormControl isRequired mb={8}>
               <FormLabel htmlFor="datatype">Field Data Type</FormLabel>
               <Select
@@ -108,10 +109,10 @@ export function AddField(props: AddFieldProp) {
                 onChange={(e) => setDataType(e.target.value)}
                 value={dataType}
               >
-                <option disabled value={""}>None</option>
                 <option value="INT">Integer</option>
                 <option value="FLOAT">Float</option>
                 <option value="VARCHAR">Varchar</option>
+                <option value="RELATIONSHIP">Relationship</option>
               </Select>
             </FormControl>
             <FormControl mb={8}>
@@ -134,23 +135,27 @@ export function AddField(props: AddFieldProp) {
               >
                 <option value={"PUBLIC"}>Public</option>
                 <option value={"PRIVATE"}>Private</option>
-                
               </Select>
             </FormControl>
-            <FormControl  mb={8}>
-              <FormLabel htmlFor="reference-table">Reference Table</FormLabel>
-              <Select
-                id="reference-table"
-                border={"2px"}
-                onChange={(e) => setReferenceTable(e.target.value)}
-                value={refereceTable}
-              >
-                <option value={""}>None</option>
-                {
-                  tables?.data?.data?.data?.map((t: any) => t.id != tableId && <option value={t?.id}>{t?.name}</option>)
-                }
-              </Select>
-            </FormControl>
+            {
+              dataType =="RELATIONSHIP" && (
+              <FormControl  mb={8}>
+                <FormLabel htmlFor="reference-table">Reference Table</FormLabel>
+                <Select
+                  id="reference-table"
+                  border={"2px"}
+                  onChange={(e) => setReferenceTable(e.target.value)}
+                  value={refereceTable}
+                >
+                  <option value={""}>None</option>
+                  {
+                    tables?.data?.data?.data?.map((t: any) => t.id != tableId && <option value={t?.id}>{t?.name}</option>)
+                  }
+                </Select>
+              </FormControl>
+              )
+            }
+            
 
             {
               (refereceTable && (refereceTable.trim() !== "")) && (
@@ -170,17 +175,29 @@ export function AddField(props: AddFieldProp) {
                 </FormControl>
               )
             }
-            
           </ModalBody>
-
           <ModalFooter>
             <Button variant='solid' colorScheme={"gray"} mr={3} onClick={() => props?.onClose()}>
               Cancel
             </Button>
             <Button
-              // isLoading={addFieldMutatation.isLoading}
+              isLoading={createFieldMutation.isLoading}
               loadingText={"Creating"}
-              // onClick={() => { addFieldMutatation.mutate() }}
+              onClick={() => {
+                createFieldMutation.mutate({
+                  name:name,
+                  data_type:dataType,
+                  visibility:visibility,
+                  default_value:defaultValue,
+                  relationship_config: (dataType == "RELATIONSHIP" ? {
+                    "current_table": tableId,
+                    "reference_table": refereceTable,
+                    "reference_field": refereceField
+                  }:{}),
+                  table_id: tableId,
+                  database_id: databaseId,
+                })
+              }}
               variant="solid"
               bgGradient='linear(to-r, orange.500, orange.600)'
               _hover={{ backgroundColor: "orange.500" }}

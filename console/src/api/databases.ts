@@ -35,3 +35,37 @@ export const createDatabase = async (data: any, getAccessTokenSilently: any) => 
       ...data,
   });
 }
+
+export const createField = async (data: any, getAccessTokenSilently: any) => {
+  return faaslyApi(await getAccessTokenSilently()).post("databases/"+data?.database_id+"/tables/"+data?.table_id+"/fields", {
+      ...data,
+  });
+}
+
+export const deleteTable = async (databaseId: string, tableId: string, getAccessTokenSilently: any) => {
+  return faaslyApi(await getAccessTokenSilently()).delete(`/databases/${databaseId}/tables/${tableId}`);
+}
+export const deleteField = async (fieldId: string, databaseId: string, tableId: string, getAccessTokenSilently: any) => {
+  return faaslyApi(await getAccessTokenSilently()).delete(`/databases/${databaseId}/tables/${tableId}/fields/${fieldId}`);
+}
+export const deleteDatabase = async ( databaseId: string, getAccessTokenSilently: any) => {
+  return faaslyApi(await getAccessTokenSilently()).delete(`/databases/${databaseId}`);
+}
+
+export const updateField = async (data: any, getAccessTokenSilently: any) => {
+  return faaslyApi(await getAccessTokenSilently()).patch("databases/"+data?.database_id+"/tables/"+data?.table_id+"/fields/"+data?.id, {
+      ...data,
+  });
+}
+
+export const updateTable = async (data: any, getAccessTokenSilently: any) => {
+  return faaslyApi(await getAccessTokenSilently()).patch("databases/"+data?.database_id+"/tables/"+data?.table_id, {
+      ...data,
+  });
+}
+
+export const updateDatabase = async (data: any, getAccessTokenSilently: any) => {
+  return faaslyApi(await getAccessTokenSilently()).patch("databases/"+data?.database_id, {
+      ...data,
+  });
+}
