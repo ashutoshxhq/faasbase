@@ -744,7 +744,7 @@ grafana:
   grafana.ini:
     server:
       domain: grafana.faasly.dev
-      root_url: https://grafana.faasly.dev
+      root_url: http://grafana.faasly.dev
 
   ingress:
     ## If true, Grafana Ingress will be created
@@ -3471,4 +3471,3 @@ thanosRuler:
 ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
 ##
 cleanPrometheusOperatorObjectNames: false
-
