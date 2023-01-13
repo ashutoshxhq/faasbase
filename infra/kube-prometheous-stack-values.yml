@@ -862,12 +862,13 @@ grafana:
   ## Passed to grafana subchart and used by servicemonitor below
   ##
   service:
-    portName: http-web
+    portName: https-web
     type: LoadBalancer
+    port: 443
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:194872849581:certificate/8b631752-5b60-4193-89ae-067b3e4c3f34
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:194872849581:certificate/dc8dedf4-e996-4f34-b252-3d1a88b29268
 
   serviceMonitor:
     # If true, a ServiceMonitor CRD is created for a prometheus operator
