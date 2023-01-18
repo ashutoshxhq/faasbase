@@ -3,6 +3,7 @@
   "workspaces": [
     "console",
     "docs",
+    "website",
     "clients/typescript"
   ]
 }
