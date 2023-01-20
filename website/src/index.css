@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "poppins";
+}
+
+.markdown-body h2 {
+  border-bottom: 1px solid rgb(63 63 70) !important;
+}
+
+.min-h-600px {
+  min-height: 600px;
+}
+.markdown-body .highlight pre, .markdown-body pre{
+  padding: 0px !important;
+  background-color: #2d2d2d !important;
+}
+*:focus-visible {
+  outline: none!important;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #27272a; 
+  border-radius: 100px
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #27272a; 
+}
