@@ -102,7 +102,7 @@ pub async fn create_application_build(
     let res = faasly
         .services
         .application_build
-        .create_application_build(payload);
+        .create_application_build(payload).await;
     match res {
         Ok(res) => (
             StatusCode::OK,

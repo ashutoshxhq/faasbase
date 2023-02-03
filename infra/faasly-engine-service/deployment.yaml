@@ -26,7 +26,19 @@ spec:
           env:
           - name: PORT
             value: "8000"
+          - name: DOCKER_HOST 
+            value: tcp://localhost:2375 
           envFrom:
           - secretRef:
               name: faasly-engine-service-secrets
+        - name: dind-daemon 
+          image: docker:20.10-dind
+          securityContext: 
+              privileged: true 
+          volumeMounts: 
+            - name: docker-graph-storage 
+              mountPath: /var/lib/docker 
+      volumes: 
+        - name: docker-graph-storage 
+          emptyDir: {}
     

@@ -58,6 +58,13 @@ pub struct RegisterWebhookRequest {
     pub lastname:  Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ApplicationResourceConfig {
+    pub endpoint: String,
+    pub method: String,
+    pub version: String,
+}
+
 pub type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 use std::error;
