@@ -1,9 +1,9 @@
 use crate::schema::workspaces;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use diesel::sql_types::{Nullable, Text, Timestamp, Uuid as SQLUUID, Varchar};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use diesel::sql_types::{Nullable, Timestamp, Uuid as SQLUUID, Varchar};
 
 #[derive(Debug, Insertable, Serialize, Deserialize)]
 #[diesel(table_name = workspaces)]
@@ -46,16 +46,14 @@ pub struct Workspace {
     pub deleted_at: Option<NaiveDateTime>,
 }
 
-
-
 #[derive(QueryableByName, Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserWorkspaces {
     #[diesel(sql_type = SQLUUID)]
     pub id: Uuid,
-    
+
     #[diesel(sql_type = Varchar)]
     pub name: String,
-    
+
     #[diesel(sql_type = Nullable<Varchar>)]
     pub description: Option<String>,
 
@@ -65,7 +63,7 @@ pub struct UserWorkspaces {
     #[diesel(sql_type = Nullable<Varchar>)]
     pub email: Option<String>,
 
-    #[diesel(sql_type = Nullable<Varchar>)]
+    #[diesel(sql_type = Nullable<Text>)]
     pub readme: Option<String>,
 
     #[diesel(sql_type = Nullable<Varchar>)]

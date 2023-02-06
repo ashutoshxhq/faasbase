@@ -31,10 +31,9 @@ impl WorkspaceService {
         let mut conn = self.pool.clone().get()?;
         let offset = if let Some(offset) = offset { offset } else { 0 };
         let limit = if let Some(limit) = limit { limit } else { 10 };
-
         let results = sql_query(format!(
             "select workspaces.* from workspaces
-            inner join workspace_members wm on workspaces.id = wm.workspace_id and wm.user_id = {}
+            inner join workspace_members wm on workspaces.id = wm.workspace_id and wm.user_id = '{}'
         limit {} offset {};",
             user_id.to_string(),
             limit,
