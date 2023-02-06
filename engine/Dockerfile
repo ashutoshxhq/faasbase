@@ -19,7 +19,7 @@ ARG APP=/usr/src/app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates tzdata libpq-dev gcc libc6-dev curl gnupg lsb-release \
     && rm -rf /var/lib/apt/lists/*
-    && sudo mkdir -p /etc/apt/keyrings
+    # && sudo mkdir -p /etc/apt/keyrings
     # && curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     # && echo \
     # "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
