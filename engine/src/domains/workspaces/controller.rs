@@ -58,7 +58,7 @@ pub struct GetWorkspacesQuery {
 
 pub async fn get_workspaces(
     Extension(faasly): Extension<FaaslyState>,
-    Extension(_claims): Extension<TokenClaims>,
+    Extension(claims): Extension<TokenClaims>,
     query: Query<GetWorkspacesQuery>,
 ) -> impl IntoResponse {
     if let Some(name) = query.name.clone() {
@@ -86,7 +86,7 @@ pub async fn get_workspaces(
         let res = faasly
             .services
             .workspace
-            .get_workspaces(query.offset, query.limit);
+            .get_workspaces(claims.user_id, query.offset, query.limit);
         match res {
             Ok(res) => (
                 StatusCode::OK,

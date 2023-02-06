@@ -1,10 +1,10 @@
 use crate::extras::types::Error;
 use crate::schema::workspaces::{self, dsl};
 use crate::state::DbPool;
-use diesel::prelude::*;
+use diesel::{prelude::*, sql_query};
 use uuid::Uuid;
 
-use super::model::{NewWorkspace, Workspace, UpdateWorkspace};
+use super::model::{NewWorkspace, UpdateWorkspace, Workspace, UserWorkspaces};
 
 #[derive(Clone)]
 pub struct WorkspaceService {
@@ -24,24 +24,33 @@ impl WorkspaceService {
 
     pub fn get_workspaces(
         &self,
+        user_id: Uuid,
         offset: Option<i64>,
         limit: Option<i64>,
-    ) -> Result<Vec<Workspace>, Error> {
+    ) -> Result<Vec<UserWorkspaces>, Error> {
         let mut conn = self.pool.clone().get()?;
         let offset = if let Some(offset) = offset { offset } else { 0 };
         let limit = if let Some(limit) = limit { limit } else { 10 };
 
-        let results: Vec<Workspace> = dsl::workspaces
-            .offset(offset)
-            .limit(limit)
-            .load(&mut conn)?;
+        let results = sql_query(format!(
+            "select workspaces.* from workspaces
+            inner join workspace_members wm on workspaces.id = wm.workspace_id and wm.user_id = {}
+        limit {} offset {};",
+            user_id.to_string(),
+            limit,
+            offset
+        ))
+        .load::<UserWorkspaces>(&mut conn)?;
+
         Ok(results)
     }
 
     pub fn get_workspaces_by_name(&self, name: String) -> Result<Workspace, Error> {
         let mut conn = self.pool.clone().get()?;
 
-        let results: Workspace = dsl::workspaces.filter(dsl::name.eq(name)).first(&mut conn)?;
+        let results: Workspace = dsl::workspaces
+            .filter(dsl::name.eq(name))
+            .first(&mut conn)?;
         Ok(results)
     }
 
@@ -55,11 +64,7 @@ impl WorkspaceService {
         Ok(results)
     }
 
-    pub fn update_workspace(
-        &self,
-        workspace_id: Uuid,
-        data: UpdateWorkspace,
-    ) -> Result<(), Error> {
+    pub fn update_workspace(&self, workspace_id: Uuid, data: UpdateWorkspace) -> Result<(), Error> {
         let mut conn = self.pool.clone().get()?;
         let _workspace_statement = diesel::update(dsl::workspaces.find(workspace_id))
             .set(&data)

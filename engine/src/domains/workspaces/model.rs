@@ -3,6 +3,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use diesel::sql_types::{Nullable, Timestamp, Uuid as SQLUUID, Varchar};
 
 #[derive(Debug, Insertable, Serialize, Deserialize)]
 #[diesel(table_name = workspaces)]
@@ -42,5 +43,43 @@ pub struct Workspace {
     pub location: Option<String>,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
+}
+
+
+
+#[derive(QueryableByName, Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct UserWorkspaces {
+    #[diesel(sql_type = SQLUUID)]
+    pub id: Uuid,
+    
+    #[diesel(sql_type = Varchar)]
+    pub name: String,
+    
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub description: Option<String>,
+
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub website: Option<String>,
+
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub email: Option<String>,
+
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub readme: Option<String>,
+
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub twitter: Option<String>,
+
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub location: Option<String>,
+
+    #[diesel(sql_type = Nullable<Timestamp>)]
+    pub created_at: Option<NaiveDateTime>,
+
+    #[diesel(sql_type = Nullable<Timestamp>)]
+    pub updated_at: Option<NaiveDateTime>,
+
+    #[diesel(sql_type = Nullable<Timestamp>)]
     pub deleted_at: Option<NaiveDateTime>,
 }
