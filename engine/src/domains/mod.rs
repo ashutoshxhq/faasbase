@@ -1,5 +1,6 @@
 pub mod application;
 pub mod application_build;
+pub mod application_generator;
 pub mod application_collaborator;
 pub mod application_log;
 pub mod application_resource;

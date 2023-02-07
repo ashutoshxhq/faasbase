@@ -1,4 +1,4 @@
-use crate::schema::application_builds;
+use crate::{schema::application_builds, domains::application_resource::model::ApplicationResourceWithFunction};
 use chrono::NaiveDateTime;
 use diesel::{prelude::*, sql_types::Jsonb};
 use serde::{Deserialize, Serialize};
@@ -79,5 +79,28 @@ pub struct ApplicationBuildWithUser {
     pub updated_at: Option<NaiveDateTime>,
 
     #[diesel(sql_type = Nullable<Timestamp>)]
+    pub deleted_at: Option<NaiveDateTime>,
+}
+
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ApplicationBuildContext {
+    pub id: Uuid,
+    pub name: String,
+    pub application_type: String,
+    pub description: Option<String>,
+    pub readme: Option<String>,
+    pub visibility: String,
+    pub repository: Option<String>,
+    pub website: Option<String>,
+    pub latest_version: Option<String>,
+    pub size: Option<String>,
+    pub config: Option<Value>,
+    pub variables: Option<Value>,
+    pub resources: Vec<ApplicationResourceWithFunction>,
+    pub user_id: Option<Uuid>,
+    pub workspace_id: Option<Uuid>,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
 }

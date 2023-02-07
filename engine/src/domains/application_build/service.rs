@@ -1,4 +1,5 @@
 use crate::domains::application::model::Application;
+use crate::domains::application_generator::service::ApplicationGeneratorService;
 use crate::domains::application_resource::model::ApplicationResourceWithFunction;
 use crate::extras::types::{ApplicationResourceConfig, Error};
 use crate::schema::application_builds::{self, dsl};
@@ -14,7 +15,7 @@ use std::{fs, io};
 use uuid::Uuid;
 
 use super::model::{
-    ApplicationBuild, ApplicationBuildWithUser, NewApplicationBuild, UpdateApplicationBuild,
+    ApplicationBuild, ApplicationBuildWithUser, NewApplicationBuild, UpdateApplicationBuild, ApplicationBuildContext,
 };
 
 #[derive(Clone)]
@@ -129,7 +130,7 @@ impl ApplicationBuildService {
                 )?;
             }
 
-            for application_resource in application_resources {
+            for application_resource in application_resources.clone() {
                 let region_provider = RegionProviderChain::first_try(Region::new("us-west-2"));
 
                 let shared_config = aws_config::from_env().region(region_provider).load().await;
@@ -201,6 +202,32 @@ impl ApplicationBuildService {
                             }
                         }
                         // Generate application code integrating functions
+                        // Construct the ApplicationBuildContext with application data and resource data
+                        let application_build_context: ApplicationBuildContext = ApplicationBuildContext {
+                            id: application.id,
+                            name: application.name.clone(),
+                            resources: application_resources.clone(),
+                            application_type: application.application_type.clone(),
+                            config : application.config.clone(),
+                            variables: application.variables.clone(),
+                            created_at: application.created_at,
+                            deleted_at: application.deleted_at,
+                            updated_at: application.updated_at,
+                            description: application.description.clone(),
+                            latest_version: application.latest_version.clone(),
+                            readme: application.readme.clone(),
+                            repository: application.repository.clone(),
+                            size: application.size.clone(),
+                            user_id: application.user_id,
+                            visibility: application.visibility.clone(),
+                            website: application.website.clone(),
+                            workspace_id: application.workspace_id,
+                         };
+
+                        let application_generator = ApplicationGeneratorService::new();
+                        application_generator.generate_application(application_build_context)?;
+                        
+
                         // Use docker in docker to build the image for the application using the rust docker library
                         // Push the image to the registry
                         // Save the image details name in the database

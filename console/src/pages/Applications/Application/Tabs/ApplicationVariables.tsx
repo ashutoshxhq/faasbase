@@ -80,9 +80,9 @@ function ApplicationVariables() {
         >
           <Box display={"flex"} flex={1} justifyContent="space-between" alignItems={"center"}>
             <Box>
-              <Text fontSize="xl" fontWeight="medium">Config Variables</Text>
+              <Text fontSize="xl" fontWeight="medium">Public Variables</Text>
               <Text color="muted" fontSize="sm">
-                Add your config variables here
+                Variables will be stored in public stores like configmap in kubernetes
               </Text>
             </Box>
             <Box display="flex" gap={4}>
@@ -173,7 +173,7 @@ function ApplicationVariables() {
                 <Box>
                   <Text fontSize="xl" fontWeight="medium">Secret Variables</Text>
                   <Text color="muted" fontSize="sm">
-                    Add your secret variables here
+                    Variables will be stored in secret stores like kubernetes secrets
                   </Text>
                 </Box>
                 <Box display="flex" gap={4}>
