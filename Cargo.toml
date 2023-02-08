@@ -3,4 +3,5 @@
 members = [
     "engine",
     "clients/rust",
+    "examples/applications/template_server/server",
 ]
