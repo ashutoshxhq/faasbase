@@ -35,7 +35,7 @@ function ApplicationBuildsAndDeployments() {
           <Box>
             <Text fontSize="xl" fontWeight="medium">Application Builds</Text>
             <Text color="muted" fontSize="sm">
-              Manage and trigger application builds here
+              Manage builds and trigger application deployments
             </Text>
           </Box>
           <Button
@@ -48,7 +48,7 @@ function ApplicationBuildsAndDeployments() {
             }}
             loadingText="Updating"
           >
-            Trigger Build
+            Trigger Build/Deployment
           </Button>
         </Box>
         {query?.data?.data?.data?.map((build: any, index: number) => (

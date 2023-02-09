@@ -55,7 +55,7 @@ function Application() {
             <TabList  color={"muted"} data-tauri-drag-region>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Overview</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Resources</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Builds</Tab>
+              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Builds & Deployment</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Collaborators</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Variables</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Settings</Tab>
