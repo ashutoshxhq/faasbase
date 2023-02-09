@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Avatar, Box, Button, calc, Circle, Container, FormControl, FormLabel, Icon, IconButton, Image, Input, Link, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Skeleton, Stack, Tag, Text, useDisclosure, useToast } from '@chakra-ui/react'
+import { Avatar, Box, Button, calc, Circle, Container, FormControl, FormLabel, Icon, IconButton, Image, Input, Link, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Skeleton, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { FiCommand, FiMoreVertical } from 'react-icons/fi';
@@ -17,7 +17,7 @@ function ApplicationBuildsAndDeployments() {
   const { applicationId } = useParams();
   const { getAccessTokenSilently } = useAuth0();
   const query = useQuery([`application-${applicationId}-builds`, { getAccessTokenSilently, applicationId }], getApplicationBuilds);
-  
+
   return (
     <Box as="section">
       <NewApplicationDeployment isOpen={isOpen} onClose={onClose} />
@@ -33,9 +33,9 @@ function ApplicationBuildsAndDeployments() {
       >
         <Box display={"flex"} flex={1} justifyContent="space-between" alignItems={"center"}>
           <Box>
-            <Text fontSize="xl" fontWeight="medium">Deployments</Text>
+            <Text fontSize="xl" fontWeight="medium">Application Builds</Text>
             <Text color="muted" fontSize="sm">
-              Manage all the application deployments
+              Manage and trigger application builds here
             </Text>
           </Box>
           <Button
@@ -48,7 +48,7 @@ function ApplicationBuildsAndDeployments() {
             }}
             loadingText="Updating"
           >
-            Trigger Deployment
+            Trigger Build
           </Button>
         </Box>
         {query?.data?.data?.data?.map((build: any, index: number) => (
@@ -78,11 +78,11 @@ function ApplicationBuildsAndDeployments() {
               >
                 <Circle
                   size="8"
-                  bg={'red.500'}
+                  bg={'green.500'}
                   borderWidth={'0'}
                   borderColor={"red.500"}
                 >
-                  <Icon as={HiX} color="inverted" boxSize="5" />
+                  <Icon as={HiCheck} color="inverted" boxSize="5" />
 
                 </Circle>
                 <Box display={"flex"} alignItems={"center"} justifyContent={"center"} gap={3}>
@@ -90,7 +90,7 @@ function ApplicationBuildsAndDeployments() {
                     {build.version}
                   </Text>
                   <Text fontSize="md" color="muted" fontWeight="medium">
-                    build failed {moment.utc(build.created_at).local().fromNow()}
+                    built {moment.utc(build.created_at).local().fromNow()} by {build?.firstname} {build?.lastname}
                   </Text>
                   {/* <Text fontSize="md" color="muted" fontWeight="medium">
                     by {build.firstname} {build.lastname}
@@ -102,12 +102,10 @@ function ApplicationBuildsAndDeployments() {
                 </Box>
               </Stack>
               <Box display="flex" gap={4}>
-                <Box display="flex" justifyContent={"center"} alignItems={"center"}>
+                {/* <Box display="flex" justifyContent={"center"} alignItems={"center"}>
                   <Tag colorScheme={"green"}>currently deployed</Tag>
-                </Box>
-                <Box display="flex" justifyContent={"center"} alignItems={"center"}>
-                  <Tag >by {build?.firstname} {build?.lastname}</Tag>
-                </Box>
+                </Box> */}
+
                 <Box
                   display="flex"
                   alignItems={"center"}
@@ -203,11 +201,25 @@ export const NewApplicationDeployment = (props: NewApplicationDeploymentProp) =>
       <Modal isOpen={props.isOpen} onClose={props.onClose} size="lg" >
         <ModalOverlay />
         <ModalContent bg={"#1e1e1e"}>
-          <ModalHeader>Trigger Deployment</ModalHeader>
+          <ModalHeader>Trigger Build</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <FormControl isRequired mb={8}>
+              <FormLabel htmlFor="permission">Tag / Version</FormLabel>
+              <Input type="text" variant={"outline"} value={tag} onChange={(e) => {
+                setTag(e.target.value)
+              }} />
+            </FormControl>
+
+            <FormControl isRequired mb={8}>
+              <FormLabel htmlFor="permission">Changelog</FormLabel>
+              <Textarea value={tag} onChange={(e) => {
+                setTag(e.target.value)
+              }} />
+            </FormControl>
+
             <FormControl isRequired mb={8} mt={4}>
-              <FormLabel htmlFor="user">Cluster (Deployment Target)</FormLabel>
+              <FormLabel htmlFor="user">Cluster (Deploy to)</FormLabel>
               <Select
                 id="user"
                 border={"2px"}
@@ -221,12 +233,7 @@ export const NewApplicationDeployment = (props: NewApplicationDeploymentProp) =>
                 }
               </Select>
             </FormControl>
-            <FormControl isRequired mb={8}>
-              <FormLabel htmlFor="permission">Tag / Version</FormLabel>
-              <Input type="text" variant={"outline"} value={tag} onChange={(e) => {
-                setTag(e.target.value)
-              }} />
-            </FormControl>
+
           </ModalBody>
 
           <ModalFooter>
