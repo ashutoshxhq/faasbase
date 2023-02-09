@@ -164,6 +164,7 @@ export const NewApplicationDeployment = (props: NewApplicationDeploymentProp) =>
   const toast = useToast();
   const [clusterId, setClusterId] = useState("");
   const [tag, setTag] = useState("");
+  const [changelog, setChangelog] = useState("");
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
 
   const clustersQuery = useQuery([`clusters`, { getAccessTokenSilently, currentWorkspace }], getKubernetesClusters)
@@ -213,8 +214,8 @@ export const NewApplicationDeployment = (props: NewApplicationDeploymentProp) =>
 
             <FormControl isRequired mb={8}>
               <FormLabel htmlFor="permission">Changelog</FormLabel>
-              <Textarea value={tag} onChange={(e) => {
-                setTag(e.target.value)
+              <Textarea value={changelog} onChange={(e) => {
+                setChangelog(e.target.value)
               }} />
             </FormControl>
 
@@ -248,6 +249,7 @@ export const NewApplicationDeployment = (props: NewApplicationDeploymentProp) =>
                 createApplicationDeploymentMutation.mutate({
                   version: tag,
                   application_id: applicationId,
+                  changelog,
                   config: {
                     cluster_id: clusterId
                   },
