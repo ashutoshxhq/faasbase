@@ -101,8 +101,8 @@ async fn is_autorized(token: &str) -> Result<bool, Box<dyn Error>> {
     let kid = get_kid_from_token(token)?;
     if let Some(kid) = kid {
         let jwks = reqwest::get(format!(
-            "https://{}/.well-known/jwks.json",
-            std::env::var("AUTH0_DOMAIN").expect("Unable to get AUTH0_DOMAIN")
+            "{}",
+            std::env::var("JWKS_URL").expect("Unable to get JWKS_URL")
         ))
         .await?
         .json::<JwkSet>()
@@ -110,17 +110,27 @@ async fn is_autorized(token: &str) -> Result<bool, Box<dyn Error>> {
         if let Some(jwk) = jwks.find(&kid) {
             match jwk.clone().algorithm {
                 AlgorithmParameters::RSA(ref rsa) => {
+
                     let mut validation = Validation::new(Algorithm::RS256);
-                    validation.set_audience(&[
-                        &std::env::var("AUTH0_AUDIENCE").expect("Unable to get AUTH0_AUDIENCE")
-                    ]);
-                    validation.set_issuer(&[Uri::builder()
-                        .scheme("https")
-                        .authority(
-                            std::env::var("AUTH0_DOMAIN").expect("Unable to get AUTH0_DOMAIN"),
-                        )
-                        .path_and_query("/")
-                        .build()?]);
+
+                    match std::env::var("JWT_AUDIENCE") {
+                        Ok(audience) => {
+                            validation.set_audience(&[&audience]);
+                        }
+                        Err(_err) => {}
+                    }
+
+                    match std::env::var("JWT_ISSUER") {
+                        Ok(issuer) => {
+                            validation.set_issuer(&[Uri::builder()
+                                .scheme("https")
+                                .authority(issuer)
+                                .path_and_query("/")
+                                .build()?]);
+                        }
+                        Err(_err) => {}
+                    }
+
                     let key = DecodingKey::from_rsa_components(&rsa.n, &rsa.e)?;
                     decode::<TokenClaims>(token, &key, &validation)?;
                     return Ok(true);

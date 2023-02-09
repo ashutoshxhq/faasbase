@@ -15,7 +15,7 @@ use std::{fs, io};
 use uuid::Uuid;
 
 use super::model::{
-    ApplicationBuild, ApplicationBuildWithUser, NewApplicationBuild, UpdateApplicationBuild, ApplicationBuildContext,
+    ApplicationBuild, ApplicationBuildWithUser, NewApplicationBuild, UpdateApplicationBuild, ApplicationBuildContext, ApplicationConfig,
 };
 
 #[derive(Clone)]
@@ -203,12 +203,18 @@ impl ApplicationBuildService {
                         }
                         // Generate application code integrating functions
                         // Construct the ApplicationBuildContext with application data and resource data
+                        let mut application_build_config: Option<ApplicationConfig> = None;
+
+                        if let Some(application_config) = application.config.clone() {
+                            application_build_config = Some(serde_json::from_value(application_config)?);
+                        }
+
                         let application_build_context: ApplicationBuildContext = ApplicationBuildContext {
                             id: application.id,
                             name: application.name.clone(),
                             resources: application_resources.clone(),
                             application_type: application.application_type.clone(),
-                            config : application.config.clone(),
+                            config : application_build_config,
                             variables: application.variables.clone(),
                             created_at: application.created_at,
                             deleted_at: application.deleted_at,

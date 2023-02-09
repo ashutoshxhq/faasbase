@@ -1,4 +1,4 @@
-use crate::schema::functions;
+use crate::{schema::functions, domains::function_build::model::FunctionBuild};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -47,6 +47,25 @@ pub struct Function {
     pub website: Option<String>,
     pub size: Option<String>,
     pub latest_version: Option<String>,
+    pub user_id: Option<Uuid>,
+    pub workspace_id: Option<Uuid>,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FunctionWithBuilds {
+    pub id: Uuid,
+    pub name: String,
+    pub description: Option<String>,
+    pub readme: Option<String>,
+    pub repository: Option<String>,
+    pub visibility: String,
+    pub website: Option<String>,
+    pub size: Option<String>,
+    pub latest_version: Option<String>,
+    pub builds: Vec<FunctionBuild>,
     pub user_id: Option<Uuid>,
     pub workspace_id: Option<Uuid>,
     pub created_at: Option<NaiveDateTime>,

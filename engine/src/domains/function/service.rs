@@ -1,5 +1,7 @@
+use crate::domains::function_build::model::FunctionBuild;
 use crate::domains::function_collaborator::model::{FunctionCollaborator, NewFunctionCollaborator};
-use crate::extras::types::{FaaslyError, Error};
+use crate::extras::types::{Error, FaaslyError};
+use crate::schema::function_builds::{dsl as function_builds_dsl};
 use crate::schema::function_collaborators;
 use crate::schema::functions::{self, dsl};
 use crate::state::DbPool;
@@ -14,7 +16,7 @@ use std::io::prelude::*;
 use std::path::Path;
 use uuid::Uuid;
 
-use super::model::{Function, NewFunction, UpdateFunction};
+use super::model::{Function, FunctionWithBuilds, NewFunction, UpdateFunction};
 
 #[derive(Clone)]
 pub struct FunctionService {
@@ -37,17 +39,53 @@ impl FunctionService {
         workspace_id: Uuid,
         offset: Option<i64>,
         limit: Option<i64>,
-    ) -> Result<Vec<Function>, Error> {
+    ) -> Result<Vec<FunctionWithBuilds>, Error> {
         let mut conn = self.pool.clone().get()?;
         let offset = if let Some(offset) = offset { offset } else { 0 };
         let limit = if let Some(limit) = limit { limit } else { 10 };
 
-        let results: Vec<Function> = dsl::functions
+        let functions: Vec<Function> = dsl::functions
             .filter(dsl::workspace_id.eq(workspace_id))
             .offset(offset)
             .limit(limit)
             .load(&mut conn)?;
-        Ok(results)
+
+        let function_ids: Vec<Uuid> = functions.iter().map(|f| f.id).collect();
+
+        let function_builds: Vec<FunctionBuild> = function_builds_dsl::function_builds
+            .filter(function_builds_dsl::function_id.eq_any(function_ids))
+            .offset(offset)
+            .limit(limit)
+            .load(&mut conn)?;
+
+        let mut function_with_builds: Vec<FunctionWithBuilds> = Vec::new();
+        for function in functions {
+            let mut builds: Vec<FunctionBuild> = Vec::new();
+            for build in function_builds.clone() {
+                if build.function_id == function.id {
+                    builds.push(build);
+                }
+            }
+            function_with_builds.push(FunctionWithBuilds {
+                created_at: function.created_at,
+                description: function.description,
+                id: function.id,
+                name: function.name,
+                readme: function.readme,
+                updated_at: function.updated_at,
+                visibility: function.visibility,
+                workspace_id: function.workspace_id,
+                deleted_at: function.deleted_at,
+                latest_version: function.latest_version,
+                repository: function.repository,
+                size: function.size,
+                user_id: function.user_id,
+                website: function.website,
+                builds,
+            });
+        }
+
+        Ok(function_with_builds)
     }
 
     pub fn search_functions(
@@ -64,21 +102,22 @@ impl FunctionService {
         let results;
         if query.eq("") {
             results = functions
-            .filter(dsl::visibility.eq("PUBLIC"))
-            .offset(offset)
-            .limit(limit)
-            .load(&mut conn)?;
-        }
-        else {
-        results = functions   
-                .filter(dsl::name.ilike(format!("%{}%", query.clone()))
-                .or(dsl::description.ilike(format!("%{}%", query.clone())))
-                .or(dsl::readme.ilike(format!("%{}%", query.clone())))
-                .and(dsl::visibility.eq("PUBLIC"))
-            )
-            .offset(offset)
-            .limit(limit)
-            .load(&mut conn)?;
+                .filter(dsl::visibility.eq("PUBLIC"))
+                .offset(offset)
+                .limit(limit)
+                .load(&mut conn)?;
+        } else {
+            results = functions
+                .filter(
+                    dsl::name
+                        .ilike(format!("%{}%", query.clone()))
+                        .or(dsl::description.ilike(format!("%{}%", query.clone())))
+                        .or(dsl::readme.ilike(format!("%{}%", query.clone())))
+                        .and(dsl::visibility.eq("PUBLIC")),
+                )
+                .offset(offset)
+                .limit(limit)
+                .load(&mut conn)?;
         }
         Ok(results)
     }
@@ -105,10 +144,10 @@ impl FunctionService {
             .expect("Error saving new Function");
 
         let _collab: FunctionCollaborator = diesel::insert_into(function_collaborators::table)
-            .values(&NewFunctionCollaborator{
+            .values(&NewFunctionCollaborator {
                 permission: "OWNER".to_string(),
                 collaborator_id: user_id,
-                function_id: results.id
+                function_id: results.id,
             })
             .get_result(&mut conn)
             .expect("Error saving new function_collaborators");

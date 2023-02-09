@@ -95,7 +95,7 @@ pub struct ApplicationBuildContext {
     pub website: Option<String>,
     pub latest_version: Option<String>,
     pub size: Option<String>,
-    pub config: Option<Value>,
+    pub config: Option<ApplicationConfig>,
     pub variables: Option<Value>,
     pub resources: Vec<ApplicationResourceWithFunction>,
     pub user_id: Option<Uuid>,
@@ -103,4 +103,18 @@ pub struct ApplicationBuildContext {
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ApplicationConfig {
+    pub jwks_uri: Option<String>,
+    pub jwt_algorithm: Option<String>,
+    pub jwt_auth_enabled: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ApplicationResourceConfig {
+    pub endpoint: Option<String>,
+    pub method: Option<String>,
+    pub version: Option<String>,
 }
