@@ -31,3 +31,4 @@ utoipa-swagger-ui = "2"
 utoipa = { version = "2", features = ["actix_extras"] }
 urlencoding = "2.1.2"
 itertools = "0.10.5"
+walkdir = "2.3.2"

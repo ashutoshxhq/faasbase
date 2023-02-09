@@ -90,7 +90,7 @@ function ApplicationBuildsAndDeployments() {
                     {build.version}
                   </Text>
                   <Text fontSize="md" color="muted" fontWeight="medium">
-                    build failed {moment(new Date(build.created_at)).fromNow()}
+                    build failed {moment.utc(build.created_at).local().fromNow()}
                   </Text>
                   {/* <Text fontSize="md" color="muted" fontWeight="medium">
                     by {build.firstname} {build.lastname}

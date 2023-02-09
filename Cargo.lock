@@ -847,6 +847,7 @@ dependencies = [
  "utoipa",
  "utoipa-swagger-ui",
  "uuid",
+ "walkdir",
  "zip",
 ]
 
@@ -1015,6 +1016,34 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+]
+
+[[package]]
+name = "hello-service"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "diesel",
+ "dotenvy",
+ "hello",
+ "hyper",
+ "itertools",
+ "jsonwebtoken",
+ "jwt",
+ "reqwest",
+ "schemars",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "urlencoding",
+ "utoipa",
+ "utoipa-swagger-ui",
+ "uuid",
 ]
 
 [[package]]
@@ -2158,34 +2187,6 @@ dependencies = [
  "redox_syscall",
  "remove_dir_all",
  "winapi",
-]
-
-[[package]]
-name = "template_server"
-version = "0.1.0"
-dependencies = [
- "axum",
- "chrono",
- "diesel",
- "dotenvy",
- "hello",
- "hyper",
- "itertools",
- "jsonwebtoken",
- "jwt",
- "reqwest",
- "schemars",
- "serde",
- "serde_json",
- "tokio",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "urlencoding",
- "utoipa",
- "utoipa-swagger-ui",
- "uuid",
 ]
 
 [[package]]

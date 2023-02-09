@@ -95,7 +95,7 @@ async fn main() {{
             context.name
         );
 
-        let mut jwks_uri = "".to_string();
+        let mut jwks_uri = String::new();
 
         if let Some(config) = context.config {
             if let Some(jwt_enabled) = config.jwt_auth_enabled {
@@ -105,6 +105,14 @@ async fn main() {{
                     }
                 }
             }
+        }
+
+
+        if jwks_uri.is_empty() {
+            jwks_uri.push_str(r#"format!(
+                "https://{}/.well-known/jwks.json",
+                std::env::var("JWKS_URI").expect("Unable to get JWKS_URI")
+            )"#);
         }
 
         let authz_rs = format!(
@@ -316,8 +324,8 @@ itertools = "0.10.5"
                 if let Some(endpoint) = resource_config.endpoint {
                     if let Some(method) = resource_config.method {
                         routes.push_str(&format!(
-                            "\n.route(\"{}\", {}({}::handler))",
-                            endpoint, method, resource.resource_name
+                            "\n\t.route(\"{}\", routing::{}({}::handler))",
+                            endpoint, method.to_lowercase(), resource.resource_name
                         ));
                     } else {
                         tracing::warn!(
@@ -335,7 +343,7 @@ itertools = "0.10.5"
         }
 
         let router_rs = format!(
-            r#"use axum::{{middleware, routing::{{post}}, Router}};
+            r#"use axum::{{middleware, routing, Router}};
 
 use crate::authz::auth;
 pub fn router() -> Router {{
