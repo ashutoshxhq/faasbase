@@ -27,6 +27,7 @@ chrono = { version = "0.4.22", features = ["serde"]}
 aws-config = "0.54.1"
 aws-sdk-s3 = "0.24.0"
 aws-sdk-ecr = "0.24.0"
+aws-credential-types = "0.54.1"
 zip = "0.6.2"
 utoipa-swagger-ui = "2"
 utoipa = { version = "2", features = ["actix_extras"] }

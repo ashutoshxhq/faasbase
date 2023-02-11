@@ -1,4 +1,4 @@
-use crate::{schema::application_builds, domains::application_resource::model::ApplicationResourceWithFunction};
+use crate::{schema::application_builds, domains::{application_resource::model::ApplicationResourceWithFunction, cluster::model::Cluster}};
 use chrono::NaiveDateTime;
 use diesel::{prelude::*, sql_types::Jsonb};
 use serde::{Deserialize, Serialize};
@@ -99,6 +99,7 @@ pub struct ApplicationBuildContext {
     pub config: Option<ApplicationConfig>,
     pub variables: Option<Value>,
     pub resources: Vec<ApplicationResourceWithFunction>,
+    pub cluster: Option<Cluster>,
     pub user_id: Option<Uuid>,
     pub workspace_id: Option<Uuid>,
     pub created_at: Option<NaiveDateTime>,
@@ -108,10 +109,19 @@ pub struct ApplicationBuildContext {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ApplicationConfig {
+    pub deployment_target: Option<String>,
     pub jwks_uri: Option<String>,
     pub jwt_algorithm: Option<String>,
     pub jwt_auth_enabled: Option<bool>,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ClusterProviderConfig {
+    pub aws_access_key_id: Option<String>,
+    pub aws_secret_access_key: Option<String>,
+    pub region: Option<String>,
+}
+
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ApplicationResourceConfig {

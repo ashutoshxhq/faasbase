@@ -5,13 +5,15 @@ use super::model::{
 };
 use crate::domains::application::model::Application;
 use crate::domains::application_resource::model::ApplicationResourceWithFunction;
+use crate::domains::cluster::model::Cluster;
 use crate::extras::types::Error;
 use crate::schema::application_builds::{self, dsl};
 use crate::schema::applications::dsl as application_dsl;
+use crate::schema::clusters::dsl as cluster_dsl;
 use crate::state::DbPool;
 use diesel::{prelude::*, sql_query};
+use std::str::FromStr;
 use uuid::Uuid;
-
 #[derive(Clone)]
 pub struct ApplicationBuildService {
     pub pool: DbPool,
@@ -108,10 +110,23 @@ impl ApplicationBuildService {
             .unwrap();
 
             let mut application_build_config: Option<ApplicationConfig> = None;
+            let mut cluster: Option<Cluster> = None;
 
             if let Some(application_config) = application.config.clone() {
-                application_build_config =
-                    Some(serde_json::from_value(application_config).unwrap());
+                let application_config_data: ApplicationConfig =
+                    serde_json::from_value(application_config).unwrap();
+
+                if let Some(cluster_id) = application_config_data.deployment_target.clone() {
+                    let cluster_id = Uuid::from_str(&cluster_id)?;
+                    cluster = Some(
+                        cluster_dsl::clusters
+                            .find(cluster_id)
+                            .first(&mut conn)
+                            .unwrap(),
+                    );
+                }
+
+                application_build_config = Some(application_config_data);
             }
 
             let application_build_context: ApplicationBuildContext = ApplicationBuildContext {
@@ -119,6 +134,7 @@ impl ApplicationBuildService {
                 name: application.name.clone(),
                 build_version: application_build_payload.version.clone(),
                 resources: application_resources.clone(),
+                cluster: cluster.clone(),
                 application_type: application.application_type.clone(),
                 config: application_build_config,
                 variables: application.variables.clone(),

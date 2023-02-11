@@ -1,7 +1,8 @@
-use super::model::ApplicationBuildContext;
+use super::model::{ApplicationBuildContext, ClusterProviderConfig};
 use crate::domains::application_generator::service::ApplicationGeneratorService;
 use crate::extras::types::{ApplicationResourceConfig, Error};
 use aws_config::meta::region::RegionProviderChain;
+use aws_credential_types::Credentials;
 use aws_sdk_s3::types::ByteStream;
 use aws_sdk_s3::{Client, Region};
 use base64::{engine::general_purpose, Engine as _};
@@ -235,56 +236,223 @@ impl ApplicationBuilder {
         c.write_all(&uncompressed)?;
         let compressed = c.finish()?;
 
-        let build_image_options = BuildImageOptions {
-            dockerfile: "Dockerfile",
-            t: "194872849581.dkr.ecr.us-west-2.amazonaws.com/hello-service:0.0.2",
-            ..Default::default()
-        };
+        let cluster_data = self.context.cluster.clone();
+        let mut application_cluster_provider_config: Option<ClusterProviderConfig> = None;
 
-        let mut image_build_stream =
-            docker.build_image(build_image_options, None, Some(compressed.into()));
+        if let Some(cluster_data) = cluster_data {
+            application_cluster_provider_config =
+                Some(serde_json::from_value(cluster_data.provider_config)?);
+        }
 
-        while let Some(msg) = image_build_stream.next().await {
-            tracing::info!("Build: {:?}", msg);
+        if let Some(application_cluster_provider_config) = application_cluster_provider_config {
+            // create shared config with aws creds in application_cluster_provider_config
+            let access_key_id = application_cluster_provider_config.aws_access_key_id;
+            let secret_access_key = application_cluster_provider_config.aws_secret_access_key;
+
+            if let Some(access_key_id) = access_key_id {
+                if let Some(secret_access_key) = secret_access_key {
+                    if let Some(region) = application_cluster_provider_config.region {
+                        let region_provider = RegionProviderChain::first_try(Region::new(region));
+                        let credentials_provider = Credentials::new(
+                            access_key_id,
+                            secret_access_key,
+                            None,
+                            None,
+                            "faasly",
+                        );
+
+                        let shared_config = aws_config::from_env()
+                            .credentials_provider(credentials_provider)
+                            .region(region_provider)
+                            .load()
+                            .await;
+
+                        let ecr_client = aws_sdk_ecr::Client::new(&shared_config);
+
+                        let respositories = ecr_client
+                            .describe_repositories()
+                            .repository_names(self.context.name.clone())
+                            .send()
+                            .await?;
+
+                        let mut application_repository_uri: Option<String> = None;
+
+                        if let Some(respositories) = respositories.repositories() {
+                            for repository in respositories {
+                                if let Some(repository_uri) = repository.repository_uri() {
+                                    application_repository_uri = Some(repository_uri.to_string());
+                                }
+                            }
+                        }
+
+                        if application_repository_uri.is_none() {
+                            let create_repository_output = ecr_client
+                                .create_repository()
+                                .repository_name(self.context.name.clone())
+                                .send()
+                                .await?;
+                            if let Some(repository) = create_repository_output.repository() {
+                                if let Some(repository_uri) = repository.repository_uri() {
+                                    application_repository_uri = Some(repository_uri.to_string());
+                                }
+                            }
+                            let build_image_options = BuildImageOptions {
+                                dockerfile: "Dockerfile",
+                                t: &format!(
+                                    "{}:{}",
+                                    application_repository_uri.unwrap(),
+                                    self.context.build_version
+                                ),
+                                ..Default::default()
+                            };
+
+                            let mut image_build_stream = docker.build_image(
+                                build_image_options,
+                                None,
+                                Some(compressed.into()),
+                            );
+
+                            while let Some(msg) = image_build_stream.next().await {
+                                tracing::info!("Build: {:?}", msg);
+                            }
+                        }
+                    } else {
+                        tracing::error!("No region found in cluster provider config");
+                    }
+                } else {
+                    tracing::error!("No secret access key found in cluster provider config");
+                }
+            } else {
+                tracing::error!("No access key id found in cluster provider config");
+            }
+        } else {
+            tracing::error!("No cluster provider config found");
         }
 
         Ok(())
     }
 
     pub async fn push_docker_image(&self) -> Result<(), Error> {
-        let region_provider = RegionProviderChain::first_try(Region::new("us-west-2"));
-        let shared_config = aws_config::from_env().region(region_provider).load().await;
+        let cluster_data = self.context.cluster.clone();
+        let mut application_cluster_provider_config: Option<ClusterProviderConfig> = None;
 
-        let docker = Docker::connect_with_socket_defaults()?;
-        let ecr_client = aws_sdk_ecr::Client::new(&shared_config);
-        let ecr_authorization_token_output = ecr_client.get_authorization_token().send().await?;
-        let ecr_authorization_data = ecr_authorization_token_output.authorization_data();
-        let mut ecr_token = String::new();
-        if let Some(ecr_authorization_data) = ecr_authorization_data {
-            for ecr_auth_data in ecr_authorization_data {
-                if let Some(token) = ecr_auth_data.authorization_token() {
-                    let bytes = general_purpose::STANDARD.decode(token)?;
-                    ecr_token = match str::from_utf8(&bytes) {
-                        Ok(v) => v.to_string().split(":").collect::<Vec<&str>>()[1].to_string(),
-                        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-                    };
-                }
-            }
+        if let Some(cluster_data) = cluster_data {
+            application_cluster_provider_config =
+                Some(serde_json::from_value(cluster_data.provider_config)?);
         }
 
-        let mut push_res = docker.push_image::<String>(
-            "194872849581.dkr.ecr.us-west-2.amazonaws.com/hello-service:0.0.2",
-            None,
-            Some(DockerCredentials {
-                serveraddress: Some("194872849581.dkr.ecr.us-west-2.amazonaws.com".to_string()),
-                username: Some("AWS".to_string()),
-                password: Some(ecr_token),
-                ..Default::default()
-            }),
-        );
+        if let Some(application_cluster_provider_config) = application_cluster_provider_config {
+            // create shared config with aws creds in application_cluster_provider_config
+            let access_key_id = application_cluster_provider_config.aws_access_key_id;
+            let secret_access_key = application_cluster_provider_config.aws_secret_access_key;
 
-        while let Some(msg) = push_res.next().await {
-            tracing::info!("Push: {:?}", msg);
+            if let Some(access_key_id) = access_key_id {
+                if let Some(secret_access_key) = secret_access_key {
+                    if let Some(region) = application_cluster_provider_config.region {
+                        let region_provider = RegionProviderChain::first_try(Region::new(region.clone()));
+                        let credentials_provider = Credentials::new(
+                            access_key_id,
+                            secret_access_key,
+                            None,
+                            None,
+                            "faasly",
+                        );
+
+                        let shared_config = aws_config::from_env()
+                            .credentials_provider(credentials_provider)
+                            .region(region_provider)
+                            .load()
+                            .await;
+
+                        let docker = Docker::connect_with_socket_defaults()?;
+                        let ecr_client = aws_sdk_ecr::Client::new(&shared_config);
+
+                        let respositories = ecr_client
+                            .describe_repositories()
+                            .repository_names(self.context.name.clone())
+                            .send()
+                            .await?;
+                        // println!("Respositories: {:?}", respositories.repositories());
+                        let mut application_repository_uri: Option<String> = None;
+                        let mut application_registry_id: Option<String> = None;
+
+                        if let Some(respositories) = respositories.repositories() {
+                            for repository in respositories {
+                                if let Some(repository_uri) = repository.repository_uri() {
+                                    application_repository_uri = Some(repository_uri.to_string());
+                                }
+                                if let Some(registry_id) = repository.registry_id() {
+                                    application_registry_id = Some(registry_id.to_string());
+                                }
+                            }
+                        }
+
+                        if application_repository_uri.is_none() {
+                            let create_repository_output = ecr_client
+                                .create_repository()
+                                .repository_name(self.context.name.clone())
+                                .send()
+                                .await?;
+                            if let Some(repository) = create_repository_output.repository() {
+                                if let Some(repository_uri) = repository.repository_uri() {
+                                    application_repository_uri = Some(repository_uri.to_string());
+                                }
+                                if let Some(registry_id) = repository.registry_id() {
+                                    application_registry_id = Some(registry_id.to_string());
+                                }
+                            }
+                        }
+
+                        let ecr_authorization_token_output =
+                            ecr_client.get_authorization_token().send().await?;
+                        let ecr_authorization_data =
+                            ecr_authorization_token_output.authorization_data();
+                        let mut ecr_token = String::new();
+                        if let Some(ecr_authorization_data) = ecr_authorization_data {
+                            for ecr_auth_data in ecr_authorization_data {
+                                if let Some(token) = ecr_auth_data.authorization_token() {
+                                    let bytes = general_purpose::STANDARD.decode(token)?;
+                                    ecr_token = match str::from_utf8(&bytes) {
+                                        Ok(v) => v.to_string().split(":").collect::<Vec<&str>>()[1]
+                                            .to_string(),
+                                        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+                                    };
+                                }
+                            }
+                        }
+                        let mut push_res = docker.push_image::<String>(
+                            &format!(
+                                "{}:{}",
+                                application_repository_uri.unwrap(),
+                                self.context.build_version
+                            ),
+                            None,
+                            Some(DockerCredentials {
+                                serveraddress: Some(format!(
+                                    "{}.dkr.ecr.{}.amazonaws.com",
+                                    application_registry_id.unwrap(),
+                                    region
+                                )),
+                                username: Some("AWS".to_string()),
+                                password: Some(ecr_token),
+                                ..Default::default()
+                            }),
+                        );
+
+                        while let Some(msg) = push_res.next().await {
+                            tracing::info!("Push: {:?}", msg);
+                        }
+                    } else {
+                        tracing::error!("No secret access key found in cluster provider config");
+                    }
+                } else {
+                    tracing::error!("No region found in cluster provider config");
+                }
+            } else {
+                tracing::error!("No access key id found in cluster provider config");
+            }
+        } else {
+            tracing::error!("No cluster provider config found to push image to");
         }
 
         Ok(())

@@ -982,6 +982,7 @@ name = "faasly-engine-service"
 version = "0.1.0"
 dependencies = [
  "aws-config",
+ "aws-credential-types",
  "aws-sdk-ecr",
  "aws-sdk-s3",
  "axum",
