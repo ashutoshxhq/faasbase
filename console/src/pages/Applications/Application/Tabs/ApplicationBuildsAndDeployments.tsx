@@ -1,26 +1,31 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Avatar, Box, Button, calc, Circle, Container, FormControl, FormLabel, Icon, IconButton, Image, Input, Link, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Skeleton, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
+import { Avatar, Box, Button, calc, Circle, CircularProgress, Container, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, FormControl, FormLabel, Icon, IconButton, Image, Input, Link, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Skeleton, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { FiCommand, FiMoreVertical } from 'react-icons/fi';
 import { useParams } from 'react-router-dom';
-import { createApplicationBuild, getApplicationBuilds } from '../../../../api/applications';
+import { createApplicationBuild, getApplication, getApplicationBuilds } from '../../../../api/applications';
 import moment from 'moment';
 import { useRecoilState } from 'recoil';
 import { currentWorkspaceState } from '../../../../store/workspaces';
 import { getCurrentWorkspaceMembers } from '../../../../api/workspaces';
 import { getKubernetesCluster, getKubernetesClusters } from '../../../../api/integrations';
-import { HiCheck, HiX } from 'react-icons/hi';
+import { HiCheck, HiDotsHorizontal, HiX } from 'react-icons/hi';
 
 function ApplicationBuildsAndDeployments() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isLogsDrawerOpen, onOpen: onLogsDrawerOpen, onClose: onLogsDrawerClose } = useDisclosure();
   const { applicationId } = useParams();
+  const [selectedEvent, setSelectedEvent] = useState<any>()
   const { getAccessTokenSilently } = useAuth0();
+  const applicationQuery = useQuery([`application-${applicationId}`, { getAccessTokenSilently, applicationId }], getApplication)
   const query = useQuery([`application-${applicationId}-builds`, { getAccessTokenSilently, applicationId }], getApplicationBuilds);
 
   return (
     <Box as="section">
       <NewApplicationDeployment isOpen={isOpen} onClose={onClose} />
+      <LogsDrawer isOpen={isLogsDrawerOpen} onClose={onLogsDrawerClose} event={selectedEvent} />
+
       <Container
         as='section'
         display={"flex"}
@@ -76,35 +81,134 @@ function ApplicationBuildsAndDeployments() {
                 justifyContent={'center'}
                 spacing={'4'}
               >
-                <Circle
-                  size="8"
-                  bg={'green.500'}
-                  borderWidth={'0'}
-                  borderColor={"red.500"}
-                >
-                  <Icon as={HiCheck} color="inverted" boxSize="5" />
+                <Flex gap={4}>
 
-                </Circle>
+
+                  <Box display={"flex"} flexDirection={"column"} justifyContent="space-around" alignItems={"center"} gap={2}>
+
+                    {build?.build_status === "SUCCESS" ? <Circle
+                      size="8"
+                      bg={'green.500'}
+                      borderWidth={'0'}
+                      borderColor={"green.500"}
+                    >
+                      <Icon as={HiCheck} color="inverted" boxSize="5" />
+                    </Circle> : null}
+
+                    {build?.build_status === "ERROR" ? <Circle
+                      size="8"
+                      bg={'red.500'}
+                      borderWidth={'0'}
+                      borderColor={"red.500"}
+                    >
+                      <Icon as={HiX} color="inverted" boxSize="5" />
+                    </Circle> : null}
+
+                    {build?.build_status === "BUILDING" ? <Circle
+                      size="8"
+                      bg={'blue.500'}
+                      borderWidth={'0'}
+                      borderColor={"blue.500"}
+                    >
+                      <Icon as={HiDotsHorizontal} color="white" boxSize="5" />
+                    </Circle> : null}
+
+                    <Text
+                      px="2"
+                      fontSize="10px"
+                      fontWeight="semibold"
+                      textTransform="uppercase"
+                      letterSpacing="widest"
+                      color="subtle"
+
+                    >
+                      BUILD
+                    </Text>
+
+                  </Box>
+
+                  <Box display={"flex"} flexDirection={"column"} justifyContent="center" alignItems={"center"} gap={2}>
+                    {build?.deployment_status === "SUCCESS" ? <Circle
+                      size="8"
+                      bg={'green.500'}
+                      borderWidth={'0'}
+                      borderColor={"green.500"}
+                    >
+                      <Icon as={HiCheck} color="inverted" boxSize="5" />
+                    </Circle> : null}
+
+                    {build?.deployment_status === "ERROR" ? <Circle
+                      size="8"
+                      bg={'red.500'}
+                      borderWidth={'0'}
+                      borderColor={"red.500"}
+                    >
+                      <Icon as={HiX} color="inverted" boxSize="5" />
+                    </Circle> : null}
+
+                    {build?.deployment_status === "DEPLOYING" ? <Circle
+                      size="8"
+                      bg={'blue.500'}
+                      borderWidth={'0'}
+                      borderColor={"blue.500"}
+                    >
+                      <Icon as={HiDotsHorizontal} color="white" boxSize="5" />
+                    </Circle> : null}
+                    <Text
+                      px="2"
+                      fontSize="10px"
+                      fontWeight="semibold"
+                      textTransform="uppercase"
+                      letterSpacing="widest"
+                      color="subtle"
+                    >
+                      DEPLOY
+                    </Text>
+                  </Box>
+
+
+                </Flex>
+
                 <Box display={"flex"} alignItems={"center"} justifyContent={"center"} gap={3}>
                   <Text fontSize="xl" fontWeight="medium">
                     {build.version}
                   </Text>
                   <Text fontSize="md" color="muted" fontWeight="medium">
-                    built {moment.utc(build.created_at).local().fromNow()} by {build?.firstname} {build?.lastname}
-                  </Text>
-                  {/* <Text fontSize="md" color="muted" fontWeight="medium">
-                    by {build.firstname} {build.lastname}
-                  </Text> */}
-                  {/* <Text mt={1} color="muted" fontSize="sm">
-                    {build.email}
 
-                  </Text> */}
+                    {build?.build_status === "BUILDING" ? `build started ${moment.utc(build.created_at).local().fromNow()}` :
+                      build?.build_status === "ERROR" ? `build failed ${moment.utc(build.deployed_at).local().fromNow()}` :
+                        build?.deployment_status === "DEPLOYING" ? `deployment started ${moment.utc(build.built_at).local().fromNow()}` :
+                          build?.deployment_status === "ERROR" ? `deployment failed ${moment.utc(build.deployed_at).local().fromNow()}` :
+                            build?.deployment_status === "SUCCESS" ? `built & deployed ${moment.utc(build.deployed_at).local().fromNow()}` : ""}
+
+
+                  </Text>
+
                 </Box>
               </Stack>
               <Box display="flex" gap={4}>
-                {/* <Box display="flex" justifyContent={"center"} alignItems={"center"}>
-                  <Tag colorScheme={"green"}>currently deployed</Tag>
-                </Box> */}
+                {applicationQuery?.data?.data?.data?.deployed_version === build.version ? <Box display="flex" justifyContent={"center"} alignItems={"center"}>
+                  <Tag colorScheme={"green"}>deployed</Tag>
+                </Box> : ""}
+
+
+                <Box display={"flex"} flexDirection={"column"} justifyContent="space-around" alignItems={"center"} gap={2}>
+
+
+
+                  {/* <Text
+                    px="2"
+                    fontSize="10px"
+                    fontWeight="semibold"
+                    textTransform="uppercase"
+                    letterSpacing="widest"
+                    color="subtle"
+
+                  >
+                    VERSION
+                  </Text> */}
+
+                </Box>
 
                 <Box
                   display="flex"
@@ -128,13 +232,12 @@ function ApplicationBuildsAndDeployments() {
                     >
                       Deploy Build
                     </MenuItem>
+                    
                     <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                      onClick={() => { }}
-                    >
-                      Clone Build
-                    </MenuItem>
-                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                      onClick={() => { }}
+                      onClick={() => {
+                        setSelectedEvent(build.logs)
+                        onLogsDrawerOpen()
+                      }}
                     >
                       Show Build Logs
                     </MenuItem>
@@ -151,6 +254,57 @@ function ApplicationBuildsAndDeployments() {
 }
 
 export default ApplicationBuildsAndDeployments
+
+
+
+
+
+interface LogsDrawerProp {
+  event: any;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function LogsDrawer(props: LogsDrawerProp) {
+
+  const [events, setEvents] = useState<string[]>([])
+
+  useEffect(() => {
+    let logs:string[] = []
+    props.event?.map((log: any, index: number) => {
+      let log_data:string = ""
+      Object.entries(log).map(([key, value]: any) => {
+        if (value){
+          log_data += `${key}: ${JSON.stringify(value).replace("[91m", "").replace("\\u001b[91m", "").replace("\\n", "").replace("\\u001b[0m", "").replace("\\r", "")} \t\t`
+        }
+      })
+      if (log_data){
+        logs.push(log_data)
+      }
+    })
+
+    setEvents(logs)
+  }, [props.event])
+
+
+  return (
+    <>
+      <Drawer isOpen={props.isOpen} onClose={props.onClose} size="2xl" >
+        <DrawerOverlay />
+        <DrawerContent maxW={"8xl"} bg={"#1e1e1e"} overflowY={"scroll"}>
+          <DrawerCloseButton />
+          <DrawerHeader display="flex" alignItems={"center"} fontWeight={"medium"}> Application build/deployment logs </DrawerHeader>
+          <DrawerBody>
+            <Box bg={"whiteAlpha.200"} borderRadius="md" px={6} py={4} display="flex" flexDirection={"column"} gap={"2"}>
+              {events.map((event: any, index: number) => <Box>{event}</Box>)}
+            </Box>
+          </DrawerBody>
+
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+}
 
 
 interface NewApplicationDeploymentProp {

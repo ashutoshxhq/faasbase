@@ -14,6 +14,8 @@ diesel::table! {
         build_status -> Nullable<Varchar>,
         deployment_status -> Nullable<Varchar>,
         logs -> Nullable<Jsonb>,
+        built_at -> Nullable<Timestamp>,
+        deployed_at -> Nullable<Timestamp>,
     }
 }
 
@@ -88,7 +90,7 @@ diesel::table! {
         visibility -> Varchar,
         repository -> Nullable<Varchar>,
         website -> Nullable<Varchar>,
-        latest_version -> Nullable<Varchar>,
+        deployed_version -> Nullable<Varchar>,
         size -> Nullable<Varchar>,
         config -> Nullable<Jsonb>,
         variables -> Nullable<Jsonb>,

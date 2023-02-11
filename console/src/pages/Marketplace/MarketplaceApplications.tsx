@@ -79,7 +79,7 @@ function MarketplaceApplications({searchQuery}: MAProps) {
                     {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
 
                   </Tag>
-                  {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.latest_version}</Tag>}
+                  {faaslyApplication.deployed_version === "" || !faaslyApplication.deployed_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.deployed_version}</Tag>}
                 </Box>
               </Box>
             </Link>

@@ -11,6 +11,7 @@ use crate::schema::application_builds::{self, dsl};
 use crate::schema::applications::dsl as application_dsl;
 use crate::schema::clusters::dsl as cluster_dsl;
 use crate::state::DbPool;
+use chrono::Utc;
 use diesel::{prelude::*, sql_query};
 use serde_json::Value;
 use std::str::FromStr;
@@ -60,7 +61,12 @@ impl ApplicationBuildService {
             ab.user_id,
             ab.created_at,
             ab.updated_at,
-            ab.deleted_at
+            ab.deleted_at,
+            ab.build_status,
+            ab.deployment_status,
+            ab.logs,
+            ab.built_at,
+            ab.deployed_at
         from application_builds ab
         join users u on ab.user_id = u.id
         where ab.application_id = '{}'
@@ -143,7 +149,7 @@ impl ApplicationBuildService {
                 deleted_at: application.deleted_at,
                 updated_at: application.updated_at,
                 description: application.description.clone(),
-                latest_version: application.latest_version.clone(),
+                deployed_version: application.deployed_version.clone(),
                 readme: application.readme.clone(),
                 repository: application.repository.clone(),
                 size: application.size.clone(),
@@ -196,6 +202,8 @@ impl ApplicationBuildService {
                     config: None,
                     logs: Some(logs),
                     deleted_at: None,
+                    built_at: Some(Utc::now().naive_utc()),
+                    deployed_at: None,
                 };
 
                 let _build_update = diesel::update(dsl::application_builds.find(results.id.clone()))
@@ -230,6 +238,8 @@ impl ApplicationBuildService {
                     config: None,
                     logs: Some(logs),
                     deleted_at: None,
+                    deployed_at: Some(Utc::now().naive_utc()),
+                    built_at: None
                 };
 
                 let _build_update = diesel::update(dsl::application_builds.find(results.id.clone()))

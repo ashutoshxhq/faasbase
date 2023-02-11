@@ -109,7 +109,7 @@ const Applications = () => {
                 <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
                   {faaslyApplication.visibility === "PUBLIC" ? "Public" : "Private"}
                 </Tag>
-                {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faaslyApplication.latest_version}</Tag>}
+                {faaslyApplication.deployed_version === "" || !faaslyApplication.deployed_version ? <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faaslyApplication.deployed_version}</Tag>}
                 <Menu size={"2xl"}>
                   <MenuButton
                     color={"whiteAlpha.800"}

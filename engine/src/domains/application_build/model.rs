@@ -26,6 +26,8 @@ pub struct UpdateApplicationBuild {
     pub build_status: Option<String>,
     pub deployment_status: Option<String>,
     pub logs: Option<Value>,
+    pub built_at: Option<NaiveDateTime>,
+    pub deployed_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Queryable, Insertable, Serialize, Deserialize, Clone)]
@@ -43,6 +45,8 @@ pub struct ApplicationBuild {
     pub build_status: Option<String>,
     pub deployment_status: Option<String>,
     pub logs: Option<Value>,
+    pub built_at: Option<NaiveDateTime>,
+    pub deployed_at: Option<NaiveDateTime>,
 }
 
 
@@ -86,6 +90,21 @@ pub struct ApplicationBuildWithUser {
 
     #[diesel(sql_type = Nullable<Timestamp>)]
     pub deleted_at: Option<NaiveDateTime>,
+
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub build_status: Option<String>,
+
+    #[diesel(sql_type = Nullable<Varchar>)]
+    pub deployment_status: Option<String>,
+    
+    #[diesel(sql_type = Nullable<Jsonb>)]
+    pub logs: Option<Value>,
+
+    #[diesel(sql_type = Nullable<Timestamp>)]
+    pub built_at: Option<NaiveDateTime>,
+
+    #[diesel(sql_type = Nullable<Timestamp>)]
+    pub deployed_at: Option<NaiveDateTime>,
 }
 
 
@@ -100,7 +119,7 @@ pub struct ApplicationBuildContext {
     pub visibility: String,
     pub repository: Option<String>,
     pub website: Option<String>,
-    pub latest_version: Option<String>,
+    pub deployed_version: Option<String>,
     pub size: Option<String>,
     pub config: Option<ApplicationConfig>,
     pub variables: Option<Value>,
