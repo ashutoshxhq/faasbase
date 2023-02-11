@@ -275,7 +275,7 @@ pub fn get_kid_from_token(auth_token: &str) -> Result<Option<String>, Box<dyn Er
         for resource in context.resources.clone() {
             let resource_name = resource.resource_name;
             function_imports.push_str(&format!(
-                "\n{} = {{ path = \"../functions/{}\" }}",
+                "\n{} = {{ path = \"./lib/{}\" }}",
                 resource_name, resource_name
             ));
         }
@@ -361,12 +361,12 @@ FROM rust:1.65 as builder
 RUN USER=root cargo new --bin {}
 WORKDIR ./{}
 COPY ./Cargo.toml ./Cargo.toml
-RUN cargo build --release
-RUN rm src/*.rs
+# RUN cargo build --release
+# RUN rm src/*.rs
 
 ADD . ./
 
-RUN rm ./target/release/deps/{}*
+# RUN rm ./target/release/deps/{}*
 RUN cargo build --release
 
 

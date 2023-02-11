@@ -24,11 +24,17 @@ jwt = "0.16.0"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 schemars ={ version = "0.8.10", features = ["chrono", "uuid1"]}
 chrono = { version = "0.4.22", features = ["serde"]}
-aws-config = "0.48.0"
-aws-sdk-s3 = "0.18.0"
+aws-config = "0.54.1"
+aws-sdk-s3 = "0.24.0"
+aws-sdk-ecr = "0.24.0"
 zip = "0.6.2"
 utoipa-swagger-ui = "2"
 utoipa = { version = "2", features = ["actix_extras"] }
 urlencoding = "2.1.2"
 itertools = "0.10.5"
 walkdir = "2.3.2"
+bollard = "0.14.0"
+futures-util = "0.3"
+flate2 = "1.0"
+tar = "0.4.38"
+base64 = "0.21.0"

@@ -1,26 +1,16 @@
-use crate::domains::application::model::Application;
-use crate::domains::application_generator::service::ApplicationGeneratorService;
-use crate::domains::application_resource::model::ApplicationResourceWithFunction;
-use crate::extras::types::{ApplicationResourceConfig, Error};
-use crate::schema::application_builds::{self, dsl};
-use crate::schema::applications::dsl as application_dsl;
-use crate::state::DbPool;
-use aws_config::meta::region::RegionProviderChain;
-use aws_sdk_s3::types::ByteStream;
-use aws_sdk_s3::{Client, Region};
-use diesel::{prelude::*, sql_query};
-use zip::write::FileOptions;
-use std::ffi::OsStr;
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::{Path, PathBuf, Component};
-use std::{fs, io};
-use uuid::Uuid;
-use walkdir::WalkDir;
+use super::builder::ApplicationBuilder;
 use super::model::{
     ApplicationBuild, ApplicationBuildContext, ApplicationBuildWithUser, ApplicationConfig,
     NewApplicationBuild, UpdateApplicationBuild,
 };
+use crate::domains::application::model::Application;
+use crate::domains::application_resource::model::ApplicationResourceWithFunction;
+use crate::extras::types::Error;
+use crate::schema::application_builds::{self, dsl};
+use crate::schema::applications::dsl as application_dsl;
+use crate::state::DbPool;
+use diesel::{prelude::*, sql_query};
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct ApplicationBuildService {
@@ -117,254 +107,82 @@ impl ApplicationBuildService {
             .load::<ApplicationResourceWithFunction>(&mut conn)
             .unwrap();
 
-            if !Path::new(&format!(
-                "temp/applications/{}/{}",
-                application.id, application.name
-            ))
-            .exists()
-            {
-                fs::create_dir_all(std::env::current_dir().unwrap().join(format!(
-                    "temp/applications/{}/{}",
-                    application.id, application.name
-                )))
-                .unwrap();
+            let mut application_build_config: Option<ApplicationConfig> = None;
+
+            if let Some(application_config) = application.config.clone() {
+                application_build_config =
+                    Some(serde_json::from_value(application_config).unwrap());
             }
 
-            if !Path::new(&format!(
-                "temp/applications/{}/{}/src",
-                application.id, application.name
-            ))
-            .exists()
-            {
-                fs::create_dir_all(std::env::current_dir().unwrap().join(format!(
-                    "temp/applications/{}/{}/src",
-                    application.id, application.name
-                )))
-                .unwrap();
-            }
+            let application_build_context: ApplicationBuildContext = ApplicationBuildContext {
+                id: application.id,
+                name: application.name.clone(),
+                build_version: application_build_payload.version.clone(),
+                resources: application_resources.clone(),
+                application_type: application.application_type.clone(),
+                config: application_build_config,
+                variables: application.variables.clone(),
+                created_at: application.created_at,
+                deleted_at: application.deleted_at,
+                updated_at: application.updated_at,
+                description: application.description.clone(),
+                latest_version: application.latest_version.clone(),
+                readme: application.readme.clone(),
+                repository: application.repository.clone(),
+                size: application.size.clone(),
+                user_id: application.user_id,
+                visibility: application.visibility.clone(),
+                website: application.website.clone(),
+                workspace_id: application.workspace_id,
+            };
 
-            if !Path::new(&format!("temp/applications/{}/functions", application.id)).exists() {
-                fs::create_dir_all(
-                    std::env::current_dir()
-                        .unwrap()
-                        .join(format!("temp/applications/{}/functions", application.id)),
-                )
-                .unwrap();
-            }
-
-            if !Path::new(&format!(
-                "temp/applications/{}/functions/temp",
-                application.id
-            ))
-            .exists()
-            {
-                fs::create_dir_all(std::env::current_dir().unwrap().join(format!(
-                    "temp/applications/{}/functions/temp",
-                    application.id
-                )))
-                .unwrap();
-            }
-
-            for application_resource in application_resources.clone() {
-                let region_provider = RegionProviderChain::first_try(Region::new("us-west-2"));
-
-                let shared_config = aws_config::from_env().region(region_provider).load().await;
-                let client = Client::new(&shared_config);
-
-                if let Some(resource_id) = application_resource.resource_id {
-                    if let Some(application_resource_config) = application_resource.config {
-                        let config: ApplicationResourceConfig =
-                            serde_json::from_value(application_resource_config).unwrap();
-
-                        let object = client
-                            .get_object()
-                            .bucket("faasly-functions".to_string())
-                            .key(format!("{}/{}/function.zip", resource_id, config.version))
-                            .send()
-                            .await
-                            .unwrap();
-
-                        let data = object.body.collect().await.unwrap();
-                        let mut file = File::create(format!(
-                            "temp/applications/{}/functions/temp/{}.zip",
-                            application.id, resource_id
-                        ))
-                        .unwrap();
-                        file.write_all(&data.into_bytes()).unwrap();
-
-                        // Unzip the file
-                        let mut archive = zip::ZipArchive::new(
-                            File::open(format!(
-                                "temp/applications/{}/functions/temp/{}.zip",
-                                application.id, resource_id
-                            ))
-                            .unwrap(),
-                        )
-                        .unwrap();
-
-                        for i in 0..archive.len() {
-                            let mut file = archive.by_index(i).unwrap();
-                            let outpath = match file.enclosed_name() {
-                                Some(path) => path.to_owned(),
-                                None => continue,
-                            };
-
-                            let outpath = PathBuf::from(format!(
-                                "temp/applications/{}/functions/{}/{}",
-                                application.id,
-                                application_resource.resource_name,
-                                outpath.display()
-                            ));
-
-                            {
-                                let comment = file.comment();
-                                if !comment.is_empty() {
-                                    println!("File {i} comment: {comment}");
-                                }
-                            }
-
-                            if (*file.name()).ends_with('/') {
-                                println!("File {} extracted to \"{}\"", i, outpath.display());
-                                fs::create_dir_all(&outpath).unwrap();
-                            } else {
-                                println!(
-                                    "File {} extracted to \"{}\" ({} bytes)",
-                                    i,
-                                    outpath.display(),
-                                    file.size()
-                                );
-                                if let Some(p) = outpath.parent() {
-                                    if !p.exists() {
-                                        fs::create_dir_all(&p).unwrap();
-                                    }
-                                }
-                                let mut outfile = fs::File::create(&outpath).unwrap();
-                                io::copy(&mut file, &mut outfile).unwrap();
-                            }
-                        }
-
-                        fs::remove_dir_all(format!(
-                            "temp/applications/{}/functions/temp",
-                            application.id
-                        ))?;
-                        // Generate application code integrating functions
-                        // Construct the ApplicationBuildContext with application data and resource data
-                        let mut application_build_config: Option<ApplicationConfig> = None;
-
-                        if let Some(application_config) = application.config.clone() {
-                            application_build_config =
-                                Some(serde_json::from_value(application_config).unwrap());
-                        }
-
-                        let application_build_context: ApplicationBuildContext =
-                            ApplicationBuildContext {
-                                id: application.id,
-                                name: application.name.clone(),
-                                resources: application_resources.clone(),
-                                application_type: application.application_type.clone(),
-                                config: application_build_config,
-                                variables: application.variables.clone(),
-                                created_at: application.created_at,
-                                deleted_at: application.deleted_at,
-                                updated_at: application.updated_at,
-                                description: application.description.clone(),
-                                latest_version: application.latest_version.clone(),
-                                readme: application.readme.clone(),
-                                repository: application.repository.clone(),
-                                size: application.size.clone(),
-                                user_id: application.user_id,
-                                visibility: application.visibility.clone(),
-                                website: application.website.clone(),
-                                workspace_id: application.workspace_id,
-                            };
-
-                        let application_generator = ApplicationGeneratorService::new();
-                        application_generator
-                            .generate_application(application_build_context)
-                            .unwrap();
-
-
-                        let application_path = format!(
-                            "./temp/applications/{}/application.zip",
-                            application.id
-                        );
-                        let application_zip = Path::new(&application_path);
-                        let file = File::create(&application_zip).unwrap();
-
-                        let walkdir = WalkDir::new(&format!(
-                            "./temp/applications/{}/",
-                            application.id
-                        ));
-                        let it = walkdir.into_iter();
-
-                        let mut zip = zip::ZipWriter::new(file);
-                        let options = FileOptions::default()
-                            .compression_method(zip::CompressionMethod::Stored)
-                            .unix_permissions(0o755);
-
-                        let mut buffer = Vec::new();
-                        for entry in it.filter_map(|e| e.ok()) {
-                            let path = entry.path();
-                            let name = path.strip_prefix(Path::new(&format!(
-                                "./temp/applications/{}/",
-                                application.id
-                            ))).unwrap();
-
-                            if path.is_file() {
-                                if !(name.components().nth(0)
-                                    == Some(Component::Normal(OsStr::new("application.zip"))))
-                                {
-                                    #[allow(deprecated)]
-                                    zip.start_file_from_path(name, options).unwrap();
-                                    let mut f = File::open(path).unwrap();
-
-                                    f.read_to_end(&mut buffer).unwrap();
-                                    zip.write_all(&*buffer).unwrap();
-                                    buffer.clear();
-                                }
-                            } else if !name.as_os_str().is_empty() {
-                                if !(name.components().nth(0)
-                                    == Some(Component::Normal(OsStr::new("application.zip"))))
-                                {
-                                    #[allow(deprecated)]
-                                    zip.add_directory_from_path(name, options).unwrap();
-                                }
-                            }
-                        }
-
-                        zip.finish().unwrap();
-
-                        let region_provider = RegionProviderChain::first_try(Region::new("us-west-2"));
-
-                        let shared_config = aws_config::from_env().region(region_provider).load().await;
-                        let client = Client::new(&shared_config);
-                
-                        let body = ByteStream::from_path(Path::new(&application_path.clone()))
-                        .await?;
-                        let _res = client
-                            .put_object()
-                            .set_bucket(Some("faasly-applications".to_string()))
-                            .set_key(Some(format!("{}/{}/application.zip", application.id, application_build_payload.version)))
-                            .set_body(Some(body))
-                            .send()
-                            .await?;
-                
-                        fs::remove_file(&application_path)?;
-
-                        // Use docker in docker to build the image for the application using the rust docker library
-                        // Push the image to the registry
-                        // Save the image details name in the database
-                        
-                    } else {
-                        tracing::error!("No config found for resource {}", resource_id);
-                    }
-                } else {
-                    tracing::error!(
-                        "No resource id found for application resource {}",
-                        application_resource.id
-                    );
+            tokio::spawn(async move {
+                let application_builder = ApplicationBuilder::new(application_build_context);
+                let setup_directories = application_builder.setup_directories();
+                if setup_directories.is_err() {
+                    tracing::error!("Error setting up directories");
+                    return Err(setup_directories.err().unwrap());
                 }
-            }
+
+                let download_functions = application_builder.download_functions().await;
+                if download_functions.is_err() {
+                    tracing::error!("Error downloading functions");
+                    return Err(download_functions.err().unwrap());
+                }
+
+                let generate_application = application_builder.generate_application().await;
+                if generate_application.is_err() {
+                    tracing::error!("Error generating application");
+                    return Err(generate_application.err().unwrap());
+                }
+
+                let push_application_to_s3 = application_builder.push_application_to_s3().await;
+                if push_application_to_s3.is_err() {
+                    tracing::error!("Error pushing application to s3");
+                    return Err(push_application_to_s3.err().unwrap());
+                }
+
+                let build_docker_image = application_builder.build_docker_image().await;
+                if build_docker_image.is_err() {
+                    tracing::error!("Error building docker image");
+                    return Err(setup_directories.err().unwrap());
+                }
+
+                let push_docker_image = application_builder.push_docker_image().await;
+                if push_docker_image.is_err() {
+                    tracing::error!("Error pushing docker image");
+                    return Err(push_docker_image.err().unwrap());
+                }
+
+                let deploy_application = application_builder.deploy_application().await;
+                if deploy_application.is_err() {
+                    tracing::error!("Error deploying application");
+                    return Err(deploy_application.err().unwrap());
+                }
+
+                Ok(())
+            })
+            .await??;
         } else {
             tracing::error!("No application id found for application build");
         }

@@ -4,5 +4,5 @@ members = [
     "engine",
     "clients/rust",
     # "examples/applications/template_server/server",
-    "engine/temp/applications/77e55ff9-c730-4ee6-a199-bbbf14a57111/hello-service"
+    # "engine/temp/applications/77e55ff9-c730-4ee6-a199-bbbf14a57111/hello-service"
 ]

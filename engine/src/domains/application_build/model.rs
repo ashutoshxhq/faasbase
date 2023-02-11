@@ -88,6 +88,7 @@ pub struct ApplicationBuildContext {
     pub id: Uuid,
     pub name: String,
     pub application_type: String,
+    pub build_version: String,
     pub description: Option<String>,
     pub readme: Option<String>,
     pub visibility: String,
