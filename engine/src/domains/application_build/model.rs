@@ -23,6 +23,9 @@ pub struct UpdateApplicationBuild {
     pub changelog: Option<String>,
     pub config: Option<Value>,
     pub deleted_at: Option<NaiveDateTime>,
+    pub build_status: Option<String>,
+    pub deployment_status: Option<String>,
+    pub logs: Option<Value>,
 }
 
 #[derive(Debug, Queryable, Insertable, Serialize, Deserialize, Clone)]
@@ -37,6 +40,9 @@ pub struct ApplicationBuild {
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
+    pub build_status: Option<String>,
+    pub deployment_status: Option<String>,
+    pub logs: Option<Value>,
 }
 
 

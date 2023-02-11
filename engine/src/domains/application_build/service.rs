@@ -12,6 +12,7 @@ use crate::schema::applications::dsl as application_dsl;
 use crate::schema::clusters::dsl as cluster_dsl;
 use crate::state::DbPool;
 use diesel::{prelude::*, sql_query};
+use serde_json::Value;
 use std::str::FromStr;
 use uuid::Uuid;
 #[derive(Clone)]
@@ -178,17 +179,63 @@ impl ApplicationBuildService {
                     return Err(push_application_to_s3.err().unwrap());
                 }
 
-                let build_docker_image = application_builder.build_docker_image().await;
-                if build_docker_image.is_err() {
+                let build_docker_image_res = application_builder.build_docker_image().await;
+                if build_docker_image_res.is_err() {
                     tracing::error!("Error building docker image");
                     return Err(setup_directories.err().unwrap());
                 }
+                
+                let build_docker_image_logs = build_docker_image_res?;
+                let logs = serde_json::to_value(build_docker_image_logs.clone())?;
 
-                let push_docker_image = application_builder.push_docker_image().await;
-                if push_docker_image.is_err() {
+                let build_update_payload = UpdateApplicationBuild {
+                    version: application_build_payload.version.clone(),
+                    build_status: Some("SUCCESS".to_string()),
+                    deployment_status: Some("DEPLOYING".to_string()),
+                    changelog: None,
+                    config: None,
+                    logs: Some(logs),
+                    deleted_at: None,
+                };
+
+                let _build_update = diesel::update(dsl::application_builds.find(results.id.clone()))
+                    .set(&build_update_payload)
+                    .get_result::<ApplicationBuild>(&mut conn)?;
+
+                let push_docker_image_res = application_builder.push_docker_image().await;
+                if push_docker_image_res.is_err() {
                     tracing::error!("Error pushing docker image");
-                    return Err(push_docker_image.err().unwrap());
+                    return Err(push_docker_image_res.err().unwrap());
                 }
+
+                let push_docker_image_logs = push_docker_image_res?;
+                let mut logs: Vec<Value> = Vec::new();
+
+                
+                for log in build_docker_image_logs {
+                    logs.push(log);
+                }
+
+                for log in push_docker_image_logs {
+                    logs.push(log);
+                }
+
+                let logs = serde_json::to_value(logs)?;
+
+                let build_update_payload = UpdateApplicationBuild {
+                    version: application_build_payload.version.clone(),
+                    build_status: Some("SUCCESS".to_string()),
+                    deployment_status: Some("SUCCESS".to_string()),
+                    changelog: None,
+                    config: None,
+                    logs: Some(logs),
+                    deleted_at: None,
+                };
+
+                let _build_update = diesel::update(dsl::application_builds.find(results.id.clone()))
+                    .set(&build_update_payload)
+                    .get_result::<ApplicationBuild>(&mut conn)?;
+
 
                 let deploy_application = application_builder.deploy_application().await;
                 if deploy_application.is_err() {

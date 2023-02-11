@@ -1,6 +1,6 @@
 use super::model::{ApplicationBuildContext, ClusterProviderConfig};
 use crate::domains::application_generator::service::ApplicationGeneratorService;
-use crate::extras::types::{ApplicationResourceConfig, Error};
+use crate::extras::types::{ApplicationResourceConfig, Error, FaaslyError};
 use aws_config::meta::region::RegionProviderChain;
 use aws_credential_types::Credentials;
 use aws_sdk_s3::types::ByteStream;
@@ -10,6 +10,7 @@ use bollard::auth::DockerCredentials;
 use bollard::image::BuildImageOptions;
 use bollard::Docker;
 use futures_util::stream::StreamExt;
+use serde_json::{json, Value};
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{self, prelude::*};
@@ -219,7 +220,7 @@ impl ApplicationBuilder {
         Ok(())
     }
 
-    pub async fn build_docker_image(&self) -> Result<(), Error> {
+    pub async fn build_docker_image(&self) -> Result<Vec<Value>, Error> {
         let application = self.context.clone();
 
         let docker = Docker::connect_with_socket_defaults()?;
@@ -280,6 +281,7 @@ impl ApplicationBuilder {
                         if let Some(respositories) = respositories.repositories() {
                             for repository in respositories {
                                 if let Some(repository_uri) = repository.repository_uri() {
+                                    tracing::info!("Repository uri: {:?}", repository_uri);
                                     application_repository_uri = Some(repository_uri.to_string());
                                 }
                             }
@@ -296,13 +298,16 @@ impl ApplicationBuilder {
                                     application_repository_uri = Some(repository_uri.to_string());
                                 }
                             }
+                        }
+
+                        if let Some(application_repository_uri) = application_repository_uri {
                             let build_image_options = BuildImageOptions {
                                 dockerfile: "Dockerfile",
                                 t: &format!(
                                     "{}:{}",
-                                    application_repository_uri.unwrap(),
-                                    self.context.build_version
+                                    application_repository_uri, self.context.build_version
                                 ),
+                                nocache: true,
                                 ..Default::default()
                             };
 
@@ -312,27 +317,75 @@ impl ApplicationBuilder {
                                 Some(compressed.into()),
                             );
 
+                            let mut logs: Vec<Value> = Vec::new();
+
                             while let Some(msg) = image_build_stream.next().await {
-                                tracing::info!("Build: {:?}", msg);
+                                match msg {
+                                    Ok(stream) => {
+                                        tracing::info!("Build: {:?}", stream);
+                                        let log = json!({
+                                            "stream": stream.stream,
+                                            "status": stream.status,
+                                            "progress": stream.progress,
+                                            "progress_detail": stream.progress_detail,
+                                            "error": stream.error,
+                                            "error_detail": stream.error_detail,
+                                        });
+                                        logs.push(log);
+                                    }
+                                    Err(e) => {
+                                        tracing::error!("Build: {:?}", e);
+                                        let log = json!({
+                                            "error": e.to_string(),
+                                        });
+                                        logs.push(log);
+                                    }
+                                }
                             }
+                            Ok(logs)
+                        } else {
+                            tracing::error!("No repository uri found");
+                            Err(FaaslyError::new(
+                                "NO_REPOSITORY_URI".to_string(),
+                                "No repository uri found".to_string(),
+                                400,
+                            ))
                         }
                     } else {
                         tracing::error!("No region found in cluster provider config");
+                        Err(FaaslyError::new(
+                            "BAD_CLUSTER_CONFIG".to_string(),
+                            "No region found in cluster provider config".to_string(),
+                            400,
+                        ))
                     }
                 } else {
                     tracing::error!("No secret access key found in cluster provider config");
+                    Err(FaaslyError::new(
+                        "BAD_CLUSTER_CONFIG".to_string(),
+                        "No secret access key found in cluster provider config".to_string(),
+                        400,
+                    ))
                 }
             } else {
                 tracing::error!("No access key id found in cluster provider config");
+                Err(FaaslyError::new(
+                    "BAD_CLUSTER_CONFIG".to_string(),
+                    "No access key id found in cluster provider config".to_string(),
+                    400,
+                ))
             }
         } else {
             tracing::error!("No cluster provider config found");
+            Err(FaaslyError::new(
+                "BAD_CLUSTER_CONFIG".to_string(),
+                "No cluster provider config found".to_string(),
+                400,
+            ))
         }
-
-        Ok(())
     }
 
-    pub async fn push_docker_image(&self) -> Result<(), Error> {
+    pub async fn push_docker_image(&self) -> Result<Vec<Value>, Error> {
         let cluster_data = self.context.cluster.clone();
         let mut application_cluster_provider_config: Option<ClusterProviderConfig> = None;
 
@@ -349,7 +402,8 @@ impl ApplicationBuilder {
             if let Some(access_key_id) = access_key_id {
                 if let Some(secret_access_key) = secret_access_key {
                     if let Some(region) = application_cluster_provider_config.region {
-                        let region_provider = RegionProviderChain::first_try(Region::new(region.clone()));
+                        let region_provider =
+                            RegionProviderChain::first_try(Region::new(region.clone()));
                         let credentials_provider = Credentials::new(
                             access_key_id,
                             secret_access_key,
@@ -439,23 +493,59 @@ impl ApplicationBuilder {
                             }),
                         );
 
+                        let mut logs: Vec<Value> = vec![];
+
                         while let Some(msg) = push_res.next().await {
-                            tracing::info!("Push: {:?}", msg);
+                            match msg {
+                                Ok(msg) => {
+                                    tracing::info!("Push: {:?}", msg);
+                                    logs.push(json!({
+                                        "message": msg,
+                                        "type": "info"
+                                    }));
+                                }
+                                Err(e) => {
+                                    tracing::error!("Push Error: {:?}", e);
+                                    logs.push(json!({
+                                        "message": format!("{:?}", e),
+                                        "type": "error"
+                                    }));
+                                }
+                            }
                         }
+                        Ok(logs)
                     } else {
                         tracing::error!("No secret access key found in cluster provider config");
+                        Err(FaaslyError::new(
+                            "BAD_CLUSTER_CONFIG".to_string(),
+                            "No secret access key found in cluster provider config".to_string(),
+                            400,
+                        ))
                     }
                 } else {
                     tracing::error!("No region found in cluster provider config");
+                    Err(FaaslyError::new(
+                        "BAD_CLUSTER_CONFIG".to_string(),
+                        "No region found in cluster provider config".to_string(),
+                        400,
+                    ))
                 }
             } else {
                 tracing::error!("No access key id found in cluster provider config");
+                Err(FaaslyError::new(
+                    "BAD_CLUSTER_CONFIG".to_string(),
+                    "No access key id found in cluster provider config".to_string(),
+                    400,
+                ))
             }
         } else {
-            tracing::error!("No cluster provider config found to push image to");
+            tracing::error!("No cluster provider config found");
+            Err(FaaslyError::new(
+                "BAD_CLUSTER_CONFIG".to_string(),
+                "No cluster provider config found".to_string(),
+                400,
+            ))
         }
-
-        Ok(())
     }
 
     pub async fn deploy_application(&self) -> Result<(), Error> {

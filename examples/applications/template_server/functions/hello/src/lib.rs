@@ -22,7 +22,7 @@ pub async fn handler(Json(data): Json<Input>) -> impl IntoResponse {
 	// TODO: implement your function here
 
 	let output = Output {
-		name: "hello".to_string(),
+		name: "hello world".to_string(),
 		data: serde_json::to_value(data).unwrap(),
 	};
 	(

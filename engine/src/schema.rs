@@ -11,6 +11,9 @@ diesel::table! {
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,
+        build_status -> Nullable<Varchar>,
+        deployment_status -> Nullable<Varchar>,
+        logs -> Nullable<Jsonb>,
     }
 }
 
