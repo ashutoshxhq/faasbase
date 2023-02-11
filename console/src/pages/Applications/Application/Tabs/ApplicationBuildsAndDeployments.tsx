@@ -19,7 +19,7 @@ function ApplicationBuildsAndDeployments() {
   const [selectedEvent, setSelectedEvent] = useState<any>()
   const { getAccessTokenSilently } = useAuth0();
   const applicationQuery = useQuery([`application-${applicationId}`, { getAccessTokenSilently, applicationId }], getApplication)
-  const query = useQuery([`application-${applicationId}-builds`, { getAccessTokenSilently, applicationId }], getApplicationBuilds);
+  const query = useQuery({ queryKey: [`application-${applicationId}-builds`, { getAccessTokenSilently, applicationId }], queryFn: getApplicationBuilds, refetchInterval: 5000 });
 
   return (
     <Box as="section">
@@ -232,7 +232,7 @@ function ApplicationBuildsAndDeployments() {
                     >
                       Deploy Build
                     </MenuItem>
-                    
+
                     <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                       onClick={() => {
                         setSelectedEvent(build.logs)
@@ -270,15 +270,15 @@ export function LogsDrawer(props: LogsDrawerProp) {
   const [events, setEvents] = useState<string[]>([])
 
   useEffect(() => {
-    let logs:string[] = []
+    let logs: string[] = []
     props.event?.map((log: any, index: number) => {
-      let log_data:string = ""
+      let log_data: string = ""
       Object.entries(log).map(([key, value]: any) => {
-        if (value){
+        if (value) {
           log_data += `${key}: ${JSON.stringify(value).replace("[91m", "").replace("\\u001b[91m", "").replace("\\n", "").replace("\\u001b[0m", "").replace("\\r", "")} \t\t`
         }
       })
-      if (log_data){
+      if (log_data) {
         logs.push(log_data)
       }
     })
