@@ -1,10 +1,15 @@
-use crate::{schema::application_builds, domains::{application_resource::model::ApplicationResourceWithFunction, cluster::model::Cluster}};
+use crate::{
+    domains::{
+        application_resource::model::ApplicationResourceWithFunction, cluster::model::Cluster,
+    },
+    schema::application_builds,
+};
 use chrono::NaiveDateTime;
+use diesel::sql_types::{Nullable, Timestamp, Uuid as SQLUUID, Varchar};
 use diesel::{prelude::*, sql_types::Jsonb};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
-use diesel::sql_types::{Nullable, Timestamp, Uuid as SQLUUID, Varchar};
 
 #[derive(Debug, Insertable, Serialize, Deserialize)]
 #[diesel(table_name = application_builds)]
@@ -49,15 +54,14 @@ pub struct ApplicationBuild {
     pub deployed_at: Option<NaiveDateTime>,
 }
 
-
 #[derive(QueryableByName, Debug, Serialize, Deserialize, PartialEq)]
 pub struct ApplicationBuildWithUser {
     #[diesel(sql_type = SQLUUID)]
     pub id: Uuid,
-    
+
     #[diesel(sql_type = Varchar)]
     pub version: String,
-    
+
     #[diesel(sql_type = Nullable<Varchar>)]
     pub changelog: Option<String>,
 
@@ -96,7 +100,7 @@ pub struct ApplicationBuildWithUser {
 
     #[diesel(sql_type = Nullable<Varchar>)]
     pub deployment_status: Option<String>,
-    
+
     #[diesel(sql_type = Nullable<Jsonb>)]
     pub logs: Option<Value>,
 
@@ -106,7 +110,6 @@ pub struct ApplicationBuildWithUser {
     #[diesel(sql_type = Nullable<Timestamp>)]
     pub deployed_at: Option<NaiveDateTime>,
 }
-
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ApplicationBuildContext {
@@ -147,10 +150,22 @@ pub struct ClusterProviderConfig {
     pub region: Option<String>,
 }
 
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ApplicationResourceConfig {
     pub endpoint: Option<String>,
     pub method: Option<String>,
     pub version: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ApplicationVariables {
+    pub config_vars: Option<Vec<Variable>>,
+    pub secrets: Option<Vec<Variable>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Variable {
+    pub id: String,
+    pub key: String,
+    pub value: String,
 }

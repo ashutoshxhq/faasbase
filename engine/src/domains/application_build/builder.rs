@@ -1,4 +1,4 @@
-use super::model::{ApplicationBuildContext, ClusterProviderConfig};
+use super::model::{ApplicationBuildContext, ApplicationVariables, ClusterProviderConfig};
 use crate::domains::application_generator::service::ApplicationGeneratorService;
 use crate::extras::types::{ApplicationResourceConfig, Error, FaaslyError};
 use aws_config::meta::region::RegionProviderChain;
@@ -10,7 +10,15 @@ use bollard::auth::DockerCredentials;
 use bollard::image::BuildImageOptions;
 use bollard::Docker;
 use futures_util::stream::StreamExt;
+use k8s_openapi::api::apps::v1::Deployment;
+use k8s_openapi::api::core::v1::{Secret, Service};
+use kube::config::{KubeConfigOptions, Kubeconfig};
+use kube::{
+    api::{Api, Patch, PatchParams, PostParams},
+    Client as KubeClient, Config as KubeConfig,
+};
 use serde_json::{json, Value};
+use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::{self, prelude::*};
@@ -307,7 +315,6 @@ impl ApplicationBuilder {
                                     "{}:{}",
                                     application_repository_uri, self.context.build_version
                                 ),
-                                nocache: true,
                                 ..Default::default()
                             };
 
@@ -549,6 +556,337 @@ impl ApplicationBuilder {
     }
 
     pub async fn deploy_application(&self) -> Result<(), Error> {
-        Ok(())
+        let cluster_data = self.context.cluster.clone();
+
+        if let Some(cluster_data) = cluster_data {
+            let application_cluster_provider_config: Option<ClusterProviderConfig> =
+                Some(serde_json::from_value(cluster_data.provider_config).unwrap());
+
+            if let Some(application_cluster_provider_config) = application_cluster_provider_config {
+                // create shared config with aws creds in application_cluster_provider_config
+                let access_key_id = application_cluster_provider_config.aws_access_key_id;
+                let secret_access_key = application_cluster_provider_config.aws_secret_access_key;
+
+                if let Some(access_key_id) = access_key_id {
+                    if let Some(secret_access_key) = secret_access_key {
+                        if let Some(region) = application_cluster_provider_config.region {
+                            let region_provider =
+                                RegionProviderChain::first_try(Region::new(region.clone()));
+                            let credentials_provider = Credentials::new(
+                                access_key_id,
+                                secret_access_key,
+                                None,
+                                None,
+                                "faasly",
+                            );
+
+                            let shared_config = aws_config::from_env()
+                                .credentials_provider(credentials_provider)
+                                .region(region_provider)
+                                .load()
+                                .await;
+
+                            let ecr_client = aws_sdk_ecr::Client::new(&shared_config);
+
+                            let respositories = ecr_client
+                                .describe_repositories()
+                                .repository_names(self.context.name.clone())
+                                .send()
+                                .await
+                                .unwrap();
+                            // println!("Respositories: {:.unwrap()}", respositories.repositories());
+                            let mut application_repository_uri: Option<String> = None;
+
+                            if let Some(respositories) = respositories.repositories() {
+                                for repository in respositories {
+                                    if let Some(repository_uri) = repository.repository_uri() {
+                                        application_repository_uri =
+                                            Some(repository_uri.to_string());
+                                    }
+                                }
+                            }
+
+                            if application_repository_uri.is_none() {
+                                let create_repository_output = ecr_client
+                                    .create_repository()
+                                    .repository_name(self.context.name.clone())
+                                    .send()
+                                    .await
+                                    .unwrap();
+                                if let Some(repository) = create_repository_output.repository() {
+                                    if let Some(repository_uri) = repository.repository_uri() {
+                                        application_repository_uri =
+                                            Some(repository_uri.to_string());
+                                    }
+                                }
+                            }
+
+                            let mut application_variables: ApplicationVariables =
+                                ApplicationVariables {
+                                    config_vars: None,
+                                    secrets: None,
+                                };
+
+                            if let Some(variables) = self.context.variables.clone() {
+                                application_variables = serde_json::from_value(variables).unwrap();
+                            }
+
+                            let kubeconfig = Kubeconfig::from_yaml(&cluster_data.cluster_config)?;
+                            
+                            // tracing::info!("Kubeconfig: {:?}", kubeconfig);
+                            let options = KubeConfigOptions::default();
+
+                            let config = KubeConfig::from_custom_kubeconfig(kubeconfig, &options)
+                                .await
+                                .unwrap();
+
+                            let client = KubeClient::try_from(config)?;
+
+                            // Manage pods
+                            let deployments: Api<Deployment> =
+                                Api::default_namespaced(client.clone());
+
+                            let mut envs = Vec::new();
+
+                            envs.push(json!({
+                                "name": "PORT",
+                                "value": "8000"
+                            }));
+
+                            if let Some(config_vars) = application_variables.config_vars {
+                                for config_var in config_vars {
+                                    envs.push(json!({
+                                        "name": config_var.key,
+                                        "value": config_var.value,
+                                    }));
+                                }
+                            }
+
+                            let deployment_config = serde_json::from_value(json!({
+                                    "apiVersion": "apps/v1",
+                                    "kind": "Deployment",
+                                    "metadata": {
+                                        "name": format!("{}-deployment", self.context.name),
+                                    },
+                                    "spec": {
+                                        "replicas": 1,
+                                        "selector": {
+                                            "matchLabels": {
+                                                "name": format!("{}-pod", self.context.name),
+                                                "app": format!("{}", self.context.name),
+                                            }
+                                        },
+                                        "template": {
+                                            "metadata": {
+                                                "labels": {
+                                                    "name": format!("{}-pod", self.context.name),
+                                                    "app": format!("{}", self.context.name),
+                                                }
+                                            },
+                                            "spec": {
+                                                "containers": [
+                                                    {
+                                                        "name": format!("{}-container", self.context.name),
+                                                        "image": format!("{}:{}", application_repository_uri.unwrap(), self.context.build_version),
+                                                        "imagePullPolicy": "Always",
+                                                        "ports": [
+                                                            {
+                                                                "containerPort": 8000
+                                                            }
+                                                        ],
+                                                        "env": envs,
+                                                        "envFrom": [
+                                                            {
+                                                                "secretRef": {
+                                                                    "name": format!("{}-secret", self.context.name)
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                })).unwrap();
+
+                            let deployment = deployments
+                                .get(&format!("{}-deployment", self.context.name))
+                                .await;
+
+                            match deployment {
+                                Ok(_deployment) => {
+                                    tracing::info!("Deployment already exists, updating");
+                                    let patchparams = PatchParams::default();
+                                    deployments
+                                        .patch(
+                                            &format!("{}-deployment", self.context.name),
+                                            &patchparams,
+                                            &Patch::Merge(&deployment_config),
+                                        )
+                                        .await
+                                        .unwrap();
+                                }
+                                Err(_e) => {
+                                    tracing::info!(
+                                        "Deployment does not exist, creating, error={:?}",
+                                        _e
+                                    );
+                                    deployments
+                                        .create(&PostParams::default(), &deployment_config)
+                                        .await
+                                        .unwrap();
+                                }
+                            }
+
+                            let services: Api<Service> = Api::default_namespaced(client.clone());
+
+                            let service_config = serde_json::from_value(json!({
+                                "apiVersion": "v1",
+                                "kind": "Service",
+                                "metadata": {
+                                    "name": format!("{}-service", self.context.name),
+                                    "labels": {
+                                        "app": format!("{}", self.context.name),
+                                    }
+                                },
+                                "spec": {
+                                    "type": "LoadBalancer",
+                                    "selector": {
+                                        "name": format!("{}-pod", self.context.name),
+                                        "app": format!("{}", self.context.name),
+                                    },
+                                    "ports": [
+                                        {
+                                            "name": "http",
+                                            "protocol": "TCP",
+                                            "port": 80,
+                                            "targetPort": 8000
+                                        },
+                                        {
+                                            "name": "https",
+                                            "protocol": "TCP",
+                                            "port": 443,
+                                            "targetPort": 8000
+                                        }
+                                    ]
+                                }
+                            }))
+                            .unwrap();
+
+                            let service = services
+                                .get(&format!("{}-service", self.context.name))
+                                .await;
+
+                            match service {
+                                Ok(_service) => {
+                                    tracing::info!("Service already exists, updating");
+                                    let patchparams = PatchParams::default();
+                                    services
+                                        .patch(
+                                            &format!("{}-service", self.context.name),
+                                            &patchparams,
+                                            &Patch::Merge(&service_config),
+                                        )
+                                        .await
+                                        .unwrap();
+                                }
+                                Err(_e) => {
+                                    tracing::info!("Service does not exist, creating");
+                                    services
+                                        .create(&PostParams::default(), &service_config)
+                                        .await
+                                        .unwrap();
+                                }
+                            }
+
+                            let mut secret_map: HashMap<String, String> = HashMap::new();
+
+                            if let Some(secrets) = application_variables.secrets {
+                                for secret in secrets {
+                                    let encoded_secret: String =
+                                        general_purpose::STANDARD.encode(secret.value);
+                                    secret_map.insert(secret.key, encoded_secret);
+                                }
+                            }
+
+                            let secret_config = serde_json::from_value(json!({
+                                "apiVersion": "v1",
+                                "kind": "Secret",
+                                "metadata": {
+                                    "name": format!("{}-secret", self.context.name),
+                                },
+                                "type": "Opaque",
+                                "data": secret_map
+                            }))
+                            .unwrap();
+
+                            let secrets: Api<Secret> = Api::default_namespaced(client.clone());
+
+                            let secret =
+                                secrets.get(&format!("{}-secret", self.context.name)).await;
+
+                            match secret {
+                                Ok(_secret) => {
+                                    tracing::info!("Secret already exists, updating");
+                                    let patchparams = PatchParams::default();
+                                    secrets
+                                        .patch(
+                                            &format!("{}-secret", self.context.name),
+                                            &patchparams,
+                                            &Patch::Merge(&secret_config),
+                                        )
+                                        .await
+                                        .unwrap();
+                                }
+                                Err(_e) => {
+                                    tracing::info!("Secret does not exist, creating");
+                                    secrets
+                                        .create(&PostParams::default(), &secret_config)
+                                        .await
+                                        .unwrap();
+                                }
+                            }
+
+                            Ok(())
+                        } else {
+                            tracing::error!("No region found in cluster provider config");
+                            Err(FaaslyError::new(
+                                "BAD_CLUSTER_CONFIG".to_string(),
+                                "No region found in cluster provider config".to_string(),
+                                400,
+                            ))
+                        }
+                    } else {
+                        tracing::error!("No secret access key found in cluster provider config");
+                        Err(FaaslyError::new(
+                            "BAD_CLUSTER_CONFIG".to_string(),
+                            "No secret access key found in cluster provider config".to_string(),
+                            400,
+                        ))
+                    }
+                } else {
+                    tracing::error!("No access key id found in cluster provider config");
+                    Err(FaaslyError::new(
+                        "BAD_CLUSTER_CONFIG".to_string(),
+                        "No access key id found in cluster provider config".to_string(),
+                        400,
+                    ))
+                }
+            } else {
+                tracing::error!("No cluster provider config found");
+                Err(FaaslyError::new(
+                    "BAD_CLUSTER_CONFIG".to_string(),
+                    "No cluster provider config found".to_string(),
+                    400,
+                ))
+            }
+        } else {
+            tracing::error!("No cluster provider found");
+            Err(FaaslyError::new(
+                "BAD_CLUSTER_CONFIG".to_string(),
+                "No cluster provider found".to_string(),
+                400,
+            ))
+        }
     }
 }

@@ -216,6 +216,16 @@ impl ApplicationBuildService {
                     return Err(push_docker_image_res.err().unwrap());
                 }
 
+                
+
+
+                let deploy_application = application_builder.deploy_application().await;
+                if deploy_application.is_err() {
+                    let err = deploy_application.err().unwrap();
+                    tracing::error!("Error deploying application, error={:?}", err.to_string());
+                    return Err(err);
+                }
+
                 let push_docker_image_logs = push_docker_image_res?;
                 let mut logs: Vec<Value> = Vec::new();
 
@@ -245,13 +255,6 @@ impl ApplicationBuildService {
                 let _build_update = diesel::update(dsl::application_builds.find(results.id.clone()))
                     .set(&build_update_payload)
                     .get_result::<ApplicationBuild>(&mut conn)?;
-
-
-                let deploy_application = application_builder.deploy_application().await;
-                if deploy_application.is_err() {
-                    tracing::error!("Error deploying application");
-                    return Err(deploy_application.err().unwrap());
-                }
 
                 Ok(())
             })
