@@ -282,28 +282,34 @@ impl ApplicationBuilder {
                             .describe_repositories()
                             .repository_names(self.context.name.clone())
                             .send()
-                            .await?;
+                            .await;
 
                         let mut application_repository_uri: Option<String> = None;
 
-                        if let Some(respositories) = respositories.repositories() {
-                            for repository in respositories {
-                                if let Some(repository_uri) = repository.repository_uri() {
-                                    tracing::info!("Repository uri: {:?}", repository_uri);
-                                    application_repository_uri = Some(repository_uri.to_string());
+                        match respositories {
+                            Ok(respositories) => {
+                                if let Some(respositories) = respositories.repositories() {
+                                    for repository in respositories {
+                                        if let Some(repository_uri) = repository.repository_uri() {
+                                            tracing::info!("Repository uri: {:?}", repository_uri);
+                                            application_repository_uri =
+                                                Some(repository_uri.to_string());
+                                        }
+                                    }
                                 }
                             }
-                        }
-
-                        if application_repository_uri.is_none() {
-                            let create_repository_output = ecr_client
-                                .create_repository()
-                                .repository_name(self.context.name.clone())
-                                .send()
-                                .await?;
-                            if let Some(repository) = create_repository_output.repository() {
-                                if let Some(repository_uri) = repository.repository_uri() {
-                                    application_repository_uri = Some(repository_uri.to_string());
+                            Err(_) => {
+                                if application_repository_uri.is_none() {
+                                    let create_repository_output = ecr_client
+                                        .create_repository()
+                                        .repository_name(self.context.name.clone())
+                                        .send()
+                                        .await?;
+                                    if let Some(repository) = create_repository_output.repository() {
+                                        if let Some(repository_uri) = repository.repository_uri() {
+                                            application_repository_uri = Some(repository_uri.to_string());
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -560,7 +566,7 @@ impl ApplicationBuilder {
 
         if let Some(cluster_data) = cluster_data {
             let application_cluster_provider_config: Option<ClusterProviderConfig> =
-                Some(serde_json::from_value(cluster_data.provider_config).unwrap());
+                Some(serde_json::from_value(cluster_data.provider_config)?);
 
             if let Some(application_cluster_provider_config) = application_cluster_provider_config {
                 // create shared config with aws creds in application_cluster_provider_config
@@ -593,8 +599,8 @@ impl ApplicationBuilder {
                                 .repository_names(self.context.name.clone())
                                 .send()
                                 .await
-                                .unwrap();
-                            // println!("Respositories: {:.unwrap()}", respositories.repositories());
+                                ?;
+                            // println!("Respositories: {:?}", respositories.repositories());
                             let mut application_repository_uri: Option<String> = None;
 
                             if let Some(respositories) = respositories.repositories() {
@@ -612,7 +618,7 @@ impl ApplicationBuilder {
                                     .repository_name(self.context.name.clone())
                                     .send()
                                     .await
-                                    .unwrap();
+                                    ?;
                                 if let Some(repository) = create_repository_output.repository() {
                                     if let Some(repository_uri) = repository.repository_uri() {
                                         application_repository_uri =
@@ -628,7 +634,7 @@ impl ApplicationBuilder {
                                 };
 
                             if let Some(variables) = self.context.variables.clone() {
-                                application_variables = serde_json::from_value(variables).unwrap();
+                                application_variables = serde_json::from_value(variables)?;
                             }
 
                             let kubeconfig = Kubeconfig::from_yaml(&cluster_data.cluster_config)?;
@@ -638,7 +644,7 @@ impl ApplicationBuilder {
 
                             let config = KubeConfig::from_custom_kubeconfig(kubeconfig, &options)
                                 .await
-                                .unwrap();
+                                ?;
 
                             let client = KubeClient::try_from(config)?;
 
@@ -707,7 +713,7 @@ impl ApplicationBuilder {
                                             }
                                         }
                                     }
-                                })).unwrap();
+                                }))?;
 
                             let deployment = deployments
                                 .get(&format!("{}-deployment", self.context.name))
@@ -724,7 +730,7 @@ impl ApplicationBuilder {
                                             &Patch::Merge(&deployment_config),
                                         )
                                         .await
-                                        .unwrap();
+                                        ?;
                                 }
                                 Err(_e) => {
                                     tracing::info!(
@@ -734,7 +740,7 @@ impl ApplicationBuilder {
                                     deployments
                                         .create(&PostParams::default(), &deployment_config)
                                         .await
-                                        .unwrap();
+                                        ?;
                                 }
                             }
 
@@ -771,7 +777,7 @@ impl ApplicationBuilder {
                                     ]
                                 }
                             }))
-                            .unwrap();
+                            ?;
 
                             let service = services
                                 .get(&format!("{}-service", self.context.name))
@@ -788,14 +794,14 @@ impl ApplicationBuilder {
                                             &Patch::Merge(&service_config),
                                         )
                                         .await
-                                        .unwrap();
+                                        ?;
                                 }
                                 Err(_e) => {
                                     tracing::info!("Service does not exist, creating");
                                     services
                                         .create(&PostParams::default(), &service_config)
                                         .await
-                                        .unwrap();
+                                        ?;
                                 }
                             }
 
@@ -818,7 +824,7 @@ impl ApplicationBuilder {
                                 "type": "Opaque",
                                 "data": secret_map
                             }))
-                            .unwrap();
+                            ?;
 
                             let secrets: Api<Secret> = Api::default_namespaced(client.clone());
 
@@ -836,14 +842,14 @@ impl ApplicationBuilder {
                                             &Patch::Merge(&secret_config),
                                         )
                                         .await
-                                        .unwrap();
+                                        ?;
                                 }
                                 Err(_e) => {
                                     tracing::info!("Secret does not exist, creating");
                                     secrets
                                         .create(&PostParams::default(), &secret_config)
                                         .await
-                                        .unwrap();
+                                        ?;
                                 }
                             }
 
