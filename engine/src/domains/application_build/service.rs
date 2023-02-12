@@ -70,6 +70,7 @@ impl ApplicationBuildService {
         from application_builds ab
         join users u on ab.user_id = u.id
         where ab.application_id = '{}'
+        order by ab.created_at desc 
         limit {} offset {};",
             application_id.to_string(),
             limit,
