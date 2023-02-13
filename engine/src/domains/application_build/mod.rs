@@ -2,7 +2,6 @@ pub mod controller;
 pub mod dto;
 pub mod model;
 pub mod service;
-pub mod builder;
 use axum::{
     middleware,
     routing::{delete, get, patch, post},

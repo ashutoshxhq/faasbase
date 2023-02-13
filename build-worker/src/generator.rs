@@ -1,9 +1,7 @@
-use crate::{
-    domains::application_build::model::{ApplicationBuildContext, ApplicationResourceConfig},
-    extras::types::Error,
-};
 use std::fs::File;
 use std::io::prelude::*;
+
+use crate::types::{ApplicationBuildContext, Error, ApplicationResourceConfig};
 
 #[derive(Clone)]
 pub struct ApplicationGeneratorService {}

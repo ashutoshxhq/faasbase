@@ -1,6 +1,3 @@
-use super::model::{ApplicationBuildContext, ApplicationVariables, ClusterProviderConfig};
-use crate::domains::application_generator::service::ApplicationGeneratorService;
-use crate::extras::types::{ApplicationResourceConfig, Error, FaaslyError};
 use aws_config::meta::region::RegionProviderChain;
 use aws_credential_types::Credentials;
 use aws_sdk_s3::types::ByteStream;
@@ -9,6 +6,7 @@ use base64::{engine::general_purpose, Engine as _};
 use bollard::auth::DockerCredentials;
 use bollard::image::BuildImageOptions;
 use bollard::Docker;
+use chrono::Utc;
 use futures_util::stream::StreamExt;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Secret, Service};
@@ -27,14 +25,494 @@ use std::str;
 use walkdir::WalkDir;
 use zip::write::FileOptions;
 
+use crate::engine_client::update_application_build;
+use crate::generator::ApplicationGeneratorService;
+use crate::types::{
+    ApplicationBuildContext, ApplicationResourceConfig, ApplicationVariables,
+    ClusterProviderConfig, Error, FaaslyError, UpdateApplicationBuild,
+};
+
 #[derive(Clone)]
 pub struct ApplicationBuilder {
     pub context: ApplicationBuildContext,
+    pub auth_token: String,
 }
 
 impl ApplicationBuilder {
-    pub fn new(context: ApplicationBuildContext) -> Self {
-        Self { context }
+    pub fn new(context: ApplicationBuildContext, auth_token: String) -> Self {
+        Self {
+            context,
+            auth_token,
+        }
+    }
+
+    pub async fn build(&self) -> Result<(), Error> {
+        let application_build_context = self.context.clone();
+        let application_builder = self.clone();
+        let auth_token = self.auth_token.clone();
+
+        tokio::spawn(async move {
+            let setup_envs = application_builder.setup_envs();
+
+            match setup_envs {
+                Ok(_) => {}
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error setting up envs",
+                        "error": err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    let mut logs_store: Vec<serde_json::Value> = Vec::new();
+                    logs_store.push(log.clone());
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error setting up envs");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+
+            let setup_directories = application_builder.setup_directories();
+            let mut logs_store: Vec<serde_json::Value> = Vec::new();
+
+            match setup_directories {
+                Ok(_) => {}
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error setting up directories",
+                        "error": err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    logs_store.push(log.clone());
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error setting up directories");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+
+            let download_functions = application_builder.download_functions().await;
+
+            match download_functions {
+                Ok(_) => {}
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error downloading functions",
+                        "error": err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    logs_store.push(log.clone());
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error downloading functions");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+
+            let generate_application = application_builder.generate_application().await;
+
+            match generate_application {
+                Ok(_) => {}
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error generating application",
+                        "error": err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    logs_store.push(log.clone());
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error generating application");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+
+            let push_application_to_s3 = application_builder.push_application_to_s3().await;
+
+            match push_application_to_s3 {
+                Ok(_) => {}
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error pushing application to s3",
+                        "error" : err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    logs_store.push(log.clone());
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error pushing application to s3");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+
+            let build_docker_image_res = application_builder.build_docker_image().await;
+
+            match build_docker_image_res {
+                Ok(res) => {
+                    for log in res {
+                        logs_store.push(log.clone());
+                    }
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::info!("Docker image built successfully");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("SUCCESS".to_string()),
+                        deployment_status: Some("DEPLOYING".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        built_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error building docker image",
+                        "error": err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    logs_store.push(log.clone());
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error building docker image");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+
+            // update application status
+
+            let push_docker_image_res = application_builder.push_docker_image().await;
+
+            match push_docker_image_res {
+                Ok(res) => {
+                    let log = json!({
+                        "message": "Pushed docker image",
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "info"
+                    });
+
+                    for log in res {
+                        logs_store.push(log.clone());
+                    }
+                    logs_store.push(log.clone());
+
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("SUCCESS".to_string()),
+                        deployment_status: Some("DEPLOYING".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        built_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error pushing docker image",
+                        "error": err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    logs_store.push(log.clone());
+
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error pushing docker image");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+
+            let deploy_application = application_builder.deploy_application().await;
+
+            match deploy_application {
+                Ok(_) => {
+                    let log = json!({
+                        "message": "Deployed application",
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "info"
+                    });
+
+                    logs_store.push(log.clone());
+
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::info!("Deployed application");
+
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("SUCCESS".to_string()),
+                        deployment_status: Some("DEPLOYING".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        built_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+                Err(err) => {
+                    let log = json!({
+                        "message": "Error deploying application",
+                        "error": err.to_string(),
+                        "timestamp": Utc::now().naive_utc(),
+                        "level": "error"
+                    });
+
+                    logs_store.push(log.clone());
+
+                    let logs =
+                        serde_json::to_value(logs_store.clone()).map_or_else(|_e| json!({}), |v| v);
+
+                    tracing::error!("Error deploying application");
+                    let build_update_payload = UpdateApplicationBuild {
+                        version: application_build_context.build_version.clone(),
+                        build_status: Some("ERROR".to_string()),
+                        deployment_status: Some("ERROR".to_string()),
+                        changelog: None,
+                        config: None,
+                        logs: Some(logs),
+                        deleted_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
+                    };
+
+                    let _update_build_res = update_application_build(
+                        application_build_context.id.to_string(),
+                        build_update_payload,
+                        auth_token.clone(),
+                    )
+                    .await;
+                }
+            }
+        });
+
+        Ok(())
+    }
+
+    pub fn setup_envs(&self) -> Result<(), Error> {
+        let cluster_data = self.context.cluster.clone();
+        let mut application_cluster_provider_config: Option<ClusterProviderConfig> = None;
+
+        if let Some(cluster_data) = cluster_data {
+            application_cluster_provider_config =
+                Some(serde_json::from_value(cluster_data.provider_config)?);
+        }
+
+        if let Some(application_cluster_provider_config) = application_cluster_provider_config {
+            // create shared config with aws creds in application_cluster_provider_config
+            let access_key_id = application_cluster_provider_config.aws_access_key_id;
+            let secret_access_key = application_cluster_provider_config.aws_secret_access_key;
+            let aws_region = application_cluster_provider_config.region;
+
+            if let Some(access_key_id) = access_key_id {
+                std::env::set_var("AWS_ACCESS_KEY_ID", access_key_id);
+            } else {
+                tracing::error!("No access key found in cluster provider config");
+                return Err(FaaslyError::new(
+                    "BAD_CLUSTER_CONFIG".to_string(),
+                    "No access key found in cluster provider config".to_string(),
+                    400,
+                ));
+            }
+
+            if let Some(secret_access_key) = secret_access_key {
+                std::env::set_var("AWS_SECRET_ACCESS_KEY", secret_access_key);
+            } else {
+                tracing::error!("No secret access key found in cluster provider config");
+                return Err(FaaslyError::new(
+                    "BAD_CLUSTER_CONFIG".to_string(),
+                    "No secret access key found in cluster provider config".to_string(),
+                    400,
+                ));
+            }
+
+            if let Some(aws_region) = aws_region {
+                std::env::set_var("AWS_REGION", aws_region);
+            } else {
+                tracing::error!("No region found in cluster provider config");
+                return Err(FaaslyError::new(
+                    "BAD_CLUSTER_CONFIG".to_string(),
+                    "No region found in cluster provider config".to_string(),
+                    400,
+                ));
+            }
+        } else {
+            tracing::error!("No cluster provider config found");
+            return Err(FaaslyError::new(
+                "BAD_CLUSTER_CONFIG".to_string(),
+                "No cluster provider config found".to_string(),
+                400,
+            ));
+        }
+
+        Ok(())
     }
 
     pub fn setup_directories(&self) -> Result<(), Error> {
@@ -68,9 +546,26 @@ impl ApplicationBuilder {
     }
 
     pub async fn download_functions(&self) -> Result<(), Error> {
+
+        
         let application = self.context.clone();
-        let region_provider = RegionProviderChain::first_try(Region::new("us-west-2"));
-        let shared_config = aws_config::from_env().region(region_provider).load().await;
+        let access_key_id = std::env::var("FAASLY_AWS_ACCESS_KEY_ID")?;
+        let secret_access_key = std::env::var("FAASLY_AWS_SECRET_ACCESS_KEY")?;
+        let aws_region = std::env::var("FAASLY_AWS_DEFAULT_REGION")?;
+        let region_provider = RegionProviderChain::first_try(Region::new(aws_region));
+        let credentials_provider = Credentials::new(
+            access_key_id,
+            secret_access_key,
+            None,
+            None,
+            "faasly",
+        );
+
+        let shared_config = aws_config::from_env()
+            .credentials_provider(credentials_provider)
+            .region(region_provider)
+            .load()
+            .await;
         let s3_client = Client::new(&shared_config);
 
         for resource in application.resources {
@@ -82,7 +577,11 @@ impl ApplicationBuilder {
                     let object = s3_client
                         .get_object()
                         .bucket("faasly-functions".to_string())
-                        .key(format!("{}/{}/function.zip", resource_id, config.version))
+                        .key(format!(
+                            "{}/{}/function.zip",
+                            resource_id,
+                            config.version.unwrap()
+                        ))
                         .send()
                         .await?;
 
@@ -206,9 +705,23 @@ impl ApplicationBuilder {
 
         zip.finish()?;
 
-        let region_provider = RegionProviderChain::first_try(Region::new("us-west-2"));
+        let access_key_id = std::env::var("FAASLY_AWS_ACCESS_KEY_ID")?;
+        let secret_access_key = std::env::var("FAASLY_AWS_SECRET_ACCESS_KEY")?;
+        let aws_region = std::env::var("FAASLY_AWS_DEFAULT_REGION")?;
+        let region_provider = RegionProviderChain::first_try(Region::new(aws_region));
+        let credentials_provider = Credentials::new(
+            access_key_id,
+            secret_access_key,
+            None,
+            None,
+            "faasly",
+        );
 
-        let shared_config = aws_config::from_env().region(region_provider).load().await;
+        let shared_config = aws_config::from_env()
+            .credentials_provider(credentials_provider)
+            .region(region_provider)
+            .load()
+            .await;
 
         let client = Client::new(&shared_config.clone());
 
@@ -305,9 +818,11 @@ impl ApplicationBuilder {
                                         .repository_name(self.context.name.clone())
                                         .send()
                                         .await?;
-                                    if let Some(repository) = create_repository_output.repository() {
+                                    if let Some(repository) = create_repository_output.repository()
+                                    {
                                         if let Some(repository_uri) = repository.repository_uri() {
-                                            application_repository_uri = Some(repository_uri.to_string());
+                                            application_repository_uri =
+                                                Some(repository_uri.to_string());
                                         }
                                     }
                                 }
@@ -598,8 +1113,7 @@ impl ApplicationBuilder {
                                 .describe_repositories()
                                 .repository_names(self.context.name.clone())
                                 .send()
-                                .await
-                                ?;
+                                .await?;
                             // println!("Respositories: {:?}", respositories.repositories());
                             let mut application_repository_uri: Option<String> = None;
 
@@ -617,8 +1131,7 @@ impl ApplicationBuilder {
                                     .create_repository()
                                     .repository_name(self.context.name.clone())
                                     .send()
-                                    .await
-                                    ?;
+                                    .await?;
                                 if let Some(repository) = create_repository_output.repository() {
                                     if let Some(repository_uri) = repository.repository_uri() {
                                         application_repository_uri =
@@ -638,13 +1151,12 @@ impl ApplicationBuilder {
                             }
 
                             let kubeconfig = Kubeconfig::from_yaml(&cluster_data.cluster_config)?;
-                            
+
                             // tracing::info!("Kubeconfig: {:?}", kubeconfig);
                             let options = KubeConfigOptions::default();
 
-                            let config = KubeConfig::from_custom_kubeconfig(kubeconfig, &options)
-                                .await
-                                ?;
+                            let config =
+                                KubeConfig::from_custom_kubeconfig(kubeconfig, &options).await?;
 
                             let client = KubeClient::try_from(config)?;
 
@@ -669,51 +1181,51 @@ impl ApplicationBuilder {
                             }
 
                             let deployment_config = serde_json::from_value(json!({
-                                    "apiVersion": "apps/v1",
-                                    "kind": "Deployment",
-                                    "metadata": {
-                                        "name": format!("{}-deployment", self.context.name),
+                                "apiVersion": "apps/v1",
+                                "kind": "Deployment",
+                                "metadata": {
+                                    "name": format!("{}-deployment", self.context.name),
+                                },
+                                "spec": {
+                                    "replicas": 1,
+                                    "selector": {
+                                        "matchLabels": {
+                                            "name": format!("{}-pod", self.context.name),
+                                            "app": format!("{}", self.context.name),
+                                        }
                                     },
-                                    "spec": {
-                                        "replicas": 1,
-                                        "selector": {
-                                            "matchLabels": {
+                                    "template": {
+                                        "metadata": {
+                                            "labels": {
                                                 "name": format!("{}-pod", self.context.name),
                                                 "app": format!("{}", self.context.name),
                                             }
                                         },
-                                        "template": {
-                                            "metadata": {
-                                                "labels": {
-                                                    "name": format!("{}-pod", self.context.name),
-                                                    "app": format!("{}", self.context.name),
+                                        "spec": {
+                                            "containers": [
+                                                {
+                                                    "name": format!("{}-container", self.context.name),
+                                                    "image": format!("{}:{}", application_repository_uri.unwrap(), self.context.build_version),
+                                                    "imagePullPolicy": "Always",
+                                                    "ports": [
+                                                        {
+                                                            "containerPort": 8000
+                                                        }
+                                                    ],
+                                                    "env": envs,
+                                                    "envFrom": [
+                                                        {
+                                                            "secretRef": {
+                                                                "name": format!("{}-secret", self.context.name)
+                                                            }
+                                                        }
+                                                    ]
                                                 }
-                                            },
-                                            "spec": {
-                                                "containers": [
-                                                    {
-                                                        "name": format!("{}-container", self.context.name),
-                                                        "image": format!("{}:{}", application_repository_uri.unwrap(), self.context.build_version),
-                                                        "imagePullPolicy": "Always",
-                                                        "ports": [
-                                                            {
-                                                                "containerPort": 8000
-                                                            }
-                                                        ],
-                                                        "env": envs,
-                                                        "envFrom": [
-                                                            {
-                                                                "secretRef": {
-                                                                    "name": format!("{}-secret", self.context.name)
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
-                                            }
+                                            ]
                                         }
                                     }
-                                }))?;
+                                }
+                            }))?;
 
                             let deployment = deployments
                                 .get(&format!("{}-deployment", self.context.name))
@@ -729,8 +1241,7 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&deployment_config),
                                         )
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                                 Err(_e) => {
                                     tracing::info!(
@@ -739,8 +1250,7 @@ impl ApplicationBuilder {
                                     );
                                     deployments
                                         .create(&PostParams::default(), &deployment_config)
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                             }
 
@@ -776,8 +1286,7 @@ impl ApplicationBuilder {
                                         }
                                     ]
                                 }
-                            }))
-                            ?;
+                            }))?;
 
                             let service = services
                                 .get(&format!("{}-service", self.context.name))
@@ -793,15 +1302,13 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&service_config),
                                         )
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                                 Err(_e) => {
                                     tracing::info!("Service does not exist, creating");
                                     services
                                         .create(&PostParams::default(), &service_config)
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                             }
 
@@ -823,8 +1330,7 @@ impl ApplicationBuilder {
                                 },
                                 "type": "Opaque",
                                 "data": secret_map
-                            }))
-                            ?;
+                            }))?;
 
                             let secrets: Api<Secret> = Api::default_namespaced(client.clone());
 
@@ -841,15 +1347,13 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&secret_config),
                                         )
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                                 Err(_e) => {
                                     tracing::info!("Secret does not exist, creating");
                                     secrets
                                         .create(&PostParams::default(), &secret_config)
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                             }
 

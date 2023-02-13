@@ -1,11 +1,13 @@
 use std::str::FromStr;
 
 use axum::{
+    http::Request,
     extract::{Path, Query},
     http::StatusCode,
     response::IntoResponse,
     Extension, Json,
 };
+use hyper::Body;
 use serde_json::json;
 use uuid::Uuid;
 
@@ -97,12 +99,22 @@ pub async fn get_application_builds(
 
 pub async fn create_application_build(
     Extension(faasly): Extension<FaaslyState>,
-    Json(payload): Json<NewApplicationBuild>,
+    req: Request<Body>,
 ) -> impl IntoResponse {
+    let headers = req.headers().clone();
+
+    let body = hyper::body::to_bytes(req.into_body()).await.unwrap();
+    let body = body.to_vec();
+    let payload: NewApplicationBuild = serde_json::from_slice(&body).unwrap();
+
+    let auth_header = headers
+        .get("Authorization")
+        .and_then(|header| header.to_str().ok());
+
     let res = faasly
         .services
         .application_build
-        .create_application_build(payload).await;
+        .create_application_build(payload, auth_header.unwrap().to_string()).await;
     match res {
         Ok(res) => (
             StatusCode::OK,

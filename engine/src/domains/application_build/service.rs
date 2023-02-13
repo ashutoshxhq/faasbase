@@ -1,4 +1,3 @@
-use super::builder::ApplicationBuilder;
 use super::model::{
     ApplicationBuild, ApplicationBuildContext, ApplicationBuildWithUser, ApplicationConfig,
     NewApplicationBuild, UpdateApplicationBuild,
@@ -11,9 +10,7 @@ use crate::schema::application_builds::{self, dsl};
 use crate::schema::applications::dsl as application_dsl;
 use crate::schema::clusters::dsl as cluster_dsl;
 use crate::state::DbPool;
-use chrono::Utc;
 use diesel::{prelude::*, sql_query};
-use serde_json::Value;
 use std::str::FromStr;
 use uuid::Uuid;
 #[derive(Clone)]
@@ -84,6 +81,7 @@ impl ApplicationBuildService {
     pub async fn create_application_build(
         &self,
         application_build_payload: NewApplicationBuild,
+        auth_token: String,
     ) -> Result<ApplicationBuild, Error> {
         let mut conn = self.pool.clone().get().unwrap();
 
@@ -160,301 +158,27 @@ impl ApplicationBuildService {
                 workspace_id: application.workspace_id,
             };
 
-            tokio::spawn(async move {
-                let application_builder = ApplicationBuilder::new(application_build_context);
-                let setup_directories = application_builder.setup_directories();
-                if setup_directories.is_err() {
-                    let logs = serde_json::to_value(vec![serde_json::json!({
-                        "message": "Error setting up directories",
-                        "timestamp": Utc::now().naive_utc(),
-                        "level": "error"
-                    })])
-                    .unwrap();
+            // call build service api to build the application
 
-                    tracing::error!("Error setting up directories");
-                    let build_update_payload = UpdateApplicationBuild {
-                        version: application_build_payload.version.clone(),
-                        build_status: Some("ERROR".to_string()),
-                        deployment_status: Some("ERROR".to_string()),
-                        changelog: None,
-                        config: None,
-                        logs: Some(logs),
-                        deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
-                        built_at: None,
-                    };
+            let client = reqwest::Client::new();
+            let url = format!(
+                "{}/build",
+                std::env::var("BUILD_SERVICE_URL").unwrap()
+            );
 
-                    let _build_update =
-                        diesel::update(dsl::application_builds.find(results.id.clone()))
-                            .set(&build_update_payload)
-                            .get_result::<ApplicationBuild>(&mut conn)?;
-                    return Err(setup_directories.err().unwrap());
-                }
+            let response = client
+                .post(&url)
+                .json(&application_build_context)
+                .header("Authorization", auth_token)
+                .send()
+                .await?;
 
-                let download_functions = application_builder.download_functions().await;
-                if download_functions.is_err() {
-                    tracing::error!("Error downloading functions");
+            if response.status().is_success() {
+                tracing::info!("Build service api call success");
+            } else {
+                tracing::error!("Build service api call failed");
+            }
 
-                    let logs = serde_json::to_value(vec![serde_json::json!({
-                        "message": "Error downloading functions",
-                        "timestamp": Utc::now().naive_utc(),
-                        "level": "error"
-                    })])
-                    .unwrap();
-
-                    let build_update_payload = UpdateApplicationBuild {
-                        version: application_build_payload.version.clone(),
-                        build_status: Some("ERROR".to_string()),
-                        deployment_status: Some("ERROR".to_string()),
-                        changelog: None,
-                        config: None,
-                        logs: Some(logs),
-                        deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
-                        built_at: None,
-                    };
-
-                    let _build_update =
-                        diesel::update(dsl::application_builds.find(results.id.clone()))
-                            .set(&build_update_payload)
-                            .get_result::<ApplicationBuild>(&mut conn)?;
-                    return Err(download_functions.err().unwrap());
-                }
-
-                let generate_application = application_builder.generate_application().await;
-                if generate_application.is_err() {
-                    tracing::error!("Error generating application");
-
-                    let logs = serde_json::to_value(vec![serde_json::json!({
-                        "message": "Error generating application",
-                        "timestamp": Utc::now().naive_utc(),
-                        "level": "error"
-                    })])
-                    .unwrap();
-
-                    let build_update_payload = UpdateApplicationBuild {
-                        version: application_build_payload.version.clone(),
-                        build_status: Some("ERROR".to_string()),
-                        deployment_status: Some("ERROR".to_string()),
-                        changelog: None,
-                        config: None,
-                        logs: Some(logs),
-                        deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
-                        built_at: None,
-                    };
-
-                    let _build_update =
-                        diesel::update(dsl::application_builds.find(results.id.clone()))
-                            .set(&build_update_payload)
-                            .get_result::<ApplicationBuild>(&mut conn)?;
-                    return Err(generate_application.err().unwrap());
-                }
-
-                let push_application_to_s3 = application_builder.push_application_to_s3().await;
-                if push_application_to_s3.is_err() {
-                    tracing::error!("Error pushing application to s3");
-                    let err = push_application_to_s3.err().unwrap();
-
-                    let logs = serde_json::to_value(vec![serde_json::json!({
-                        "message": "Error pushing application to s3",
-                        "error" : err.to_string(),
-                        "timestamp": Utc::now().naive_utc(),
-                        "level": "error"
-                    })])
-                    .unwrap();
-
-                    let build_update_payload = UpdateApplicationBuild {
-                        version: application_build_payload.version.clone(),
-                        build_status: Some("ERROR".to_string()),
-                        deployment_status: Some("ERROR".to_string()),
-                        changelog: None,
-                        config: None,
-                        logs: Some(logs),
-                        deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
-                        built_at: None,
-                    };
-
-                    let _build_update =
-                        diesel::update(dsl::application_builds.find(results.id.clone()))
-                            .set(&build_update_payload)
-                            .get_result::<ApplicationBuild>(&mut conn)?;
-                    return Err(err);
-                }
-
-                let build_docker_image_res = application_builder.build_docker_image().await;
-                if build_docker_image_res.is_err() {
-                    tracing::error!("Error building docker image");
-
-                    let err = build_docker_image_res.err().unwrap();
-                    let logs = serde_json::to_value(vec![serde_json::json!({
-                        "message": "Error building application image",
-                        "error": err.to_string(),
-                        "timestamp": Utc::now().naive_utc(),
-                        "level": "error"
-                    })])
-                    .unwrap();
-
-                    let build_update_payload = UpdateApplicationBuild {
-                        version: application_build_payload.version.clone(),
-                        build_status: Some("ERROR".to_string()),
-                        deployment_status: Some("ERROR".to_string()),
-                        changelog: None,
-                        config: None,
-                        logs: Some(logs),
-                        deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
-                        built_at: None,
-                    };
-
-                    let _build_update =
-                        diesel::update(dsl::application_builds.find(results.id.clone()))
-                            .set(&build_update_payload)
-                            .get_result::<ApplicationBuild>(&mut conn)?;
-                    return Err(err);
-                }
-
-                let build_docker_image_logs = build_docker_image_res?;
-                let logs = serde_json::to_value(build_docker_image_logs.clone())?;
-
-                let build_update_payload = UpdateApplicationBuild {
-                    version: application_build_payload.version.clone(),
-                    build_status: Some("SUCCESS".to_string()),
-                    deployment_status: Some("DEPLOYING".to_string()),
-                    changelog: None,
-                    config: None,
-                    logs: Some(logs),
-                    deleted_at: None,
-                    built_at: Some(Utc::now().naive_utc()),
-                    deployed_at: None,
-                };
-
-                let _build_update =
-                    diesel::update(dsl::application_builds.find(results.id.clone()))
-                        .set(&build_update_payload)
-                        .get_result::<ApplicationBuild>(&mut conn)?;
-
-                let push_docker_image_res = application_builder.push_docker_image().await;
-                if push_docker_image_res.is_err() {
-                    tracing::error!("Error pushing docker image");
-                    let error = push_docker_image_res.err().unwrap();
-
-                    let log = serde_json::to_value(vec![serde_json::json!({
-                        "message": "Error pushing application image",
-                        "error": error.to_string(),
-                        "timestamp": Utc::now().naive_utc(),
-                        "level": "error"
-                    })])
-                    .unwrap();
-
-                    let mut logs: Vec<Value> = Vec::new();
-
-                    for log in build_docker_image_logs {
-                        logs.push(serde_json::to_value(log).unwrap());
-                    }
-                    logs.push(log);
-
-                    let logs = serde_json::to_value(logs)?;
-
-                    let build_update_payload = UpdateApplicationBuild {
-                        version: application_build_payload.version.clone(),
-                        build_status: Some("SUCCESS".to_string()),
-                        deployment_status: Some("ERROR".to_string()),
-                        changelog: None,
-                        config: None,
-                        logs: Some(logs),
-                        deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
-                        built_at: None,
-                    };
-
-                    let _build_update =
-                        diesel::update(dsl::application_builds.find(results.id.clone()))
-                            .set(&build_update_payload)
-                            .get_result::<ApplicationBuild>(&mut conn)?;
-                    return Err(error);
-                }
-
-                let deploy_application = application_builder.deploy_application().await;
-                if deploy_application.is_err() {
-                    let err = deploy_application.err().unwrap();
-                    tracing::error!("Error deploying application, error={:?}", err.to_string());
-
-                    let push_docker_image_logs = push_docker_image_res?;
-                    let mut logs: Vec<Value> = Vec::new();
-
-                    for log in build_docker_image_logs {
-                        logs.push(log);
-                    }
-
-                    for log in push_docker_image_logs {
-                        logs.push(log);
-                    }
-
-                    let log = serde_json::to_value(vec![serde_json::json!({
-                        "message": "Error deploying application",
-                        "error": err.to_string(),
-                        "timestamp": Utc::now().naive_utc(),
-                        "level": "error"
-                    })])
-                    .unwrap();
-
-                    logs.push(log);
-
-                    let logs = serde_json::to_value(logs)?;
-                    let build_update_payload = UpdateApplicationBuild {
-                        version: application_build_payload.version.clone(),
-                        build_status: Some("SUCCESS".to_string()),
-                        deployment_status: Some("ERROR".to_string()),
-                        changelog: None,
-                        config: None,
-                        logs: Some(logs),
-                        deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
-                        built_at: None,
-                    };
-
-                    let _build_update =
-                        diesel::update(dsl::application_builds.find(results.id.clone()))
-                            .set(&build_update_payload)
-                            .get_result::<ApplicationBuild>(&mut conn)?;
-                    return Err(err);
-                }
-
-                let push_docker_image_logs = push_docker_image_res?;
-                let mut logs: Vec<Value> = Vec::new();
-
-                for log in build_docker_image_logs {
-                    logs.push(log);
-                }
-
-                for log in push_docker_image_logs {
-                    logs.push(log);
-                }
-
-                let logs = serde_json::to_value(logs)?;
-
-                let build_update_payload = UpdateApplicationBuild {
-                    version: application_build_payload.version.clone(),
-                    build_status: Some("SUCCESS".to_string()),
-                    deployment_status: Some("SUCCESS".to_string()),
-                    changelog: None,
-                    config: None,
-                    logs: Some(logs),
-                    deleted_at: None,
-                    deployed_at: Some(Utc::now().naive_utc()),
-                    built_at: None,
-                };
-
-                let _build_update =
-                    diesel::update(dsl::application_builds.find(results.id.clone()))
-                        .set(&build_update_payload)
-                        .get_result::<ApplicationBuild>(&mut conn)?;
-
-                Ok(())
-            })
-            .await??;
         } else {
             tracing::error!("No application id found for application build");
         }
