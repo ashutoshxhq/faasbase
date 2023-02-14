@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: faasly-engine-service-pod
-          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/faasly-engine-service:latest
+          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/faasly-engine-service:75896eb89f63b028739ff75eb097ee12bb2df546
           ports:
             - containerPort: 8000
           env:
