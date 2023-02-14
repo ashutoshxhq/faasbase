@@ -3,12 +3,7 @@ FROM rust:1.65 as builder
 RUN USER=root cargo new --bin build-worker
 WORKDIR ./build-worker
 COPY ./Cargo.toml ./Cargo.toml
-RUN cargo build --release
-RUN rm src/*.rs
-
 ADD . ./
-
-RUN rm ./target/release/deps/build-worker*
 RUN cargo build --release
 
 
