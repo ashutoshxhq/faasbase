@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: faasly-engine-service-deployment
+  name: build-worker-deployment
   labels:
-    name: faasly-engine-service-deployment
+    name: build-worker-deployment
     app: faasly
 spec:
-  replicas: 1
+  replicas: 5
   selector:
     matchLabels:
       app: faasly
-      api.faasly.dev: proxy
+      name: build-worker-pod
   template:
     metadata:
-      name: faasly-engine-service-pod
+      name: build-worker-pod
       labels:
         app: faasly
-        api.faasly.dev: proxy
+        name: build-worker-pod
     spec:
       containers:
-        - name: faasly-engine-service-pod
-          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/faasly-engine-service:latest
+        - name: build-worker-pod
+          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/build-worker:latest
           ports:
             - containerPort: 8000
           env:
@@ -34,7 +34,7 @@ spec:
             value: tcp://localhost:2375 
           envFrom:
           - secretRef:
-              name: faasly-engine-service-secrets
+              name: build-worker-secrets
         - name: dind-daemon 
           image: docker:20.10-dind
           securityContext: 
