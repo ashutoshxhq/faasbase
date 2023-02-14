@@ -5,10 +5,13 @@ use serde_json::json;
 use crate::{authz::TokenClaims, builder::ApplicationBuilder, types::ApplicationBuildContext};
 
 pub async fn health(Extension(_claims): Extension<TokenClaims>) -> impl IntoResponse {
+
+    let hostname = std::env::var("HOSTNAME").unwrap_or_else(|_| "unknown".to_string());
     (
         StatusCode::OK,
         Json(json!({
             "status": "ok",
+            "hostname": hostname,
         })),
     )
 }

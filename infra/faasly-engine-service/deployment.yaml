@@ -38,11 +38,4 @@ spec:
         - name: dind-daemon 
           image: docker:20.10-dind
           securityContext: 
-              privileged: true 
-          volumeMounts: 
-            - name: docker-graph-storage 
-              mountPath: /var/lib/docker 
-      volumes: 
-        - name: docker-graph-storage 
-          emptyDir: {}
-    
+              privileged: true

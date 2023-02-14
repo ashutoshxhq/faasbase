@@ -6,7 +6,7 @@ metadata:
     name: build-worker-deployment
     app: faasly
 spec:
-  replicas: 5
+  replicas: 4
   selector:
     matchLabels:
       app: faasly
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: build-worker-pod
-          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/build-worker:latest
+          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/build-worker:a5a3ca11d276e7ad58520127195621544d3811df
           ports:
             - containerPort: 8000
           env:
@@ -38,11 +38,4 @@ spec:
         - name: dind-daemon 
           image: docker:20.10-dind
           securityContext: 
-              privileged: true 
-          volumeMounts: 
-            - name: docker-graph-storage 
-              mountPath: /var/lib/docker 
-      volumes: 
-        - name: docker-graph-storage 
-          emptyDir: {}
-    
+              privileged: true
