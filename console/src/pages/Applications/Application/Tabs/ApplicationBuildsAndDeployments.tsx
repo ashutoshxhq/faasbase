@@ -146,6 +146,15 @@ function ApplicationBuildsAndDeployments() {
                       <Icon as={HiX} color="inverted" boxSize="5" />
                     </Circle> : null}
 
+                    {build?.deployment_status === "NOT_STARTED" ? <Circle
+                      size="8"
+                      bg={'blue.500'}
+                      borderWidth={'0'}
+                      borderColor={"blue.500"}
+                    >
+                      <Icon as={HiDotsHorizontal} color="white" boxSize="5" />
+                    </Circle> : null}
+
                     {build?.deployment_status === "DEPLOYING" ? <Circle
                       size="8"
                       bg={'blue.500'}
