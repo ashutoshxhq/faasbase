@@ -1,5 +1,6 @@
 use axum::{http::Request, response::IntoResponse, Extension, Json};
 use hyper::{Body, StatusCode};
+use pickledb::{PickleDb, PickleDbDumpPolicy, SerializationMethod};
 use serde_json::json;
 
 use crate::{authz::TokenClaims, builder::ApplicationBuilder, types::ApplicationBuildContext};
@@ -20,6 +21,10 @@ pub async fn build_application(
     Extension(_claims): Extension<TokenClaims>,
     req: Request<Body>,
 ) -> impl IntoResponse {
+
+    let mut db = PickleDb::load("status.db", PickleDbDumpPolicy::AutoDump, SerializationMethod::Json).unwrap();
+    db.set("status", &String::from("BUSY")).unwrap();
+
     let headers = req.headers().clone();
 
     let body = req.into_body();
@@ -36,6 +41,8 @@ pub async fn build_application(
         let auth_token = auth_token.unwrap();
         let application_builder = ApplicationBuilder::new(application_build_context, auth_token.to_string());
         let _application_build = application_builder.build().await;
+
+        db.set("status", &String::from("FREE")).unwrap();
 
         return (
             StatusCode::OK,

@@ -28,6 +28,11 @@ pub struct ApplicationBuildContext {
     pub deleted_at: Option<NaiveDateTime>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WorkerPingPayload {
+    pub hostname: String,
+    pub status: String,
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ApplicationResourceWithFunction {
