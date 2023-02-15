@@ -6,7 +6,7 @@ metadata:
   region: us-west-2
 
 nodeGroups:
-  - name: ng-t2-medium
-    instanceType: t2.medium
+  - name: ng-t2-large
+    instanceType: t2.large
     desiredCapacity: 1
     volumeSize: 40

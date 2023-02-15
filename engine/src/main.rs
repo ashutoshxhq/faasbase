@@ -19,7 +19,6 @@ use tower_http::{
 async fn main() {
     dotenv().ok();
     let _db = PickleDb::new("workers.db", PickleDbDumpPolicy::AutoDump, SerializationMethod::Json);
-
     let app_env = std::env::var("APP_ENV").unwrap_or_else(|_| "prod".into());
     if app_env == "dev" {
         let format = tracing_subscriber::fmt::format()

@@ -30,12 +30,6 @@ spec:
             value: "http://build-worker-service"
           - name: ENGINE_SERVICE_URL
             value: "http://faasly-engine-service"
-          - name: DOCKER_HOST 
-            value: tcp://localhost:2375 
           envFrom:
           - secretRef:
               name: faasly-engine-service-secrets
-        - name: dind-daemon 
-          image: docker:20.10-dind
-          securityContext: 
-              privileged: true
