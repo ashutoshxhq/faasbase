@@ -3,12 +3,8 @@ FROM rust:1.65 as builder
 RUN USER=root cargo new --bin faasly-engine-service
 WORKDIR ./faasly-engine-service
 COPY ./Cargo.toml ./Cargo.toml
-RUN cargo build --release
-RUN rm src/*.rs
 
 ADD . ./
-
-RUN rm ./target/release/deps/faasly_engine_service*
 RUN cargo build --release
 
 
