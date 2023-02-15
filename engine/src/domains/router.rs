@@ -2,7 +2,7 @@ use axum::Router;
 use super::{
     application, application_build, application_collaborator, application_log,
     application_resource, cluster, function, function_build, function_collaborator, workspaces,
-    workspace_audit_logs, workspace_members, user, authn, database, database_table, database_table_field, workers
+    workspace_audit_logs, workspace_members, user, authn, database, database_table, database_table_field, workers, health
 };
 
 pub fn router() -> Router {
@@ -25,4 +25,5 @@ pub fn router() -> Router {
         .merge(database_table::router())
         .merge(database_table_field::router())
         .merge(workers::router())
+        .merge(health::router())
 }

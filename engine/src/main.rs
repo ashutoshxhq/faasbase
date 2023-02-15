@@ -6,7 +6,6 @@ mod state;
 use axum::{error_handling::HandleErrorLayer, http::StatusCode, BoxError, Extension, Router};
 use domains::*;
 use dotenvy::dotenv;
-use pickledb::{PickleDb, PickleDbDumpPolicy, SerializationMethod};
 use state::FaaslyState;
 use std::{env, net::SocketAddr, time::Duration};
 use tower::ServiceBuilder;
@@ -14,48 +13,56 @@ use tower_http::{
     cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
+use tracing::Level;
+use tracing_subscriber::FmtSubscriber;
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    let _db = PickleDb::new("workers.db", PickleDbDumpPolicy::AutoDump, SerializationMethod::Json);
-    let app_env = std::env::var("APP_ENV").unwrap_or_else(|_| "prod".into());
-    if app_env == "dev" {
-        let format = tracing_subscriber::fmt::format()
-        .with_level(true)
-        .with_target(true)
-        .with_thread_ids(true)
-        .with_thread_names(true)
-        .with_file(true)
-        .with_line_number(true)
-        .with_source_location(true)
-        .compact();
+    // let app_env = std::env::var("APP_ENV").unwrap_or_else(|_| "prod".into());
 
-    tracing_subscriber::fmt()
-        .event_format(format)
-        .with_env_filter(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG").unwrap_or_else(|_| "faasly=debug,tower_http=debug".into()),
-        ))
-        .init();
-    } else {
-        let format = tracing_subscriber::fmt::format()
-            .with_level(true)
-            .with_target(true)
-            .with_thread_ids(true)
-            .with_thread_names(true)
-            .with_file(true)
-            .with_line_number(true)
-            .with_source_location(true)
-            .with_ansi(false)
-            .json();
-        tracing_subscriber::fmt()
-            .event_format(format)
-            .with_env_filter(tracing_subscriber::EnvFilter::new(
-                std::env::var("RUST_LOG")
-                    .unwrap_or_else(|_| "faasly=debug,tower_http=debug".into()),
-            ))
-            .init();
-    }
+    // if app_env == "dev" {
+    //     let format = tracing_subscriber::fmt::format()
+    //         .with_level(true)
+    //         .with_target(true)
+    //         .with_thread_ids(true)
+    //         .with_thread_names(true)
+    //         .with_file(true)
+    //         .with_line_number(true)
+    //         .with_source_location(true)
+    //         .compact();
+
+    //     tracing_subscriber::fmt()
+    //         .event_format(format)
+    //         .with_env_filter(tracing_subscriber::EnvFilter::new(
+    //             std::env::var("RUST_LOG")
+    //                 .unwrap_or_else(|_| "faasly=debug,tower_http=debug".into()),
+    //         ))
+    //         .init();
+    // } else {
+    //     let format = tracing_subscriber::fmt::format()
+    //         .with_level(true)
+    //         .with_target(true)
+    //         .with_thread_ids(true)
+    //         .with_thread_names(true)
+    //         .with_file(true)
+    //         .with_line_number(true)
+    //         .with_source_location(true)
+    //         .with_ansi(false)
+    //         .json();
+    //     tracing_subscriber::fmt()
+    //         .event_format(format)
+    //         .with_env_filter(tracing_subscriber::EnvFilter::new(
+    //             std::env::var("RUST_LOG")
+    //                 .unwrap_or_else(|_| "faasly=debug,tower_http=debug".into()),
+    //         ))
+    //         .init();
+    // }
+
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::TRACE)
+        .finish();
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
     let app = Router::new().merge(router::router()).layer(
         ServiceBuilder::new()
@@ -81,6 +88,7 @@ async fn main() {
             .into_inner(),
     );
 
+    
     let addr = SocketAddr::from((
         [0, 0, 0, 0],
         env::var("PORT")

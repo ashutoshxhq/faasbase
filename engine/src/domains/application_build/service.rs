@@ -11,9 +11,9 @@ use crate::schema::applications::dsl as application_dsl;
 use crate::schema::clusters::dsl as cluster_dsl;
 use crate::state::DbPool;
 use diesel::{prelude::*, sql_query};
-use pickledb::{PickleDb, PickleDbDumpPolicy, SerializationMethod};
 use std::str::FromStr;
 use uuid::Uuid;
+
 #[derive(Clone)]
 pub struct ApplicationBuildService {
     pub pool: DbPool,
@@ -161,21 +161,10 @@ impl ApplicationBuildService {
 
             // call build service api to build the application
 
-            let mut db = PickleDb::load("workers.db", PickleDbDumpPolicy::AutoDump, SerializationMethod::Json).unwrap();
+            
+            let free_worker_hostname = String::new();
 
-            let workers = db.get_all();
-
-            let mut free_worker_hostname = String::new();
-
-            for worker in workers {
-                let status = db.get::<String>(&worker.clone()).unwrap();
-                if status == "FREE" {
-                    free_worker_hostname = worker.clone();
-                    db.set(&worker, &String::from("BUSY")).unwrap();
-                    break;
-                }
-            }
-
+           
             let client = reqwest::Client::new();
             let url = format!(
                 "{}/build",
