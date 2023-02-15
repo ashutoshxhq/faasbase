@@ -207,32 +207,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aws-sdk-elasticache"
-version = "0.24.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb59324bc866a37d921f120b471ec266552e2865f5aec2d6059858ff93c1d5df"
-dependencies = [
- "aws-credential-types",
- "aws-endpoint",
- "aws-http",
- "aws-sig-auth",
- "aws-smithy-async",
- "aws-smithy-client",
- "aws-smithy-http",
- "aws-smithy-http-tower",
- "aws-smithy-json",
- "aws-smithy-query",
- "aws-smithy-types",
- "aws-smithy-xml",
- "aws-types",
- "bytes",
- "http",
- "regex",
- "tokio-stream",
- "tower",
-]
-
-[[package]]
 name = "aws-sdk-s3"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1168,38 +1142,23 @@ dependencies = [
  "aws-config",
  "aws-credential-types",
  "aws-sdk-ecr",
- "aws-sdk-elasticache",
  "aws-sdk-s3",
  "axum",
- "base64 0.21.0",
- "bollard",
  "chrono",
  "diesel",
- "dotenv",
  "dotenvy",
- "flate2",
- "futures-util",
  "hyper",
- "itertools",
  "jsonwebtoken",
  "jwt",
- "k8s-openapi",
- "kube",
- "pickledb",
  "redis",
  "reqwest",
- "schemars",
  "serde",
  "serde_json",
- "tar",
  "tokio",
  "tower",
  "tower-http",
  "tracing",
  "tracing-subscriber",
- "urlencoding",
- "utoipa",
- "utoipa-swagger-ui",
  "uuid",
  "walkdir",
  "zip",
