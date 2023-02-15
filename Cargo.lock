@@ -1138,6 +1138,7 @@ dependencies = [
  "jwt",
  "k8s-openapi",
  "kube",
+ "pickledb",
  "reqwest",
  "schemars",
  "serde",

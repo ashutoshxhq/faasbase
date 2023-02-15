@@ -6,6 +6,7 @@ mod state;
 use axum::{error_handling::HandleErrorLayer, http::StatusCode, BoxError, Extension, Router};
 use domains::*;
 use dotenvy::dotenv;
+use pickledb::{PickleDb, PickleDbDumpPolicy, SerializationMethod};
 use state::FaaslyState;
 use std::{env, net::SocketAddr, time::Duration};
 use tower::ServiceBuilder;
@@ -17,6 +18,8 @@ use tower_http::{
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+    let _db = PickleDb::new("workers.db", PickleDbDumpPolicy::AutoDump, SerializationMethod::Json);
+
     let app_env = std::env::var("APP_ENV").unwrap_or_else(|_| "prod".into());
     if app_env == "dev" {
         let format = tracing_subscriber::fmt::format()
