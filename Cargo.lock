@@ -681,6 +681,7 @@ dependencies = [
  "aws-config",
  "aws-credential-types",
  "aws-sdk-ecr",
+ "aws-sdk-s3",
  "axum",
  "base64 0.21.0",
  "bollard",
