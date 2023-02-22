@@ -1,2 +1,2 @@
-# faasly
-Monorepo for Faasly Platform
+# Faasbase Platform
+Monorepo for Faasbase Platform
