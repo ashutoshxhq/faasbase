@@ -19,7 +19,7 @@ const DatabaseTable = () => {
     }
 
     useEffect(() => {
-        document.title = "Faasly Console | Database | Table | " + table?.data?.data?.data?.name
+        document.title = "Faasbase Console | Database | Table | " + table?.data?.data?.data?.name
     }, [table?.data?.data?.data])
 
     return (

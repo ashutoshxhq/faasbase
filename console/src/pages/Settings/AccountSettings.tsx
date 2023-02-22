@@ -80,7 +80,7 @@ const AccountSettings = () => {
     };
 
     useEffect(() => {
-        document.title = "Faasly Console | Account Settings"
+        document.title = "Faasbase Console | Account Settings"
       }, [])
 
     return (
@@ -213,7 +213,7 @@ const AccountSettings = () => {
                                         _active={{ backgroundColor: "red.600" }}
                                         onClick={onOpen}
                                     >
-                                        Logout from Faasly
+                                        Logout from Faasbase
                                     </Button>
                                 </Box>
                             </Stack>

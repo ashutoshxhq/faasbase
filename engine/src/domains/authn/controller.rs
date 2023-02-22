@@ -2,13 +2,13 @@ use axum::{response::IntoResponse, Extension, Json};
 use hyper::StatusCode;
 use serde_json::json;
 
-use crate::{state::FaaslyState, extras::types::RegisterWebhookRequest};
+use crate::{state::FaasbaseState, extras::types::RegisterWebhookRequest};
 
 pub async fn register_webhook(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(data): Json<RegisterWebhookRequest>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .authn
         .register_webhook(data)

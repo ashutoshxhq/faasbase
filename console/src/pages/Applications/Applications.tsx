@@ -45,7 +45,7 @@ const Applications = () => {
   })
 
   useEffect(() => {
-    document.title = "Faasly Console | Applications"
+    document.title = "Faasbase Console | Applications"
   }, [])
 
 
@@ -90,26 +90,26 @@ const Applications = () => {
         <Divider />
         <Box display={"flex"} flexDirection={"column"} mb={6}>
           {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
-          {query.data?.data?.data?.map((faaslyApplication: any, index: number) => (
+          {query.data?.data?.data?.map((faasbaseApplication: any, index: number) => (
             <Box display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
               <Box cursor={"pointer"} onClick={()=>{
-                navigate(`/workspaces/${currentWorkspace?.name}/applications/${faaslyApplication.id}`)
+                navigate(`/workspaces/${currentWorkspace?.name}/applications/${faasbaseApplication.id}`)
               }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
-                <Text fontSize={"lg"} fontWeight={"medium"}>{faaslyApplication.name}</Text>
-                <Text fontSize={"xs"} color={"subtle"}>{faaslyApplication.description}</Text>
+                <Text fontSize={"lg"} fontWeight={"medium"}>{faasbaseApplication.name}</Text>
+                <Text fontSize={"xs"} color={"subtle"}>{faasbaseApplication.description}</Text>
               </Box>
               <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
                 <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>
-                  {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
-                  {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
-                  {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
-                  {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
+                  {faasbaseApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
+                  {faasbaseApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
+                  {faasbaseApplication.application_type === "DOCKER" ? "Docker" : null}
+                  {faasbaseApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
 
                 </Tag>
                 <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
-                  {faaslyApplication.visibility === "PUBLIC" ? "Public" : "Private"}
+                  {faasbaseApplication.visibility === "PUBLIC" ? "Public" : "Private"}
                 </Tag>
-                {faaslyApplication.deployed_version === "" || !faaslyApplication.deployed_version ? <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faaslyApplication.deployed_version}</Tag>}
+                {faasbaseApplication.deployed_version === "" || !faasbaseApplication.deployed_version ? <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faasbaseApplication.deployed_version}</Tag>}
                 <Menu size={"2xl"}>
                   <MenuButton
                     color={"whiteAlpha.800"}
@@ -129,7 +129,7 @@ const Applications = () => {
 
                     <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                       onClick={async () => {
-                        deleteMutation.mutate(faaslyApplication.id)
+                        deleteMutation.mutate(faasbaseApplication.id)
                       }}
                     >
                       Delete
@@ -155,7 +155,7 @@ const Applications = () => {
       >
 
 
-        {query.data?.data?.data?.map((faaslyApplication: any, index: number) => (
+        {query.data?.data?.data?.map((faasbaseApplication: any, index: number) => (
           <Box
             key={index}
             borderRadius={8}
@@ -173,7 +173,7 @@ const Applications = () => {
           >
 
             <Link
-              to={"/workspaces/" + currentWorkspace?.name + "/applications/" + faaslyApplication?.id}
+              to={"/workspaces/" + currentWorkspace?.name + "/applications/" + faasbaseApplication?.id}
               as={NavLink}
               display="flex"
               alignItems={"start"}
@@ -190,20 +190,20 @@ const Applications = () => {
                 flex={1}
               >
                 <Text fontSize={"md"} fontWeight={"semibold"} color="#e3e3e3" mb={1}>
-                  {faaslyApplication.name}
+                  {faasbaseApplication.name}
                 </Text>
                 <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1} mb={2}>
-                  {faaslyApplication.description}
+                  {faasbaseApplication.description}
                 </Text>
                 <Box display={"flex"} gap={2} mt={6}>
                   <Tag letterSpacing={"0.2px"} fontSize={"xs"}>
-                    {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
-                    {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
-                    {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
-                    {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
+                    {faasbaseApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
+                    {faasbaseApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
+                    {faasbaseApplication.application_type === "DOCKER" ? "Docker" : null}
+                    {faasbaseApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
 
                   </Tag>
-                  {faaslyApplication.latest_version === "" || !faaslyApplication.latest_version ? <Tag letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.latest_version}</Tag>}
+                  {faasbaseApplication.latest_version === "" || !faasbaseApplication.latest_version ? <Tag letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faasbaseApplication.latest_version}</Tag>}
                 </Box>
               </Box>
             </Link>
@@ -226,7 +226,7 @@ const Applications = () => {
 
                   <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                     onClick={async () => {
-                      deleteMutation.mutate(faaslyApplication.id)
+                      deleteMutation.mutate(faasbaseApplication.id)
                     }}
                   >
                     Delete
@@ -340,7 +340,7 @@ export function CreateApplication(props: CreateApplicationProp) {
                     Cloud Function
                   </Text>
                   <Text color="muted" fontSize="sm" mt={2}>
-                    Build a cloud function from faasly functions.
+                    Build a cloud function from faasbase functions.
                   </Text>
                 </RadioCard>
 

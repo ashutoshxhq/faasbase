@@ -12,7 +12,7 @@ const Marketplace = () => {
   }
 
   useEffect(() => {
-    document.title = "Faasly Console | Marketplace"
+    document.title = "Faasbase Console | Marketplace"
   }, [])
   return (
     <>

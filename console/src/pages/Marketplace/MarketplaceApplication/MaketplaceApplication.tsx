@@ -19,7 +19,7 @@ function MarketplaceApplication() {
   }
 
   useEffect(() => {
-    document.title = "Faasly Console | Applications | " + query?.data?.data?.data?.name
+    document.title = "Faasbase Console | Applications | " + query?.data?.data?.data?.name
   }, [query?.data])
 
 

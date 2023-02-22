@@ -8,20 +8,20 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 use crate::{
-    authz::TokenClaims, extras::types::{GetWorkspaceResourceQuery}, state::FaaslyState,
+    authz::TokenClaims, extras::types::{GetWorkspaceResourceQuery}, state::FaasbaseState,
 };
 
 use super::model::{NewDatabase, UpdateDatabase};
 
 
 pub async fn get_database(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(database_id): Path<String>,
 ) -> impl IntoResponse {
     let database_id = Uuid::from_str(&database_id);
     match database_id {
         Ok(database_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .databases
                 .get_database(database_id);
@@ -52,11 +52,11 @@ pub async fn get_database(
     }
 }
 pub async fn get_databases(
-  Extension(faasly): Extension<FaaslyState>,
+  Extension(faasbase): Extension<FaasbaseState>,
   Extension(_claims): Extension<TokenClaims>,
   query: Query<GetWorkspaceResourceQuery>,
 ) -> impl IntoResponse {
-  let res = faasly.services.databases.get_databases(
+  let res = faasbase.services.databases.get_databases(
       query.workspace_id,
       query.offset,
       query.limit,
@@ -81,11 +81,11 @@ pub async fn get_databases(
 
 
 pub async fn create_database(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Json(payload): Json<NewDatabase>,
 ) -> impl IntoResponse {
-    let res = faasly.services.databases.create_database(payload);
+    let res = faasbase.services.databases.create_database(payload);
     match res {
         Ok(res) => (
             StatusCode::OK,
@@ -106,14 +106,14 @@ pub async fn create_database(
 
 
 pub async fn update_database(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(database_id): Path<String>,
     Json(data): Json<UpdateDatabase>,
 ) -> impl IntoResponse {
     let database_id = Uuid::from_str(&database_id);
     match database_id {
         Ok(database_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .databases
                 .update_database(database_id, data);
@@ -146,13 +146,13 @@ pub async fn update_database(
 }
 
 pub async fn delete_database(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(database_id): Path<String>,
 ) -> impl IntoResponse {
     let database_id = Uuid::from_str(&database_id);
     match database_id {
         Ok(database_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .databases
                 .delete_database(database_id);

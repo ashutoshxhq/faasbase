@@ -1,11 +1,11 @@
 use axum::{Extension, Json, response::IntoResponse};
 use hyper::StatusCode;
 use serde_json::json;
-use crate::state::FaaslyState;
+use crate::state::FaasbaseState;
 use super::model::WorkerPingPayload;
 
 pub async fn worker_ping(
-    Extension(_faasly): Extension<FaaslyState>,
+    Extension(_faasbase): Extension<FaasbaseState>,
     Json(data): Json<WorkerPingPayload>,
 ) -> impl IntoResponse {
 

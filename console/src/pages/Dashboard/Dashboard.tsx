@@ -7,7 +7,7 @@ const Dashboard = () => {
   const [token, setToken] = useState("")
 
   useEffect(() => {
-    document.title = "Faasly Console | Dashboard"
+    document.title = "Faasbase Console | Dashboard"
   }, [])
   
   return (

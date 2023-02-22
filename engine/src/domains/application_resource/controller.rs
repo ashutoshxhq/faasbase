@@ -9,18 +9,18 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, extras::types::Pagination, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::Pagination, state::FaasbaseState};
 
 use super::model::{NewApplicationResource, UpdateApplicationResource};
 
 pub async fn get_application_resource(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_resource_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let application_resource_id = Uuid::from_str(&application_resource_id);
     match application_resource_id {
         Ok(application_resource_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_resource
                 .get_application_resource(application_resource_id);
@@ -52,7 +52,7 @@ pub async fn get_application_resource(
 }
 
 pub async fn get_application_resources(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Path(application_id): Path<String>,
     query: Query<Pagination>,
@@ -60,7 +60,7 @@ pub async fn get_application_resources(
     let application_id = Uuid::from_str(&application_id);
     match application_id {
         Ok(application_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_resource
                 .get_application_resources(application_id, query.offset, query.limit);
@@ -98,10 +98,10 @@ pub async fn get_application_resources(
 }
 
 pub async fn create_application_resource(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewApplicationResource>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .application_resource
         .create_application_resource(payload);
@@ -124,14 +124,14 @@ pub async fn create_application_resource(
 }
 
 pub async fn update_application_resource(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_resource_id)): Path<(String, String)>,
     Json(data): Json<UpdateApplicationResource>,
 ) -> impl IntoResponse {
     let application_resource_id = Uuid::from_str(&application_resource_id);
     match application_resource_id {
         Ok(application_resource_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_resource
                 .update_application_resource(application_resource_id, data);
@@ -164,13 +164,13 @@ pub async fn update_application_resource(
 }
 
 pub async fn delete_application_resource(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_resource_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let application_resource_id = Uuid::from_str(&application_resource_id);
     match application_resource_id {
         Ok(application_resource_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_resource
                 .delete_application_resource(application_resource_id);

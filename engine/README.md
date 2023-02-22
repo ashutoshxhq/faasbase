@@ -1,2 +1,2 @@
-# faasly
-Faasly application
+# faasbase
+Faasbase application

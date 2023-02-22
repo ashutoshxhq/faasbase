@@ -20,7 +20,7 @@ function MarketplaceApplications({searchQuery}: MAProps) {
   const navigate = useNavigate()
   const query = useQuery(['search-applications', { getAccessTokenSilently, currentWorkspace, searchQuery }], searchApplications)
   useEffect(() => {
-    document.title = "Faasly Console | Marketplace | Applicationd"
+    document.title = "Faasbase Console | Marketplace | Applicationd"
   }, [])
   return (
     <Box
@@ -31,7 +31,7 @@ function MarketplaceApplications({searchQuery}: MAProps) {
         mt={2}
         gap={"20px"}
       >
-        {query.data?.data?.data?.map((faaslyApplication: any, index: number) => (
+        {query.data?.data?.data?.map((faasbaseApplication: any, index: number) => (
           <Box
             key={index}
             borderRadius={8}
@@ -49,7 +49,7 @@ function MarketplaceApplications({searchQuery}: MAProps) {
           >
 
             <Link
-              to={"/marketplace/applications/" + faaslyApplication?.id}
+              to={"/marketplace/applications/" + faasbaseApplication?.id}
               as={NavLink}
               display="flex"
               alignItems={"start"}
@@ -66,20 +66,20 @@ function MarketplaceApplications({searchQuery}: MAProps) {
                 flex={1}
               >
                 <Text fontSize={"md"} fontWeight={"semibold"} color="#e3e3e3" mb={1}>
-                  {faaslyApplication.name}
+                  {faasbaseApplication.name}
                 </Text>
                 <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1} mb={2}>
-                  {faaslyApplication.description}
+                  {faasbaseApplication.description}
                 </Text>
                 <Box display={"flex"} gap={2} mt={6}>
                   <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>
-                    {faaslyApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
-                    {faaslyApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
-                    {faaslyApplication.application_type === "DOCKER" ? "Docker" : null}
-                    {faaslyApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
+                    {faasbaseApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
+                    {faasbaseApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
+                    {faasbaseApplication.application_type === "DOCKER" ? "Docker" : null}
+                    {faasbaseApplication.application_type === "SINGLE_PAGE_APPLICATION" ? "Single Page Application" : null}
 
                   </Tag>
-                  {faaslyApplication.deployed_version === "" || !faaslyApplication.deployed_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faaslyApplication.deployed_version}</Tag>}
+                  {faasbaseApplication.deployed_version === "" || !faasbaseApplication.deployed_version ? <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>No Builds</Tag> : <Tag color={"muted"} letterSpacing={"0.2px"} fontSize={"xs"}>Version: {faasbaseApplication.deployed_version}</Tag>}
                 </Box>
               </Box>
             </Link>

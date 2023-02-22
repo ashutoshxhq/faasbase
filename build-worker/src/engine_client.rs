@@ -1,6 +1,6 @@
 // write a function to call engine service application build update api
 
-use crate::types::{Error, FaaslyError, UpdateApplicationBuild, WorkerPingPayload};
+use crate::types::{Error, FaasbaseError, UpdateApplicationBuild, WorkerPingPayload};
 
 pub async fn update_application_build(
     application_build_id: String,
@@ -20,7 +20,7 @@ pub async fn update_application_build(
         .send()
         .await
         .map_err(|e| {
-            FaaslyError::new(
+            FaasbaseError::new(
                 "ENGINE_SERVICE_ERROR".to_string(),
                 format!("Error while calling engine service: {}", e),
                 500,
@@ -29,7 +29,7 @@ pub async fn update_application_build(
     if response.status().is_success() {
         Ok(())
     } else {
-        Err(FaaslyError::new(
+        Err(FaasbaseError::new(
             "ENGINE_SERVICE_ERROR".to_string(),
             format!(
                 "Error while calling engine service: {}",
@@ -52,7 +52,7 @@ pub async fn worker_ping(data: WorkerPingPayload) -> Result<(), Error> {
         .send()
         .await
         .map_err(|e| {
-            FaaslyError::new(
+            FaasbaseError::new(
                 "ENGINE_SERVICE_ERROR".to_string(),
                 format!("Error while calling engine service: {}", e),
                 500,
@@ -61,7 +61,7 @@ pub async fn worker_ping(data: WorkerPingPayload) -> Result<(), Error> {
     if response.status().is_success() {
         Ok(())
     } else {
-        Err(FaaslyError::new(
+        Err(FaasbaseError::new(
             "ENGINE_SERVICE_ERROR".to_string(),
             format!(
                 "Error while calling engine service: {}",

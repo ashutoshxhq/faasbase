@@ -4,18 +4,18 @@ metadata:
   name: build-worker-deployment
   labels:
     name: build-worker-deployment
-    app: faasly
+    app: faasbase
 spec:
   replicas: 6
   selector:
     matchLabels:
-      app: faasly
+      app: faasbase
       name: build-worker-pod
   template:
     metadata:
       name: build-worker-pod
       labels:
-        app: faasly
+        app: faasbase
         name: build-worker-pod
     spec:
       containers:
@@ -29,7 +29,7 @@ spec:
           - name: BUILD_SERVICE_URL
             value: "http://build-worker-service"
           - name: ENGINE_SERVICE_URL
-            value: "http://faasly-engine-service"
+            value: "http://faasbase-engine-service"
           - name: DOCKER_HOST 
             value: tcp://localhost:2375 
           envFrom:

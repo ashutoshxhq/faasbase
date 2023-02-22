@@ -8,10 +8,10 @@ export const Footer = () => {
                 {/* <div className="flex justify-between items-start border-b border-zinc-700 py-16 ">
                     <div className="flex flex-col justify-start items-start gap-4 max-w-md px-4">
                         <div className="flex-col justify-start items-start">
-                            <img src="/Faasly.svg" loading="lazy" alt="Faasly logo" className="h-10" />
+                            <img src="/Faasbase.svg" loading="lazy" alt="Faasbase logo" className="h-10" />
                         </div>
                         <div className="text-zinc-400">
-                            Faasly helps engineering teams to develop and deploy scalable backend applications faster and cheaper.
+                            Faasbase helps engineering teams to develop and deploy scalable backend applications faster and cheaper.
                             <br />
                         </div>
                     </div>
@@ -26,8 +26,8 @@ export const Footer = () => {
                     <div className="flex flex-col justify-start items-start gap-4  px-4">
                         <span className="text-white font-semibold text-lg">Resources</span>
                         <div className="flex flex-col justify-start items-start gap-2">
-                            <a className="text-zinc-400 hover:underline hover:text-white text-sm" href="https://developer.Faasly.com">Developers</a>
-                            <a className="text-zinc-400 hover:underline hover:text-white text-sm" href="https://github.com/Faasly">Github Org</a>
+                            <a className="text-zinc-400 hover:underline hover:text-white text-sm" href="https://developer.Faasbase.com">Developers</a>
+                            <a className="text-zinc-400 hover:underline hover:text-white text-sm" href="https://github.com/Faasbase">Github Org</a>
                         </div>
                     </div>
                     <div className="flex flex-col justify-start items-start gap-4  px-4">
@@ -39,8 +39,8 @@ export const Footer = () => {
                     </div>
                 </div> */}
                 <div className="flex justify-between items-center py-8 px-4 text-zinc-400">
-                    <div className="text-block-17">Copyright © 2022 Faasly. All rights reserved.</div>
-                    <div className="text-block-17">support@faasly.dev</div>
+                    <div className="text-block-17">Copyright © 2022 Faasbase. All rights reserved.</div>
+                    <div className="text-block-17">support@faasbase.com</div>
                 </div>
             </div>
         </footer>

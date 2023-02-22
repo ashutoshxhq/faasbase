@@ -14,7 +14,7 @@ jobs:
       AWS_REGION: us-west-2
       KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       KUBE_NAMESPACE: default
-      ECR_REPOSITORY: faasly-engine-service
+      ECR_REPOSITORY: faasbase-engine-service
     steps:
       - name: Cancel Previous Runs               
         uses: styfle/cancel-workflow-action@0.4.1
@@ -69,9 +69,9 @@ jobs:
         env:                                                                                                          
           RELEASE_IMAGE: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
         with:                                                                                                         
-          args: set image deployment/faasly-engine-service-deployment faasly-engine-service-pod=${{ env.RELEASE_IMAGE }} --record -n $KUBE_NAMESPACE   
+          args: set image deployment/faasbase-engine-service-deployment faasbase-engine-service-pod=${{ env.RELEASE_IMAGE }} --record -n $KUBE_NAMESPACE   
       
       - name: Verify Kubernetes deployment                               
         uses: kodermax/kubectl-aws-eks@master                            
         with:                                                            
-          args: rollout status deploy faasly-engine-service-deployment -n $KUBE_NAMESPACE
+          args: rollout status deploy faasbase-engine-service-deployment -n $KUBE_NAMESPACE

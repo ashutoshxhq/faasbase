@@ -9,18 +9,18 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, extras::types::Pagination, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::Pagination, state::FaasbaseState};
 
 use super::model::{NewFunctionCollaborator, UpdateFunctionCollaborator};
 
 pub async fn get_function_collaborator(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_function_id, function_collaborator_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let function_collaborator_id = Uuid::from_str(&function_collaborator_id);
     match function_collaborator_id {
         Ok(function_collaborator_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .function_collaborator
                 .get_function_collaborator(function_collaborator_id);
@@ -52,7 +52,7 @@ pub async fn get_function_collaborator(
 }
 
 pub async fn get_function_collaborators(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Path(function_id): Path<String>,
     query: Query<Pagination>,
@@ -60,7 +60,7 @@ pub async fn get_function_collaborators(
     let function_id = Uuid::from_str(&function_id);
     match function_id {
         Ok(function_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .function_collaborator
                 .get_function_collaborators(function_id, query.offset, query.limit);
@@ -92,10 +92,10 @@ pub async fn get_function_collaborators(
 }
 
 pub async fn create_function_collaborator(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewFunctionCollaborator>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .function_collaborator
         .create_function_collaborator(payload);
@@ -118,14 +118,14 @@ pub async fn create_function_collaborator(
 }
 
 pub async fn update_function_collaborator(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_function_id, function_collaborator_id)): Path<(String, String)>,
     Json(data): Json<UpdateFunctionCollaborator>,
 ) -> impl IntoResponse {
     let function_collaborator_id = Uuid::from_str(&function_collaborator_id);
     match function_collaborator_id {
         Ok(function_collaborator_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .function_collaborator
                 .update_function_collaborator(function_collaborator_id, data);
@@ -158,13 +158,13 @@ pub async fn update_function_collaborator(
 }
 
 pub async fn delete_function_collaborator(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_function_id, function_collaborator_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let function_collaborator_id = Uuid::from_str(&function_collaborator_id);
     match function_collaborator_id {
         Ok(function_collaborator_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .function_collaborator
                 .delete_function_collaborator(function_collaborator_id);

@@ -21,7 +21,7 @@ const Database = () => {
   const query = useQuery(['databases-'+databaseId+"-tables", { getAccessTokenSilently, databaseId }], getTables)
   console.log(query?.data?.data?.data)
   useEffect(() => {
-    document.title = "Faasly Console | Database | " + database?.data?.data?.data?.name;
+    document.title = "Faasbase Console | Database | " + database?.data?.data?.data?.name;
   }, )
   return (
     <Box height={"calc(100vh - 40px)"} overflowY={"scroll"}>

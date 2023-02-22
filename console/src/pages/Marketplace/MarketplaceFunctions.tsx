@@ -20,7 +20,7 @@ function MarketplaceFunctions({ searchQuery }: MFProps) {
   const query = useQuery(['search-functions', { getAccessTokenSilently, searchQuery, currentWorkspace }], searchFunctions)
 
   useEffect(() => {
-    document.title = "Faasly Console | Marketplace | Functions"
+    document.title = "Faasbase Console | Marketplace | Functions"
   }, [])
   return (
     <Box
@@ -32,7 +32,7 @@ function MarketplaceFunctions({ searchQuery }: MFProps) {
       gap={"20px"}
     >
 
-      {query.data?.data?.data?.map((faaslyFunction: any, index: number) => (
+      {query.data?.data?.data?.map((faasbaseFunction: any, index: number) => (
         <Box
           key={index}
           borderRadius={8}
@@ -50,7 +50,7 @@ function MarketplaceFunctions({ searchQuery }: MFProps) {
           _hover={{ background: "#1e1e1e" }}
         >
           <Link
-            to={"/marketplace/functions/" + faaslyFunction?.id}
+            to={"/marketplace/functions/" + faasbaseFunction?.id}
             as={NavLink}
             display="flex"
             alignItems={"center"}
@@ -67,10 +67,10 @@ function MarketplaceFunctions({ searchQuery }: MFProps) {
                 alignItems={"center"}
                 justifyContent={"center"}
               >
-                {faaslyFunction.logo !== "" && faaslyFunction.logo ? (
+                {faasbaseFunction.logo !== "" && faasbaseFunction.logo ? (
                   <Image
                     borderRadius={"md"}
-                    src={faaslyFunction.logo}
+                    src={faasbaseFunction.logo}
                     bgSize="cover"
                     fit={"cover"}
                     h="100%"
@@ -94,10 +94,10 @@ function MarketplaceFunctions({ searchQuery }: MFProps) {
               flex={1}
             >
               <Text fontSize={"md"} fontWeight={"semibold"} color="#e3e3e3" mb={1}>
-                {faaslyFunction.name}
+                {faasbaseFunction.name}
               </Text>
               <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1}>
-                {faaslyFunction.description}
+                {faasbaseFunction.description}
               </Text>
             </Box>
           </Link>
@@ -138,7 +138,7 @@ function MarketplaceFunctions({ searchQuery }: MFProps) {
               minW={"100px"}
             >
               <Text fontSize={"lg"} fontWeight={"semibold"} color="#e3e3e3">
-                {faaslyFunction.latest_version === "" || !faaslyFunction.latest_version ? "0.0.1" : faaslyFunction.latest_version}
+                {faasbaseFunction.latest_version === "" || !faasbaseFunction.latest_version ? "0.0.1" : faasbaseFunction.latest_version}
               </Text>
               <Text fontSize={"sm"} color={"#9d9d9d"} noOfLines={1}>
                 Version

@@ -3,16 +3,16 @@ use diesel::{
     PgConnection,
 };
 
-use crate::domains::service::FaaslyService;
+use crate::domains::service::FaasbaseService;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
 #[derive(Clone)]
-pub struct FaaslyState {
-    pub services: FaaslyService,
+pub struct FaasbaseState {
+    pub services: FaasbaseService,
 }
 
-impl FaaslyState {
+impl FaasbaseState {
     pub fn new() -> Self {
         let manager = ConnectionManager::<PgConnection>::new(
             std::env::var("DATABASE_URL").expect("Unable to get database url"),
@@ -25,7 +25,7 @@ impl FaaslyState {
             .unwrap();
 
         Self {
-            services: FaaslyService::new(pool)
+            services: FaasbaseService::new(pool)
         }
     }
 }

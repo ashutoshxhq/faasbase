@@ -10,7 +10,7 @@ export const Header = () => {
             <div className="relative mx-auto flex h-16 justify-between lg:container">
 
                 <div className="flex justify-center items-center gap-4">
-                    <Link to={"/"}><img className="h-8" src="/faasly.svg" /></Link>
+                    <Link to={"/"}><img className="h-8" src="/faasbase.svg" /></Link>
                 </div>
                 {/* <div className="flex justify-center items-center flex-1 mx-52 py-4">
                     <div className="flex justify-center items-center bg-zinc-700 border-zinc-700 ring-2 focus-within:ring-zinc-600 ring-zinc-700 rounded-md w-full">

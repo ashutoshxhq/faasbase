@@ -104,13 +104,13 @@ pub type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 use std::error;
 use std::fmt;
 #[derive(Debug)]
-pub struct FaaslyError {
+pub struct FaasbaseError {
     error_message: String,
     error_code: String,
     status_code: u32,
 }
 
-impl FaaslyError {
+impl FaasbaseError {
     pub fn new(error_code: String, error_message: String, status_code: u32) -> Box<Self> {
         Box::new(Self {
             error_code,
@@ -120,7 +120,7 @@ impl FaaslyError {
     }
 }
 
-impl fmt::Display for FaaslyError {
+impl fmt::Display for FaasbaseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -130,7 +130,7 @@ impl fmt::Display for FaaslyError {
     }
 }
 
-impl error::Error for FaaslyError {}
+impl error::Error for FaasbaseError {}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateApplicationBuild {

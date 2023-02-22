@@ -66,7 +66,7 @@ export const SideBar = () => {
         <Stack justify="space-between" spacing="1" data-tauri-drag-region>
           <Stack spacing={6} shouldWrapChildren>
             <Box mb={2} display="flex" justifyContent={"center"} alignItems={"center"}>
-              <Image src="/faasly.svg" width={10} height={10} />
+              <Image src="/faasbase.svg" width={10} height={10} />
             </Box>
             <Stack spacing="4" justifyContent={"center"} alignItems={"center"}>
               {currentWorkspace ? <>
@@ -106,7 +106,7 @@ export const SideBar = () => {
                   <NavButton
                     as={NavLink}
                     to={"/experts"}
-                    label="Faasly Experts"
+                    label="Faasbase Experts"
                     icon={TbUserSearch}
                   />
                 </NavGroup>

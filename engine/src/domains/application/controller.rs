@@ -10,19 +10,19 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
-    authz::TokenClaims, extras::types::{GetWorkspaceResourceQuery, SearchApplicationQuery}, state::FaaslyState,
+    authz::TokenClaims, extras::types::{GetWorkspaceResourceQuery, SearchApplicationQuery}, state::FaasbaseState,
 };
 
 use super::model::{NewApplication, UpdateApplication};
 
 pub async fn get_application(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(application_id): Path<String>,
 ) -> impl IntoResponse {
     let application_id = Uuid::from_str(&application_id);
     match application_id {
         Ok(application_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application
                 .get_application(application_id);
@@ -54,11 +54,11 @@ pub async fn get_application(
 }
 
 pub async fn get_applications(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     query: Query<GetWorkspaceResourceQuery>,
 ) -> impl IntoResponse {
-    let res = faasly.services.application.get_applications(
+    let res = faasbase.services.application.get_applications(
         query.workspace_id,
         query.offset,
         query.limit,
@@ -83,11 +83,11 @@ pub async fn get_applications(
 
 
 pub async fn search_applications(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     query: Query<SearchApplicationQuery>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .application
         .search_applications(query.query.clone(), query.offset.clone(), query.limit.clone());
@@ -110,11 +110,11 @@ pub async fn search_applications(
 }
 
 pub async fn create_application(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Json(payload): Json<NewApplication>,
 ) -> impl IntoResponse {
-    let res = faasly.services.application.create_application(payload, _claims.user_id);
+    let res = faasbase.services.application.create_application(payload, _claims.user_id);
     match res {
         Ok(res) => (
             StatusCode::OK,
@@ -134,14 +134,14 @@ pub async fn create_application(
 }
 
 pub async fn update_application(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(application_id): Path<String>,
     Json(data): Json<UpdateApplication>,
 ) -> impl IntoResponse {
     let application_id = Uuid::from_str(&application_id);
     match application_id {
         Ok(application_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application
                 .update_application(application_id, data);
@@ -174,13 +174,13 @@ pub async fn update_application(
 }
 
 pub async fn delete_application(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(application_id): Path<String>,
 ) -> impl IntoResponse {
     let application_id = Uuid::from_str(&application_id);
     match application_id {
         Ok(application_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application
                 .delete_application(application_id);

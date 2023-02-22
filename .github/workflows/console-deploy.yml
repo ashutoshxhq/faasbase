@@ -12,11 +12,11 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       CI: false
-      VITE_APP_BACKEND_URL: https://api.faasly.dev
-      VITE_APP_FRONTEND_URL: https://app.faasly.dev
+      VITE_APP_BACKEND_URL: https://api.faasbase.com
+      VITE_APP_FRONTEND_URL: https://app.faasbase.com
       VITE_APP_AUTH0_CLIENT_ID: PVL9H8hSiUxfBm06kUH9zDzeGbIJsirX
       VITE_APP_AUTH0_DOMAIN: dev-d0m2qkwao0zc3lbs.us.auth0.com
-      VITE_APP_AUTH0_AUDIENCE: https://api.faasly.dev
+      VITE_APP_AUTH0_AUDIENCE: https://api.faasbase.com
     steps:
       - uses: actions/checkout@v2
 
@@ -34,7 +34,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy Console to Bucket
-        run: aws s3 sync ./console/dist/ s3://app.faasly.dev/
+        run: aws s3 sync ./console/dist/ s3://app.faasbase.com/
 
       - name: Invalidate dashboard cloudfront
         run: aws cloudfront create-invalidation --distribution-id E3PJM7IJF7LJ8U --paths "/*"

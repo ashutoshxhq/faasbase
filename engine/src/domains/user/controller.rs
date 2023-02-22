@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use super::model::UpdateUser;
-use crate::{authz::TokenClaims, extras::types::GetUsersByQuery, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::GetUsersByQuery, state::FaasbaseState};
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
@@ -12,13 +12,13 @@ use serde_json::json;
 use uuid::Uuid;
 
 pub async fn get_user(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
     let user_id = Uuid::from_str(&id);
     match user_id {
         Ok(user_id) => {
-            let res = faasly.services.user.get_user(user_id).await;
+            let res = faasbase.services.user.get_user(user_id).await;
 
             match res {
                 Ok(res) => (
@@ -48,11 +48,11 @@ pub async fn get_user(
 }
 
 pub async fn get_users(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     query: Query<GetUsersByQuery>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .user
         .get_users(query.query.clone(), query.offset, query.limit);
@@ -75,14 +75,14 @@ pub async fn get_users(
 }
 
 pub async fn update_user(
-    Extension(_faasly): Extension<FaaslyState>,
+    Extension(_faasbase): Extension<FaasbaseState>,
     Path(id): Path<String>,
     Json(data): Json<UpdateUser>,
 ) -> impl IntoResponse {
     let user_id = Uuid::from_str(&id);
     match user_id {
         Ok(user_id) => {
-            let res = _faasly.services.user.update_user(user_id, data).await;
+            let res = _faasbase.services.user.update_user(user_id, data).await;
 
             match res {
                 Ok(_res) => (
@@ -112,13 +112,13 @@ pub async fn update_user(
 }
 
 pub async fn delete_user(
-    Extension(_faasly): Extension<FaaslyState>,
+    Extension(_faasbase): Extension<FaasbaseState>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
     let user_id = Uuid::from_str(&id);
     match user_id {
         Ok(user_id) => {
-            let res = _faasly.services.user.delete_user(user_id).await;
+            let res = _faasbase.services.user.delete_user(user_id).await;
 
             match res {
                 Ok(_res) => (

@@ -28,7 +28,7 @@ import MarketplaceFunction from './pages/Marketplace/MarketplaceFunction/Marketp
 import MarketplaceApplication from './pages/Marketplace/MarketplaceApplication/MaketplaceApplication'
 import DatabaseTable from './pages/Databases/Database/DatabaseTable/DatabaseTable'
 import Databases from './pages/Databases/Databases'
-import FaaslyExperts from './pages/Experts/Experts'
+import FaasbaseExperts from './pages/Experts/Experts'
 import DatabaseDetails from './pages/Databases/Database/DatabaseDetails'
 
 const queryClient = new QueryClient()
@@ -70,7 +70,7 @@ function App() {
               <Route path="/auth/login" element={<Login />} />
               <Route path="/auth/callback" element={<LoginCallback />} />
               <Route path="/" element={<Layout />}>
-                <Route index element={<FaaslyRoot />} />
+                <Route index element={<FaasbaseRoot />} />
                 <Route path="workspaces" element={<Workspaces />} />
                 <Route path="workspaces/:workspaceName/dashboard" element={<Dashboard />} />
                 <Route path="workspaces/:workspaceName/applications" element={<Applications />} />
@@ -82,7 +82,7 @@ function App() {
                   <Route index element={<DatabaseDetails />}/>
                   <Route path="tables/:tableId" element={<DatabaseTable />}/>
                 </Route>
-                <Route path="experts" element={<FaaslyExperts />} />
+                <Route path="experts" element={<FaasbaseExperts />} />
                 <Route path="workspaces/:workspaceName/settings" element={<WorkspaceSettings />} />
                 <Route path="marketplace" element={<Marketplace />} />
                 <Route path="marketplace/functions/:functionId" element={<MarketplaceFunction />} />
@@ -102,7 +102,7 @@ function App() {
 export default App
 
 
-export const FaaslyRoot = () => {
+export const FaasbaseRoot = () => {
   const navigate = useNavigate();
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
 

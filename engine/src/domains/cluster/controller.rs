@@ -12,19 +12,19 @@ use uuid::Uuid;
 use crate::{
     authz::TokenClaims,
     extras::types::{GetWorkspaceResourceQuery},
-    state::FaaslyState,
+    state::FaasbaseState,
 };
 
 use super::model::{NewCluster, UpdateCluster};
 
 pub async fn get_cluster(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(cluster_id): Path<String>,
 ) -> impl IntoResponse {
     let cluster_id = Uuid::from_str(&cluster_id);
     match cluster_id {
         Ok(cluster_id) => {
-            let res = faasly.services.cluster.get_cluster(cluster_id);
+            let res = faasbase.services.cluster.get_cluster(cluster_id);
             match res {
                 Ok(res) => (
                     StatusCode::OK,
@@ -53,12 +53,12 @@ pub async fn get_cluster(
 }
 
 pub async fn get_clusters(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     query: Query<GetWorkspaceResourceQuery>,
 ) -> impl IntoResponse {
     let res =
-        faasly
+        faasbase
             .services
             .cluster
             .get_clusters(query.workspace_id, query.offset, query.limit);
@@ -81,10 +81,10 @@ pub async fn get_clusters(
 }
 
 pub async fn create_cluster(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewCluster>,
 ) -> impl IntoResponse {
-    let res = faasly.services.cluster.create_cluster(payload);
+    let res = faasbase.services.cluster.create_cluster(payload);
     match res {
         Ok(res) => (
             StatusCode::OK,
@@ -104,14 +104,14 @@ pub async fn create_cluster(
 }
 
 pub async fn update_cluster(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(cluster_id): Path<String>,
     Json(data): Json<UpdateCluster>,
 ) -> impl IntoResponse {
     let cluster_id = Uuid::from_str(&cluster_id);
     match cluster_id {
         Ok(cluster_id) => {
-            let res = faasly.services.cluster.update_cluster(cluster_id, data);
+            let res = faasbase.services.cluster.update_cluster(cluster_id, data);
 
             match res {
                 Ok(_res) => (
@@ -141,13 +141,13 @@ pub async fn update_cluster(
 }
 
 pub async fn delete_cluster(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(cluster_id): Path<String>,
 ) -> impl IntoResponse {
     let cluster_id = Uuid::from_str(&cluster_id);
     match cluster_id {
         Ok(cluster_id) => {
-            let res = faasly.services.cluster.delete_cluster(cluster_id);
+            let res = faasbase.services.cluster.delete_cluster(cluster_id);
 
             match res {
                 Ok(_res) => (

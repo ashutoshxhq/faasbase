@@ -9,18 +9,18 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, extras::types::Pagination, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::Pagination, state::FaasbaseState};
 
 use super::model::{NewWorkspaceMember, UpdateWorkspaceMember};
 
 pub async fn get_workspace_member(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_workspace_id, workspace_member_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let workspace_member_id = Uuid::from_str(&workspace_member_id);
     match workspace_member_id {
         Ok(workspace_member_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .workspace_member
                 .get_workspace_member(workspace_member_id);
@@ -52,7 +52,7 @@ pub async fn get_workspace_member(
 }
 
 pub async fn get_workspace_members(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Path(workspace_id): Path<String>,
     query: Query<Pagination>,
@@ -60,7 +60,7 @@ pub async fn get_workspace_members(
     let workspace_id = Uuid::from_str(&workspace_id);
     match workspace_id {
         Ok(workspace_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .workspace_member
                 .get_workspace_members(workspace_id, query.offset, query.limit);
@@ -92,10 +92,10 @@ pub async fn get_workspace_members(
 }
 
 pub async fn create_workspace_member(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewWorkspaceMember>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .workspace_member
         .create_workspace_member(payload);
@@ -118,14 +118,14 @@ pub async fn create_workspace_member(
 }
 
 pub async fn update_workspace_member(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_workspace_id, workspace_member_id)): Path<(String, String)>,
     Json(data): Json<UpdateWorkspaceMember>,
 ) -> impl IntoResponse {
     let workspace_member_id = Uuid::from_str(&workspace_member_id);
     match workspace_member_id {
         Ok(workspace_member_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .workspace_member
                 .update_workspace_member(workspace_member_id, data);
@@ -158,13 +158,13 @@ pub async fn update_workspace_member(
 }
 
 pub async fn delete_workspace_member(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_workspace_id, workspace_member_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let workspace_member_id = Uuid::from_str(&workspace_member_id);
     match workspace_member_id {
         Ok(workspace_member_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .workspace_member
                 .delete_workspace_member(workspace_member_id);

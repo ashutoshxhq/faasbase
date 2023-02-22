@@ -12,19 +12,19 @@ use uuid::Uuid;
 
 use crate::{
     authz::TokenClaims, domains::function_build::model::NewFunctionBuild,
-    extras::types::{GetWorkspaceResourceQuery, SearchWorkspaceResourceQuery}, state::FaaslyState,
+    extras::types::{GetWorkspaceResourceQuery, SearchWorkspaceResourceQuery}, state::FaasbaseState,
 };
 
 use super::model::{NewFunction, UpdateFunction};
 
 pub async fn get_function(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(function_id): Path<String>,
 ) -> impl IntoResponse {
     let function_id = Uuid::from_str(&function_id);
     match function_id {
         Ok(function_id) => {
-            let res = faasly.services.function.get_function(function_id);
+            let res = faasbase.services.function.get_function(function_id);
             match res {
                 Ok(res) => (
                     StatusCode::OK,
@@ -53,12 +53,12 @@ pub async fn get_function(
 }
 
 pub async fn get_functions(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     query: Query<GetWorkspaceResourceQuery>,
 ) -> impl IntoResponse {
     if let Some(name) = query.name.clone() {
-        let res = faasly
+        let res = faasbase
             .services
             .function
             .get_functions_by_name(name, query.workspace_id);
@@ -80,7 +80,7 @@ pub async fn get_functions(
         }
     } else {
         let res =
-            faasly
+            faasbase
                 .services
                 .function
                 .get_functions(query.workspace_id, query.offset, query.limit);
@@ -105,11 +105,11 @@ pub async fn get_functions(
 
 
 pub async fn search_functions(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     query: Query<SearchWorkspaceResourceQuery>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .function
         .search_functions(query.query.clone(), query.offset.clone(), query.limit.clone());
@@ -131,11 +131,11 @@ pub async fn search_functions(
     }
 }
 pub async fn create_function(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Json(payload): Json<NewFunction>,
 ) -> impl IntoResponse {
-    let res = faasly.services.function.create_function(payload, _claims.user_id);
+    let res = faasbase.services.function.create_function(payload, _claims.user_id);
     match res {
         Ok(res) => (
             StatusCode::OK,
@@ -155,14 +155,14 @@ pub async fn create_function(
 }
 
 pub async fn update_function(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(function_id): Path<String>,
     Json(data): Json<UpdateFunction>,
 ) -> impl IntoResponse {
     let function_id = Uuid::from_str(&function_id);
     match function_id {
         Ok(function_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .function
                 .update_function(function_id, data);
@@ -195,13 +195,13 @@ pub async fn update_function(
 }
 
 pub async fn delete_function(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(function_id): Path<String>,
 ) -> impl IntoResponse {
     let function_id = Uuid::from_str(&function_id);
     match function_id {
         Ok(function_id) => {
-            let res = faasly.services.function.delete_function(function_id);
+            let res = faasbase.services.function.delete_function(function_id);
 
             match res {
                 Ok(_res) => (
@@ -242,13 +242,13 @@ pub struct UploadFunctionsQuery {
 }
 
 pub async fn upload_function(
-    Extension(_faasly): Extension<FaaslyState>,
+    Extension(_faasbase): Extension<FaasbaseState>,
     Path(function_id): Path<String>,
     query: Query<UploadFunctionsQuery>,
     Extension(_claims): Extension<TokenClaims>,
     multipart: Multipart
 ) -> impl IntoResponse {
-    let res = _faasly
+    let res = _faasbase
         .services
         .function
         .upload_function(function_id.clone(), multipart, query.version.clone())
@@ -259,7 +259,7 @@ pub async fn upload_function(
             match function_id {
                 Ok(function_id) => {
                     let res =
-                        _faasly
+                        _faasbase
                             .services
                             .function_build
                             .create_function_build(NewFunctionBuild {

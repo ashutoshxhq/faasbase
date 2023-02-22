@@ -21,7 +21,7 @@ const Function = () => {
     }
 
     useEffect(() => {
-        document.title = "Faasly Console | Functions | " + query?.data?.data?.data?.name
+        document.title = "Faasbase Console | Functions | " + query?.data?.data?.data?.name
     }, [query?.data])
 
     return (

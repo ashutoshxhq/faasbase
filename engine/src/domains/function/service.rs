@@ -1,6 +1,6 @@
 use crate::domains::function_build::model::FunctionBuild;
 use crate::domains::function_collaborator::model::{FunctionCollaborator, NewFunctionCollaborator};
-use crate::extras::types::{Error, FaaslyError};
+use crate::extras::types::{Error, FaasbaseError};
 use crate::schema::function_builds::{dsl as function_builds_dsl};
 use crate::schema::function_collaborators;
 use crate::schema::functions::{self, dsl};
@@ -192,7 +192,7 @@ impl FunctionService {
                     file.write_all(&data)?;
                 }
                 _ => {
-                    return Err(FaaslyError::new(
+                    return Err(FaasbaseError::new(
                         "UPLOAD_ERROR".to_string(),
                         "unable to read file name".to_string(),
                         400,
@@ -212,7 +212,7 @@ impl FunctionService {
         .await?;
         let _res = client
             .put_object()
-            .set_bucket(Some("faasly-functions".to_string()))
+            .set_bucket(Some("faasbase-functions".to_string()))
             .set_key(Some(format!("{}/{}/function.zip", id, version)))
             .set_body(Some(body))
             .send()

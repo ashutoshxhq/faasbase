@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: faasly-engine-service-deployment
+  name: faasbase-engine-service-deployment
   labels:
-    name: faasly-engine-service-deployment
-    app: faasly
+    name: faasbase-engine-service-deployment
+    app: faasbase
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: faasly
-      api.faasly.dev: proxy
+      app: faasbase
+      api.faasbase.com: proxy
   template:
     metadata:
-      name: faasly-engine-service-pod
+      name: faasbase-engine-service-pod
       labels:
-        app: faasly
-        api.faasly.dev: proxy
+        app: faasbase
+        api.faasbase.com: proxy
     spec:
       containers:
-        - name: faasly-engine-service-pod
-          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/faasly-engine-service:75896eb89f63b028739ff75eb097ee12bb2df546
+        - name: faasbase-engine-service-pod
+          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/faasbase-engine-service:75896eb89f63b028739ff75eb097ee12bb2df546
           ports:
             - containerPort: 8000
           env:
@@ -29,7 +29,7 @@ spec:
           - name: BUILD_SERVICE_URL
             value: "http://build-worker-service"
           - name: ENGINE_SERVICE_URL
-            value: "http://faasly-engine-service"
+            value: "http://faasbase-engine-service"
           envFrom:
           - secretRef:
-              name: faasly-engine-service-secrets
+              name: faasbase-engine-service-secrets

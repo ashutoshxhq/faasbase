@@ -1103,7 +1103,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "faasly-engine-service"
+name = "faasbase-engine-service"
 version = "0.1.0"
 dependencies = [
  "aws-config",

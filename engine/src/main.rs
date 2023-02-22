@@ -6,7 +6,7 @@ mod state;
 use axum::{error_handling::HandleErrorLayer, http::StatusCode, BoxError, Extension, Router};
 use domains::*;
 use dotenvy::dotenv;
-use state::FaaslyState;
+use state::FaasbaseState;
 use std::{env, net::SocketAddr, time::Duration};
 use tower::ServiceBuilder;
 use tower_http::{
@@ -36,7 +36,7 @@ async fn main() {
     //         .event_format(format)
     //         .with_env_filter(tracing_subscriber::EnvFilter::new(
     //             std::env::var("RUST_LOG")
-    //                 .unwrap_or_else(|_| "faasly=debug,tower_http=debug".into()),
+    //                 .unwrap_or_else(|_| "faasbase=debug,tower_http=debug".into()),
     //         ))
     //         .init();
     // } else {
@@ -54,7 +54,7 @@ async fn main() {
     //         .event_format(format)
     //         .with_env_filter(tracing_subscriber::EnvFilter::new(
     //             std::env::var("RUST_LOG")
-    //                 .unwrap_or_else(|_| "faasly=debug,tower_http=debug".into()),
+    //                 .unwrap_or_else(|_| "faasbase=debug,tower_http=debug".into()),
     //         ))
     //         .init();
     // }
@@ -78,7 +78,7 @@ async fn main() {
             }))
             .timeout(Duration::from_secs(10))
             .layer(TraceLayer::new_for_http())
-            .layer(Extension(FaaslyState::new()))
+            .layer(Extension(FaasbaseState::new()))
             .layer(
                 CorsLayer::new()
                     .allow_origin(Any)

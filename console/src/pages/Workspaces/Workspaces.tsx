@@ -45,7 +45,7 @@ const Workspaces = () => {
     })
 
     useEffect(() => {
-        document.title = "Faasly Console | Workspaces"
+        document.title = "Faasbase Console | Workspaces"
       }, [])
 
     return (

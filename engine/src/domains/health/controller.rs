@@ -7,9 +7,9 @@ use redis::Commands;
 
 pub async fn health() -> impl IntoResponse {
     let nodes = vec![
-        "redis://faasly-worker-cache-0001-001.dzqmv1.0001.usw2.cache.amazonaws.com:6379/",
-        "redis://faasly-worker-cache-0001-002.dzqmv1.0001.usw2.cache.amazonaws.com:6379/",
-        "redis://faasly-worker-cache-0001-003.dzqmv1.0001.usw2.cache.amazonaws.com:6379/",
+        "redis://faasbase-worker-cache-0001-001.dzqmv1.0001.usw2.cache.amazonaws.com:6379/",
+        "redis://faasbase-worker-cache-0001-002.dzqmv1.0001.usw2.cache.amazonaws.com:6379/",
+        "redis://faasbase-worker-cache-0001-003.dzqmv1.0001.usw2.cache.amazonaws.com:6379/",
     ];
 
     let client = ClusterClient::new(nodes).unwrap();

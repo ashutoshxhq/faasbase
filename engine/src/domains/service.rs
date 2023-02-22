@@ -7,7 +7,7 @@ use super::{
 use crate::state::DbPool;
 
 #[derive(Clone)]
-pub struct FaaslyService {
+pub struct FaasbaseService {
     pub authn: AuthNService,
     pub user: UserService,
     pub workspace: WorkspaceService,
@@ -27,7 +27,7 @@ pub struct FaaslyService {
     pub fields: DatabaseTableFieldService
 }
 
-impl FaaslyService {
+impl FaasbaseService {
     pub fn new(pool: DbPool) -> Self {
         Self {
             authn: AuthNService::new(pool.clone()),

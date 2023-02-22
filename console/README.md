@@ -1,2 +1,2 @@
-# faasly-console
-Web Console of Faasly Platform
+# faasbase-console
+Web Console of Faasbase Platform

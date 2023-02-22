@@ -21,7 +21,7 @@ const SplashScreen = () => {
                 <Logo width={"140px"} height={"180px"} />
                 <Stack textAlign="center">
                   <Heading size={useBreakpointValue({ base: "xs", md: "sm" })}>
-                    Faasly Console
+                    Faasbase Console
                   </Heading>
                   <Text color="muted">
                     Develop, Collaborate & Deploy

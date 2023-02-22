@@ -7,7 +7,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-      app: faasly
+      app: faasbase
       name: build-worker-pod
   ports:
     - name: http 

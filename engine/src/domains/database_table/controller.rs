@@ -9,18 +9,18 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, extras::types::Pagination, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::Pagination, state::FaasbaseState};
 
 use super::model::{NewDatabaseTable, UpdateDatabaseTable};
 
 pub async fn get_table(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_database_id, table_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let table_id = Uuid::from_str(&table_id);
     match table_id {
         Ok(table_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .tables
                 .get_database_table(table_id);
@@ -52,7 +52,7 @@ pub async fn get_table(
 }
 
 pub async fn get_tables(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Path(database_id): Path<String>,
     query: Query<Pagination>,
@@ -60,7 +60,7 @@ pub async fn get_tables(
     let database_id = Uuid::from_str(&database_id);
     match database_id {
         Ok(database_id) => {
-            let res = faasly.services.tables.get_database_tables(
+            let res = faasbase.services.tables.get_database_tables(
                 database_id,
                 query.offset,
                 query.limit,
@@ -96,10 +96,10 @@ pub async fn get_tables(
 }
 
 pub async fn create_table(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewDatabaseTable>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .tables
         .create_database_table(payload);
@@ -122,14 +122,14 @@ pub async fn create_table(
 }
 
 pub async fn update_table(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_database_id, table_id)): Path<(String, String)>,
     Json(data): Json<UpdateDatabaseTable>,
 ) -> impl IntoResponse {
     let table_id = Uuid::from_str(&table_id);
     match table_id {
         Ok(table_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .tables
                 .update_database_table(table_id, data);
@@ -162,13 +162,13 @@ pub async fn update_table(
 }
 
 pub async fn delete_table(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_database_id, table_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let table_id = Uuid::from_str(&table_id);
     match table_id {
         Ok(table_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .tables
                 .delete_database_table(table_id);

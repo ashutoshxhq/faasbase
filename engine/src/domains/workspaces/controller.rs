@@ -10,18 +10,18 @@ use serde::Deserialize;
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, state::FaaslyState};
+use crate::{authz::TokenClaims, state::FaasbaseState};
 
 use super::model::{NewWorkspace, UpdateWorkspace};
 
 pub async fn get_workspace(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(workspace_id): Path<String>,
 ) -> impl IntoResponse {
     let workspace_id = Uuid::from_str(&workspace_id);
     match workspace_id {
         Ok(workspace_id) => {
-            let res = faasly.services.workspace.get_workspace(workspace_id);
+            let res = faasbase.services.workspace.get_workspace(workspace_id);
             match res {
                 Ok(res) => (
                     StatusCode::OK,
@@ -57,12 +57,12 @@ pub struct GetWorkspacesQuery {
 }
 
 pub async fn get_workspaces(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(claims): Extension<TokenClaims>,
     query: Query<GetWorkspacesQuery>,
 ) -> impl IntoResponse {
     if let Some(name) = query.name.clone() {
-        let res = faasly
+        let res = faasbase
             .services
             .workspace
             .get_workspaces_by_name(name);
@@ -83,7 +83,7 @@ pub async fn get_workspaces(
             ),
         }
     } else {
-        let res = faasly
+        let res = faasbase
             .services
             .workspace
             .get_workspaces(claims.user_id, query.offset, query.limit);
@@ -107,10 +107,10 @@ pub async fn get_workspaces(
 }
 
 pub async fn create_workspace(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewWorkspace>,
 ) -> impl IntoResponse {
-    let res = faasly.services.workspace.create_workspace(payload);
+    let res = faasbase.services.workspace.create_workspace(payload);
     match res {
         Ok(res) => (
             StatusCode::OK,
@@ -130,14 +130,14 @@ pub async fn create_workspace(
 }
 
 pub async fn update_workspace(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(workspace_id): Path<String>,
     Json(data): Json<UpdateWorkspace>,
 ) -> impl IntoResponse {
     let workspace_id = Uuid::from_str(&workspace_id);
     match workspace_id {
         Ok(workspace_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .workspace
                 .update_workspace(workspace_id, data);
@@ -170,13 +170,13 @@ pub async fn update_workspace(
 }
 
 pub async fn delete_workspace(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path(workspace_id): Path<String>,
 ) -> impl IntoResponse {
     let workspace_id = Uuid::from_str(&workspace_id);
     match workspace_id {
         Ok(workspace_id) => {
-            let res = faasly.services.workspace.delete_workspace(workspace_id);
+            let res = faasbase.services.workspace.delete_workspace(workspace_id);
 
             match res {
                 Ok(_res) => (

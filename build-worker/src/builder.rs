@@ -29,7 +29,7 @@ use crate::engine_client::update_application_build;
 use crate::generator::ApplicationGeneratorService;
 use crate::types::{
     ApplicationBuildContext, ApplicationResourceConfig, ApplicationVariables,
-    ClusterProviderConfig, Error, FaaslyError, UpdateApplicationBuild,
+    ClusterProviderConfig, Error, FaasbaseError, UpdateApplicationBuild,
 };
 
 #[derive(Clone)]
@@ -475,7 +475,7 @@ impl ApplicationBuilder {
                 std::env::set_var("AWS_ACCESS_KEY_ID", access_key_id);
             } else {
                 tracing::error!("No access key found in cluster provider config");
-                return Err(FaaslyError::new(
+                return Err(FaasbaseError::new(
                     "BAD_CLUSTER_CONFIG".to_string(),
                     "No access key found in cluster provider config".to_string(),
                     400,
@@ -486,7 +486,7 @@ impl ApplicationBuilder {
                 std::env::set_var("AWS_SECRET_ACCESS_KEY", secret_access_key);
             } else {
                 tracing::error!("No secret access key found in cluster provider config");
-                return Err(FaaslyError::new(
+                return Err(FaasbaseError::new(
                     "BAD_CLUSTER_CONFIG".to_string(),
                     "No secret access key found in cluster provider config".to_string(),
                     400,
@@ -497,7 +497,7 @@ impl ApplicationBuilder {
                 std::env::set_var("AWS_REGION", aws_region);
             } else {
                 tracing::error!("No region found in cluster provider config");
-                return Err(FaaslyError::new(
+                return Err(FaasbaseError::new(
                     "BAD_CLUSTER_CONFIG".to_string(),
                     "No region found in cluster provider config".to_string(),
                     400,
@@ -505,7 +505,7 @@ impl ApplicationBuilder {
             }
         } else {
             tracing::error!("No cluster provider config found");
-            return Err(FaaslyError::new(
+            return Err(FaasbaseError::new(
                 "BAD_CLUSTER_CONFIG".to_string(),
                 "No cluster provider config found".to_string(),
                 400,
@@ -549,16 +549,16 @@ impl ApplicationBuilder {
 
         
         let application = self.context.clone();
-        let access_key_id = std::env::var("FAASLY_AWS_ACCESS_KEY_ID")?;
-        let secret_access_key = std::env::var("FAASLY_AWS_SECRET_ACCESS_KEY")?;
-        let aws_region = std::env::var("FAASLY_AWS_DEFAULT_REGION")?;
+        let access_key_id = std::env::var("FAASBASE_AWS_ACCESS_KEY_ID")?;
+        let secret_access_key = std::env::var("FAASBASE_AWS_SECRET_ACCESS_KEY")?;
+        let aws_region = std::env::var("FAASBASE_AWS_DEFAULT_REGION")?;
         let region_provider = RegionProviderChain::first_try(Region::new(aws_region));
         let credentials_provider = Credentials::new(
             access_key_id,
             secret_access_key,
             None,
             None,
-            "faasly",
+            "faasbase",
         );
 
         let shared_config = aws_config::from_env()
@@ -576,7 +576,7 @@ impl ApplicationBuilder {
 
                     let object = s3_client
                         .get_object()
-                        .bucket("faasly-functions".to_string())
+                        .bucket("faasbase-functions".to_string())
                         .key(format!(
                             "{}/{}/function.zip",
                             resource_id,
@@ -705,16 +705,16 @@ impl ApplicationBuilder {
 
         zip.finish()?;
 
-        let access_key_id = std::env::var("FAASLY_AWS_ACCESS_KEY_ID")?;
-        let secret_access_key = std::env::var("FAASLY_AWS_SECRET_ACCESS_KEY")?;
-        let aws_region = std::env::var("FAASLY_AWS_DEFAULT_REGION")?;
+        let access_key_id = std::env::var("FAASBASE_AWS_ACCESS_KEY_ID")?;
+        let secret_access_key = std::env::var("FAASBASE_AWS_SECRET_ACCESS_KEY")?;
+        let aws_region = std::env::var("FAASBASE_AWS_DEFAULT_REGION")?;
         let region_provider = RegionProviderChain::first_try(Region::new(aws_region));
         let credentials_provider = Credentials::new(
             access_key_id,
             secret_access_key,
             None,
             None,
-            "faasly",
+            "faasbase",
         );
 
         let shared_config = aws_config::from_env()
@@ -728,7 +728,7 @@ impl ApplicationBuilder {
         let body = ByteStream::from_path(Path::new(&application_path.clone())).await?;
         let _res = client
             .put_object()
-            .set_bucket(Some("faasly-applications".to_string()))
+            .set_bucket(Some("faasbase-applications".to_string()))
             .set_key(Some(format!(
                 "{}/{}/application.zip",
                 application.id, application.build_version
@@ -780,7 +780,7 @@ impl ApplicationBuilder {
                             secret_access_key,
                             None,
                             None,
-                            "faasly",
+                            "faasbase",
                         );
 
                         let shared_config = aws_config::from_env()
@@ -873,7 +873,7 @@ impl ApplicationBuilder {
                             Ok(logs)
                         } else {
                             tracing::error!("No repository uri found");
-                            Err(FaaslyError::new(
+                            Err(FaasbaseError::new(
                                 "NO_REPOSITORY_URI".to_string(),
                                 "No repository uri found".to_string(),
                                 400,
@@ -881,7 +881,7 @@ impl ApplicationBuilder {
                         }
                     } else {
                         tracing::error!("No region found in cluster provider config");
-                        Err(FaaslyError::new(
+                        Err(FaasbaseError::new(
                             "BAD_CLUSTER_CONFIG".to_string(),
                             "No region found in cluster provider config".to_string(),
                             400,
@@ -889,7 +889,7 @@ impl ApplicationBuilder {
                     }
                 } else {
                     tracing::error!("No secret access key found in cluster provider config");
-                    Err(FaaslyError::new(
+                    Err(FaasbaseError::new(
                         "BAD_CLUSTER_CONFIG".to_string(),
                         "No secret access key found in cluster provider config".to_string(),
                         400,
@@ -897,7 +897,7 @@ impl ApplicationBuilder {
                 }
             } else {
                 tracing::error!("No access key id found in cluster provider config");
-                Err(FaaslyError::new(
+                Err(FaasbaseError::new(
                     "BAD_CLUSTER_CONFIG".to_string(),
                     "No access key id found in cluster provider config".to_string(),
                     400,
@@ -905,7 +905,7 @@ impl ApplicationBuilder {
             }
         } else {
             tracing::error!("No cluster provider config found");
-            Err(FaaslyError::new(
+            Err(FaasbaseError::new(
                 "BAD_CLUSTER_CONFIG".to_string(),
                 "No cluster provider config found".to_string(),
                 400,
@@ -937,7 +937,7 @@ impl ApplicationBuilder {
                             secret_access_key,
                             None,
                             None,
-                            "faasly",
+                            "faasbase",
                         );
 
                         let shared_config = aws_config::from_env()
@@ -1044,7 +1044,7 @@ impl ApplicationBuilder {
                         Ok(logs)
                     } else {
                         tracing::error!("No secret access key found in cluster provider config");
-                        Err(FaaslyError::new(
+                        Err(FaasbaseError::new(
                             "BAD_CLUSTER_CONFIG".to_string(),
                             "No secret access key found in cluster provider config".to_string(),
                             400,
@@ -1052,7 +1052,7 @@ impl ApplicationBuilder {
                     }
                 } else {
                     tracing::error!("No region found in cluster provider config");
-                    Err(FaaslyError::new(
+                    Err(FaasbaseError::new(
                         "BAD_CLUSTER_CONFIG".to_string(),
                         "No region found in cluster provider config".to_string(),
                         400,
@@ -1060,7 +1060,7 @@ impl ApplicationBuilder {
                 }
             } else {
                 tracing::error!("No access key id found in cluster provider config");
-                Err(FaaslyError::new(
+                Err(FaasbaseError::new(
                     "BAD_CLUSTER_CONFIG".to_string(),
                     "No access key id found in cluster provider config".to_string(),
                     400,
@@ -1068,7 +1068,7 @@ impl ApplicationBuilder {
             }
         } else {
             tracing::error!("No cluster provider config found");
-            Err(FaaslyError::new(
+            Err(FaasbaseError::new(
                 "BAD_CLUSTER_CONFIG".to_string(),
                 "No cluster provider config found".to_string(),
                 400,
@@ -1098,7 +1098,7 @@ impl ApplicationBuilder {
                                 secret_access_key,
                                 None,
                                 None,
-                                "faasly",
+                                "faasbase",
                             );
 
                             let shared_config = aws_config::from_env()
@@ -1360,7 +1360,7 @@ impl ApplicationBuilder {
                             Ok(())
                         } else {
                             tracing::error!("No region found in cluster provider config");
-                            Err(FaaslyError::new(
+                            Err(FaasbaseError::new(
                                 "BAD_CLUSTER_CONFIG".to_string(),
                                 "No region found in cluster provider config".to_string(),
                                 400,
@@ -1368,7 +1368,7 @@ impl ApplicationBuilder {
                         }
                     } else {
                         tracing::error!("No secret access key found in cluster provider config");
-                        Err(FaaslyError::new(
+                        Err(FaasbaseError::new(
                             "BAD_CLUSTER_CONFIG".to_string(),
                             "No secret access key found in cluster provider config".to_string(),
                             400,
@@ -1376,7 +1376,7 @@ impl ApplicationBuilder {
                     }
                 } else {
                     tracing::error!("No access key id found in cluster provider config");
-                    Err(FaaslyError::new(
+                    Err(FaasbaseError::new(
                         "BAD_CLUSTER_CONFIG".to_string(),
                         "No access key id found in cluster provider config".to_string(),
                         400,
@@ -1384,7 +1384,7 @@ impl ApplicationBuilder {
                 }
             } else {
                 tracing::error!("No cluster provider config found");
-                Err(FaaslyError::new(
+                Err(FaasbaseError::new(
                     "BAD_CLUSTER_CONFIG".to_string(),
                     "No cluster provider config found".to_string(),
                     400,
@@ -1392,7 +1392,7 @@ impl ApplicationBuilder {
             }
         } else {
             tracing::error!("No cluster provider found");
-            Err(FaaslyError::new(
+            Err(FaasbaseError::new(
                 "BAD_CLUSTER_CONFIG".to_string(),
                 "No cluster provider found".to_string(),
                 400,

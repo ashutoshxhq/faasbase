@@ -49,19 +49,19 @@ const FeaturesSection = () => {
         {
             name: 'Discover functions & apps from marketplace',
             description:
-                'Faasly has a marketplace of opensoure functions and applications built by our community of developers that will help companies build applications faster and cheaper.',
+                'Faasbase has a marketplace of opensoure functions and applications built by our community of developers that will help companies build applications faster and cheaper.',
             icon: FiGlobe,
         },
         {
             name: 'Develop apps using functions as building blocks',
             description:
-                'Functions are building blocks of Faasly, each one solving a unit of problem. These functions can be used to build applications and services by composing and connecting them together.',
+                'Functions are building blocks of Faasbase, each one solving a unit of problem. These functions can be used to build applications and services by composing and connecting them together.',
             icon: FiTool,
         },
         {
             name: 'Deploy applications to your Cloud Provider',
             description:
-                'Faasly can deploy functions and applications to any cloud providers with automatic deployments based on changes from git or by push of a button from our dashboard.',
+                'Faasbase can deploy functions and applications to any cloud providers with automatic deployments based on changes from git or by push of a button from our dashboard.',
             icon: FiServer,
         },
     ]
@@ -76,7 +76,7 @@ const FeaturesSection = () => {
                             Discover {"->"} Develop {"->"} Deploy
                         </p>
                         <p className="mt-4 max-w-2xl text-xl text-zinc-500 lg:mx-auto">
-                            Faasly helps companies Discover, Develop, and Deploy functions and applications faster and cheaper.
+                            Faasbase helps companies Discover, Develop, and Deploy functions and applications faster and cheaper.
                         </p>
                     </div>
 
@@ -116,19 +116,19 @@ const OpenSourceSection = () => {
         {
             name: 'Support open source ecosystem',
             description:
-                'Faasly uses a part of its revenue to sponsor open source projects and events, so by using Faasly, you contribute towards the growth of open source ecosystem.',
+                'Faasbase uses a part of its revenue to sponsor open source projects and events, so by using Faasbase, you contribute towards the growth of open source ecosystem.',
             icon: FiGlobe,
         },
         {
             name: 'Request for Functions and Applications',
             description:
-                'Faasly helps companies to ship their products faster and at a lower cost by enabling them to hire developers from the community to build a specific function and application.',
+                'Faasbase helps companies to ship their products faster and at a lower cost by enabling them to hire developers from the community to build a specific function and application.',
             icon: FiTool,
         },
         {
             name: 'Collaborate with the global community',
             description:
-                'Using Faasly, developers and companies around the world can now collaborate to build functions and applications for the marketplace to make everyone ship and iterate faster.',
+                'Using Faasbase, developers and companies around the world can now collaborate to build functions and applications for the marketplace to make everyone ship and iterate faster.',
             icon: FiUsers,
         },
     ]
@@ -143,7 +143,7 @@ const OpenSourceSection = () => {
                             We love & support open source
                         </p>
                         <p className="mt-4 max-w-2xl text-xl text-zinc-500 lg:mx-auto">
-                            Faasly is the perfect way to support the open source ecosystem while getting your products to market faster and at a lower cost.
+                            Faasbase is the perfect way to support the open source ecosystem while getting your products to market faster and at a lower cost.
                         </p>
                     </div>
 

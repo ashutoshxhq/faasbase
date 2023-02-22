@@ -1,7 +1,7 @@
 FROM rust:1.65 as builder
 
-RUN USER=root cargo new --bin faasly-engine-service
-WORKDIR ./faasly-engine-service
+RUN USER=root cargo new --bin faasbase-engine-service
+WORKDIR ./faasbase-engine-service
 COPY ./Cargo.toml ./Cargo.toml
 
 ADD . ./
@@ -33,11 +33,11 @@ RUN groupadd $APP_USER \
     && useradd -g $APP_USER $APP_USER \
     && mkdir -p ${APP}
 
-COPY --from=builder /faasly-engine-service/target/release/faasly-engine-service ${APP}/faasly-engine-service
+COPY --from=builder /faasbase-engine-service/target/release/faasbase-engine-service ${APP}/faasbase-engine-service
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
 
 USER $APP_USER
 WORKDIR ${APP}
 
-CMD ["./faasly-engine-service"]
+CMD ["./faasbase-engine-service"]

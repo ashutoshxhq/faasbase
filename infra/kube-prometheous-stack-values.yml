@@ -743,8 +743,8 @@ grafana:
   
   grafana.ini:
     server:
-      domain: grafana.faasly.dev
-      root_url: http://grafana.faasly.dev
+      domain: grafana.faasbase.com
+      root_url: http://grafana.faasbase.com
 
   ingress:
     ## If true, Grafana Ingress will be created
@@ -772,7 +772,7 @@ grafana:
     # hosts:
     #   - grafana.domain.com
     hosts:
-      - grafana.faasly.dev
+      - grafana.faasbase.com
 
     ## Path for grafana ingress
     path: /

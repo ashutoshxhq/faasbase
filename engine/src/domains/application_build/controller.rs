@@ -11,18 +11,18 @@ use hyper::Body;
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, extras::types::Pagination, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::Pagination, state::FaasbaseState};
 
 use super::model::{NewApplicationBuild, UpdateApplicationBuild};
 
 pub async fn get_application_build(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_build_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let application_build_id = Uuid::from_str(&application_build_id);
     match application_build_id {
         Ok(application_build_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_build
                 .get_application_build(application_build_id);
@@ -54,7 +54,7 @@ pub async fn get_application_build(
 }
 
 pub async fn get_application_builds(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Path(application_id): Path<String>,
     query: Query<Pagination>,
@@ -62,7 +62,7 @@ pub async fn get_application_builds(
     let application_id = Uuid::from_str(&application_id);
     match application_id {
         Ok(application_id) => {
-            let res = faasly.services.application_build.get_application_builds(
+            let res = faasbase.services.application_build.get_application_builds(
                 application_id,
                 query.offset,
                 query.limit,
@@ -98,7 +98,7 @@ pub async fn get_application_builds(
 }
 
 pub async fn create_application_build(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     req: Request<Body>,
 ) -> impl IntoResponse {
     let headers = req.headers().clone();
@@ -111,7 +111,7 @@ pub async fn create_application_build(
         .get("Authorization")
         .and_then(|header| header.to_str().ok());
 
-    let res = faasly
+    let res = faasbase
         .services
         .application_build
         .create_application_build(payload, auth_header.unwrap().to_string()).await;
@@ -134,14 +134,14 @@ pub async fn create_application_build(
 }
 
 pub async fn update_application_build(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_build_id)): Path<(String, String)>,
     Json(data): Json<UpdateApplicationBuild>,
 ) -> impl IntoResponse {
     let application_build_id = Uuid::from_str(&application_build_id);
     match application_build_id {
         Ok(application_build_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_build
                 .update_application_build(application_build_id, data);
@@ -174,13 +174,13 @@ pub async fn update_application_build(
 }
 
 pub async fn delete_application_build(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_build_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let application_build_id = Uuid::from_str(&application_build_id);
     match application_build_id {
         Ok(application_build_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_build
                 .delete_application_build(application_build_id);

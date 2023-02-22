@@ -9,18 +9,18 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, extras::types::Pagination, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::Pagination, state::FaasbaseState};
 
 use super::model::{NewWorkspaceAuditLog, UpdateWorkspaceAuditLog};
 
 pub async fn get_audit_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_workspace_id, workspace_audit_log_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let workspace_audit_log_id = Uuid::from_str(&workspace_audit_log_id);
     match workspace_audit_log_id {
         Ok(workspace_audit_log_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .audit_log
                 .get_audit_log(workspace_audit_log_id);
@@ -52,7 +52,7 @@ pub async fn get_audit_log(
 }
 
 pub async fn get_audit_logs(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     Path(workspace_id): Path<String>,
     query: Query<Pagination>,
@@ -60,7 +60,7 @@ pub async fn get_audit_logs(
     let workspace_id = Uuid::from_str(&workspace_id);
     match workspace_id {
         Ok(workspace_id) => {
-            let res = faasly.services.audit_log.get_audit_logs(
+            let res = faasbase.services.audit_log.get_audit_logs(
                 workspace_id,
                 query.offset,
                 query.limit,
@@ -93,10 +93,10 @@ pub async fn get_audit_logs(
 }
 
 pub async fn create_audit_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewWorkspaceAuditLog>,
 ) -> impl IntoResponse {
-    let res = faasly.services.audit_log.create_audit_log(payload);
+    let res = faasbase.services.audit_log.create_audit_log(payload);
     match res {
         Ok(res) => (
             StatusCode::OK,
@@ -116,14 +116,14 @@ pub async fn create_audit_log(
 }
 
 pub async fn update_audit_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_workspace_id, workspace_audit_log_id)): Path<(String, String)>,
     Json(data): Json<UpdateWorkspaceAuditLog>,
 ) -> impl IntoResponse {
     let workspace_audit_log_id = Uuid::from_str(&workspace_audit_log_id);
     match workspace_audit_log_id {
         Ok(workspace_audit_log_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .audit_log
                 .update_audit_log(workspace_audit_log_id, data);
@@ -156,13 +156,13 @@ pub async fn update_audit_log(
 }
 
 pub async fn delete_audit_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_workspace_id, workspace_audit_log_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let workspace_audit_log_id = Uuid::from_str(&workspace_audit_log_id);
     match workspace_audit_log_id {
         Ok(workspace_audit_log_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .audit_log
                 .delete_audit_log(workspace_audit_log_id);

@@ -9,18 +9,18 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::{authz::TokenClaims, extras::types::GetApplicationResourceQuery, state::FaaslyState};
+use crate::{authz::TokenClaims, extras::types::GetApplicationResourceQuery, state::FaasbaseState};
 
 use super::model::{NewApplicationLog, UpdateApplicationLog};
 
 pub async fn get_application_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_log_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let application_log_id = Uuid::from_str(&application_log_id);
     match application_log_id {
         Ok(application_log_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_log
                 .get_application_log(application_log_id);
@@ -52,11 +52,11 @@ pub async fn get_application_log(
 }
 
 pub async fn get_application_logs(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Extension(_claims): Extension<TokenClaims>,
     query: Query<GetApplicationResourceQuery>,
 ) -> impl IntoResponse {
-    let res = faasly.services.application_log.get_application_logs(
+    let res = faasbase.services.application_log.get_application_logs(
         query.application_id,
         query.offset,
         query.limit,
@@ -80,10 +80,10 @@ pub async fn get_application_logs(
 }
 
 pub async fn create_application_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Json(payload): Json<NewApplicationLog>,
 ) -> impl IntoResponse {
-    let res = faasly
+    let res = faasbase
         .services
         .application_log
         .create_application_log(payload);
@@ -106,14 +106,14 @@ pub async fn create_application_log(
 }
 
 pub async fn update_application_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_log_id)): Path<(String, String)>,
     Json(data): Json<UpdateApplicationLog>,
 ) -> impl IntoResponse {
     let application_log_id = Uuid::from_str(&application_log_id);
     match application_log_id {
         Ok(application_log_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_log
                 .update_application_log(application_log_id, data);
@@ -146,13 +146,13 @@ pub async fn update_application_log(
 }
 
 pub async fn delete_application_log(
-    Extension(faasly): Extension<FaaslyState>,
+    Extension(faasbase): Extension<FaasbaseState>,
     Path((_application_id, application_log_id)): Path<(String, String)>,
 ) -> impl IntoResponse {
     let application_log_id = Uuid::from_str(&application_log_id);
     match application_log_id {
         Ok(application_log_id) => {
-            let res = faasly
+            let res = faasbase
                 .services
                 .application_log
                 .delete_application_log(application_log_id);

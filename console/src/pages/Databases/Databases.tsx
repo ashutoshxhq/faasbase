@@ -46,7 +46,7 @@ export default function Databases () {
   // })
 
   useEffect(() => {
-    document.title = "Faasly Console | Databases"
+    document.title = "Faasbase Console | Databases"
   }, [])
 
   return (
