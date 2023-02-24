@@ -5,7 +5,7 @@ use serde_json::json;
 
 use crate::{authz::TokenClaims, builder::ApplicationBuilder, types::ApplicationBuildContext};
 
-pub async fn health(Extension(_claims): Extension<TokenClaims>) -> impl IntoResponse {
+pub async fn health() -> impl IntoResponse {
 
     let hostname = std::env::var("HOSTNAME").unwrap_or_else(|_| "unknown".to_string());
     (

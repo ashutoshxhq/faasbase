@@ -6,7 +6,7 @@ use crate::{
 };
 pub fn router() -> Router {
     Router::new()
-        .route("/health", routing::get(health))
-        .route("/build", routing::post(build_application))
-        .route_layer(middleware::from_fn(auth))
+    .route("/build", routing::post(build_application))
+    .route_layer(middleware::from_fn(auth))
+    .route("/health", routing::get(health))
 }
