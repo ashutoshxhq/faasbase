@@ -42,16 +42,16 @@ pub struct ApplicationBuild {
     pub version: String,
     pub changelog: Option<String>,
     pub config: Option<Value>,
-    pub application_id: Uuid,
-    pub user_id: Option<Uuid>,
-    pub created_at: Option<NaiveDateTime>,
-    pub updated_at: Option<NaiveDateTime>,
-    pub deleted_at: Option<NaiveDateTime>,
     pub build_status: Option<String>,
     pub deployment_status: Option<String>,
     pub logs: Option<Value>,
     pub built_at: Option<NaiveDateTime>,
     pub deployed_at: Option<NaiveDateTime>,
+    pub application_id: Uuid,
+    pub user_id: Option<Uuid>,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
 }
 
 #[derive(QueryableByName, Debug, Serialize, Deserialize, PartialEq)]
