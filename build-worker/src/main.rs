@@ -21,6 +21,7 @@ use tracing_subscriber::FmtSubscriber;
 async fn main() {
     let mut db = PickleDb::new("status.db", PickleDbDumpPolicy::AutoDump, SerializationMethod::Json);
     db.set("status", &String::from("FREE")).unwrap();
+    
     dotenv().ok();
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::TRACE)

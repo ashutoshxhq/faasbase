@@ -19,7 +19,6 @@ use tracing_subscriber::FmtSubscriber;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::TRACE)
         .finish();

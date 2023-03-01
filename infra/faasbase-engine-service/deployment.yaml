@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: faasbase-engine-service-pod
-          image: 735683458704.dkr.ecr.us-west-2.amazonaws.com/faasbase-engine-service:latest
+          image: 735683458704.dkr.ecr.us-west-2.amazonaws.com/faasbase-engine-service:b57d9b75d4de9016a9d516ad01f45dd09c532739
           ports:
             - containerPort: 8000
           env:
