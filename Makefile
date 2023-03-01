@@ -17,3 +17,8 @@ dev-console:
 dev-worker:
 	@echo "Starting worker..."
 	cd build-worker && cargo run
+
+.PHONY: engine-migrate
+engine-migrate:
+	@echo "Migrating database..."
+	cd engine && diesel migration run
