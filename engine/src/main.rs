@@ -19,45 +19,6 @@ use tracing_subscriber::FmtSubscriber;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    // let app_env = std::env::var("APP_ENV").unwrap_or_else(|_| "prod".into());
-
-    // if app_env == "dev" {
-    //     let format = tracing_subscriber::fmt::format()
-    //         .with_level(true)
-    //         .with_target(true)
-    //         .with_thread_ids(true)
-    //         .with_thread_names(true)
-    //         .with_file(true)
-    //         .with_line_number(true)
-    //         .with_source_location(true)
-    //         .compact();
-
-    //     tracing_subscriber::fmt()
-    //         .event_format(format)
-    //         .with_env_filter(tracing_subscriber::EnvFilter::new(
-    //             std::env::var("RUST_LOG")
-    //                 .unwrap_or_else(|_| "faasbase=debug,tower_http=debug".into()),
-    //         ))
-    //         .init();
-    // } else {
-    //     let format = tracing_subscriber::fmt::format()
-    //         .with_level(true)
-    //         .with_target(true)
-    //         .with_thread_ids(true)
-    //         .with_thread_names(true)
-    //         .with_file(true)
-    //         .with_line_number(true)
-    //         .with_source_location(true)
-    //         .with_ansi(false)
-    //         .json();
-    //     tracing_subscriber::fmt()
-    //         .event_format(format)
-    //         .with_env_filter(tracing_subscriber::EnvFilter::new(
-    //             std::env::var("RUST_LOG")
-    //                 .unwrap_or_else(|_| "faasbase=debug,tower_http=debug".into()),
-    //         ))
-    //         .init();
-    // }
 
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::TRACE)
