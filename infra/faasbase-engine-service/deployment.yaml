@@ -20,16 +20,12 @@ spec:
     spec:
       containers:
         - name: faasbase-engine-service-pod
-          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/faasbase-engine-service:75896eb89f63b028739ff75eb097ee12bb2df546
+          image: 735683458704.dkr.ecr.us-west-2.amazonaws.com/faasbase-engine-service:latest
           ports:
             - containerPort: 8000
           env:
           - name: PORT
             value: "8000"
-          - name: BUILD_SERVICE_URL
-            value: "http://build-worker-service"
-          - name: ENGINE_SERVICE_URL
-            value: "http://faasbase-engine-service"
           envFrom:
           - secretRef:
               name: faasbase-engine-service-secrets

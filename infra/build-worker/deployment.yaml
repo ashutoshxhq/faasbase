@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: build-worker-pod
-          image: 194872849581.dkr.ecr.us-west-2.amazonaws.com/build-worker:a5a3ca11d276e7ad58520127195621544d3811df
+          image: 735683458704.dkr.ecr.us-west-2.amazonaws.com/build-worker:latest
           ports:
             - containerPort: 8000
           env:
