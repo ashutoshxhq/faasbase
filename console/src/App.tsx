@@ -34,7 +34,6 @@ import DatabaseDetails from './pages/Databases/Database/DatabaseDetails'
 const queryClient = new QueryClient()
 
 function App() {
-  
   const [isOnline, setIsOnline] = useState(true)
   
   useEffect(() => {

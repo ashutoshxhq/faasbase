@@ -7,7 +7,6 @@ import PrivacyPolicy from './pages/Legal/PrivacyPolicy'
 import TermsOfService from './pages/Legal/TermsOfService'
 
 function App() {
-
   return (
     <div className="App">
       <BrowserRouter>
