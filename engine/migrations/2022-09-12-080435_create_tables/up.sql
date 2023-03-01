@@ -1,4 +1,5 @@
 -- Your SQL goes here
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 create table users (
     id uuid default uuid_generate_v4() not null primary key,
     firstname varchar,
@@ -49,7 +50,7 @@ create table applications (
     visibility varchar not null,
     repository varchar,
     website varchar,
-    latest_version varchar,
+    deployed_version varchar,
     size varchar,
     config jsonb,
     variables jsonb,
@@ -65,6 +66,11 @@ create table application_builds (
     version varchar not null,
     changelog text,
     config jsonb,
+    build_status varchar default 'BUILDING',
+    deployment_status varchar default 'NOT_STARTED',
+    logs jsonb,
+    built_at timestamp,
+    deployed_at timestamp,
     application_id uuid not null references applications ON DELETE CASCADE,
     user_id uuid references users,
     created_at timestamp default CURRENT_TIMESTAMP,

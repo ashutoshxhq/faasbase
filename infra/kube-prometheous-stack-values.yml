@@ -868,7 +868,7 @@ grafana:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:194872849581:certificate/dc8dedf4-e996-4f34-b252-3d1a88b29268
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:735683458704:certificate/787f1a65-f25c-4092-a46f-91b7f815172d
 
   serviceMonitor:
     # If true, a ServiceMonitor CRD is created for a prometheus operator

@@ -6,16 +6,16 @@ diesel::table! {
         version -> Varchar,
         changelog -> Nullable<Text>,
         config -> Nullable<Jsonb>,
-        application_id -> Uuid,
-        user_id -> Nullable<Uuid>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>,
-        deleted_at -> Nullable<Timestamp>,
         build_status -> Nullable<Varchar>,
         deployment_status -> Nullable<Varchar>,
         logs -> Nullable<Jsonb>,
         built_at -> Nullable<Timestamp>,
         deployed_at -> Nullable<Timestamp>,
+        application_id -> Uuid,
+        user_id -> Nullable<Uuid>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+        deleted_at -> Nullable<Timestamp>,
     }
 }
 
