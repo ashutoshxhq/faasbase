@@ -144,3 +144,42 @@ pub struct UpdateApplicationBuild {
     pub built_at: Option<NaiveDateTime>,
     pub deployed_at: Option<NaiveDateTime>,
 }
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ApplicationBuildMessage {
+    #[serde(rename="Type")]
+    pub message_type: String,
+    #[serde(rename="MessageId")]
+    pub message_id: String,
+    #[serde(rename="TopicArn")]
+    pub topic_arn: String,
+    #[serde(rename="Message")]
+    pub message: String,
+    #[serde(rename="Timestamp")]
+    pub timestamp: String,
+    #[serde(rename="SignatureVersion")]
+    pub signature_version: String,
+    #[serde(rename="Signature")]
+    pub signature: String,
+    #[serde(rename="SigningCertURL")]
+    pub signing_cert_url: String,
+    #[serde(rename="UnsubscribeURL")]
+    pub unsubscribe_url: String,
+    #[serde(rename="MessageAttributes")]
+    pub message_attributes: ApplicationBuildMessageAttribute,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ApplicationBuildMessageAttribute {
+    #[serde(rename="Authorization")]
+    pub authorization: MessageAttribute,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MessageAttribute {
+    #[serde(rename="Type")]
+    pub attribute_type: String,
+    #[serde(rename="Value")]
+    pub value: String,
+}

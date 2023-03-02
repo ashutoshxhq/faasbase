@@ -25,11 +25,13 @@ spec:
             - containerPort: 8000
           env:
           - name: PORT
-            value: "8000"
+            value: 8000
+          - name: BUILD_REQUEST_SQS_URL
+            value: https://sqs.us-west-2.amazonaws.com/735683458704/faasbase-build-request-queue
           - name: BUILD_SERVICE_URL
-            value: "http://build-worker-service"
+            value: http://build-worker-service
           - name: ENGINE_SERVICE_URL
-            value: "http://faasbase-engine-service"
+            value: http://faasbase-engine-service
           - name: DOCKER_HOST 
             value: tcp://localhost:2375 
           envFrom:

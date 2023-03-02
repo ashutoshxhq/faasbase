@@ -268,6 +268,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-sdk-sqs"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b2afbc1dfbf260945ad1cc19a1d2109f588663b053ffd828faacb29b02c9260"
+dependencies = [
+ "aws-credential-types",
+ "aws-endpoint",
+ "aws-http",
+ "aws-sig-auth",
+ "aws-smithy-async",
+ "aws-smithy-client",
+ "aws-smithy-http",
+ "aws-smithy-http-tower",
+ "aws-smithy-json",
+ "aws-smithy-query",
+ "aws-smithy-types",
+ "aws-smithy-xml",
+ "aws-types",
+ "bytes",
+ "http",
+ "regex",
+ "tokio-stream",
+ "tower",
+]
+
+[[package]]
 name = "aws-sdk-sso"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -708,26 +734,23 @@ dependencies = [
  "aws-credential-types",
  "aws-sdk-ecr",
  "aws-sdk-s3",
- "axum",
+ "aws-sdk-sqs",
+ "aws-types",
  "base64 0.21.0",
  "bollard",
  "chrono",
  "dotenvy",
  "flate2",
  "futures-util",
- "hyper",
  "jsonwebtoken",
  "jwt",
  "k8s-openapi",
  "kube",
- "pickledb",
  "reqwest",
  "serde",
  "serde_json",
  "tar",
  "tokio",
- "tower",
- "tower-http",
  "tracing",
  "tracing-subscriber",
  "uuid",
@@ -2120,16 +2143,6 @@ name = "percent-encoding"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
-
-[[package]]
-name = "pickledb"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c53a5ade47760e8cc4986bdc5e72daeffaaaee64cbc374f9cfe0a00c1cd87b1f"
-dependencies = [
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "pin-project"
