@@ -89,6 +89,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "ENV_SETUP_ERR".to_string(),
+                        "Something went wrong setting up env".to_string(),
+                        400,
+                    ));
                 }
             }
 
@@ -129,6 +135,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "DIR_SETUP_ERR".to_string(),
+                        "Something went wrong setting up directories".to_string(),
+                        400,
+                    ));
                 }
             }
 
@@ -167,6 +179,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "FUNCTION_DOWNLOAD_ERR".to_string(),
+                        "Something went wrong downloading functions".to_string(),
+                        400,
+                    ));
                 }
             }
 
@@ -206,6 +224,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "APPLICATION_GENERATE_ERR".to_string(),
+                        "Something went wrong setting up env".to_string(),
+                        400,
+                    ));
                 }
             }
 
@@ -245,6 +269,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "S3_PUSH_ERR".to_string(),
+                        "Something went wrong pushing application to s3".to_string(),
+                        400,
+                    ));
                 }
             }
 
@@ -311,6 +341,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "DOCKER_BUILD_ERR".to_string(),
+                        "Something went wrong building docker image".to_string(),
+                        400,
+                    ));
                 }
             }
 
@@ -387,6 +423,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "DOCKER_PUSH_ERR".to_string(),
+                        "Something went wrong pushing docker image".to_string(),
+                        400,
+                    ));
                 }
             }
 
@@ -426,6 +468,8 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    Ok(())
                 }
                 Err(err) => {
                     let log = json!({
@@ -460,6 +504,12 @@ impl ApplicationBuilder {
                         auth_token.clone(),
                     )
                     .await;
+
+                    return Err(FaasbaseError::new(
+                        "DEPLOY_ERR".to_string(),
+                        "Something went wrong deploying application".to_string(),
+                        400,
+                    ));
                 }
             }
         });
