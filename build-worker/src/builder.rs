@@ -499,7 +499,7 @@ impl ApplicationBuilder {
                         if !Path::new(&format!("{}/.aws", std::env::var("HOME")?))
                         .exists()
                         {
-                            fs::create_dir_all(std::env::current_dir()?.join(format!("{}/.aws", std::env::var("HOME")?)))?;
+                            fs::create_dir_all(format!("{}/.aws", std::env::var("HOME")?))?;
                         }
 
                         std::fs::write(aws_config_file_path, aws_config_file)?;
