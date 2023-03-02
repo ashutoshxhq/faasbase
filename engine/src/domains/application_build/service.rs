@@ -10,7 +10,9 @@ use crate::schema::application_builds::{self, dsl};
 use crate::schema::applications::dsl as application_dsl;
 use crate::schema::clusters::dsl as cluster_dsl;
 use crate::state::DbPool;
+use aws_sdk_sns as sns;
 use diesel::{prelude::*, sql_query};
+use sns::model::MessageAttributeValue;
 use std::str::FromStr;
 use uuid::Uuid;
 
@@ -160,30 +162,27 @@ impl ApplicationBuildService {
             };
 
             // call build service api to build the application
+            let config = aws_config::load_from_env().await;
+            let client = sns::Client::new(&config);
+            let topic_arn = std::env::var("BUILD_REQUEST_SNS_TOPIC")
+                .expect("Please set BUILD_REQUEST_SNS_TOPIC in .env")
+                .parse::<String>()?;
 
-            
-            let free_worker_hostname = String::new();
+            let message = serde_json::to_string(&application_build_context)?;
 
-           
-            let client = reqwest::Client::new();
-            let url = format!(
-                "{}/build",
-                free_worker_hostname
-            );
-
-            let response = client
-                .post(&url)
-                .json(&application_build_context)
-                .header("Authorization", auth_token)
+            let _rsp = client
+                .publish()
+                .topic_arn(topic_arn)
+                .message(message)
+                .message_attributes(
+                    "Authorization",
+                    MessageAttributeValue::builder()
+                        .data_type("String".to_string())
+                        .string_value(auth_token)
+                        .build(),
+                )
                 .send()
                 .await?;
-
-            if response.status().is_success() {
-                tracing::info!("Build service api call success");
-            } else {
-                tracing::error!("Build service api call failed");
-            }
-
         } else {
             tracing::error!("No application id found for application build");
         }
