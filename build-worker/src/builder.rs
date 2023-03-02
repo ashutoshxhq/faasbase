@@ -1092,7 +1092,7 @@ impl ApplicationBuilder {
 
         if let Some(cluster_data) = cluster_data {
             let application_cluster_provider_config: Option<ClusterProviderConfig> =
-                Some(serde_json::from_value(cluster_data.provider_config)?);
+                Some(serde_json::from_value(cluster_data.provider_config).unwrap());
 
             if let Some(application_cluster_provider_config) = application_cluster_provider_config {
                 // create shared config with aws creds in application_cluster_provider_config
@@ -1124,8 +1124,8 @@ impl ApplicationBuilder {
                                 .describe_repositories()
                                 .repository_names(self.context.name.clone())
                                 .send()
-                                .await?;
-                            // println!("Respositories: {:?}", respositories.repositories());
+                                .await.unwrap();
+                            // println!("Respositories: {:.unwrap()}", respositories.repositories());
                             let mut application_repository_uri: Option<String> = None;
 
                             if let Some(respositories) = respositories.repositories() {
@@ -1142,7 +1142,7 @@ impl ApplicationBuilder {
                                     .create_repository()
                                     .repository_name(self.context.name.clone())
                                     .send()
-                                    .await?;
+                                    .await.unwrap();
                                 if let Some(repository) = create_repository_output.repository() {
                                     if let Some(repository_uri) = repository.repository_uri() {
                                         application_repository_uri =
@@ -1158,18 +1158,18 @@ impl ApplicationBuilder {
                                 };
 
                             if let Some(variables) = self.context.variables.clone() {
-                                application_variables = serde_json::from_value(variables)?;
+                                application_variables = serde_json::from_value(variables).unwrap();
                             }
 
-                            let kubeconfig = Kubeconfig::from_yaml(&cluster_data.cluster_config)?;
+                            let kubeconfig = Kubeconfig::from_yaml(&cluster_data.cluster_config).unwrap();
 
-                            // tracing::info!("Kubeconfig: {:?}", kubeconfig);
+                            // tracing::info!("Kubeconfig: {:.unwrap()}", kubeconfig);
                             let options = KubeConfigOptions::default();
 
                             let config =
-                                KubeConfig::from_custom_kubeconfig(kubeconfig, &options).await?;
+                                KubeConfig::from_custom_kubeconfig(kubeconfig, &options).await.unwrap();
 
-                            let client = KubeClient::try_from(config)?;
+                            let client = KubeClient::try_from(config).unwrap();
 
                             // Manage pods
                             let deployments: Api<Deployment> =
@@ -1236,7 +1236,7 @@ impl ApplicationBuilder {
                                         }
                                     }
                                 }
-                            }))?;
+                            })).unwrap();
 
                             let deployment = deployments
                                 .get(&format!("{}-deployment", self.context.name))
@@ -1252,7 +1252,7 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&deployment_config),
                                         )
-                                        .await?;
+                                        .await.unwrap();
                                 }
                                 Err(_e) => {
                                     tracing::info!(
@@ -1261,7 +1261,7 @@ impl ApplicationBuilder {
                                     );
                                     deployments
                                         .create(&PostParams::default(), &deployment_config)
-                                        .await?;
+                                        .await.unwrap();
                                 }
                             }
 
@@ -1297,7 +1297,7 @@ impl ApplicationBuilder {
                                         }
                                     ]
                                 }
-                            }))?;
+                            })).unwrap();
 
                             let service = services
                                 .get(&format!("{}-service", self.context.name))
@@ -1313,13 +1313,13 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&service_config),
                                         )
-                                        .await?;
+                                        .await.unwrap();
                                 }
                                 Err(_e) => {
                                     tracing::info!("Service does not exist, creating");
                                     services
                                         .create(&PostParams::default(), &service_config)
-                                        .await?;
+                                        .await.unwrap();
                                 }
                             }
 
@@ -1341,7 +1341,7 @@ impl ApplicationBuilder {
                                 },
                                 "type": "Opaque",
                                 "data": secret_map
-                            }))?;
+                            })).unwrap();
 
                             let secrets: Api<Secret> = Api::default_namespaced(client.clone());
 
@@ -1358,13 +1358,13 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&secret_config),
                                         )
-                                        .await?;
+                                        .await.unwrap();
                                 }
                                 Err(_e) => {
                                     tracing::info!("Secret does not exist, creating");
                                     secrets
                                         .create(&PostParams::default(), &secret_config)
-                                        .await?;
+                                        .await.unwrap();
                                 }
                             }
 
