@@ -14,7 +14,7 @@ pub async fn update_application_build(
         application_build_id
     );
     let response = client
-        .put(&url)
+        .patch(&url)
         .json(&application_build)
         .header("Authorization", format!("Bearer {}", access_token))
         .send()
