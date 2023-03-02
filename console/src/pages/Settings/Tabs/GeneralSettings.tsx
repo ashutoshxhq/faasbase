@@ -95,7 +95,7 @@ const GeneralSettings = () => {
   return (
     <>
       <Box as="section">
-        <Container px={0} maxW={"8xl"}>
+        <Container mx={0} px={0} maxW="full">
           <Box
             bg={"#1e1e1e"}
             boxShadow={useColorModeValue("sm", "sm-dark")}
@@ -148,7 +148,7 @@ const GeneralSettings = () => {
       </Box>
 
       <Box as="section" my={6}>
-        <Container px={0} maxW={"8xl"}>
+        <Container mx={0} px={0} maxW="full">
           <Box
             bg={"#1e1e1e"}
             boxShadow={useColorModeValue("sm", "sm-dark")}

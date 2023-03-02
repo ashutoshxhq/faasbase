@@ -89,12 +89,12 @@ export const SideBar = () => {
                     label="Functions"
                     icon={FiCommand}
                   />
-                  <NavButton
+                  {/* <NavButton
                     as={NavLink}
                     to={"workspaces/" + currentWorkspace?.name + "/databases"}
                     label="Database"
                     icon={FiDatabase}
-                  />
+                  /> */}
                 </NavGroup>
                 <NavGroup label="Collab">
                   <NavButton
@@ -111,7 +111,7 @@ export const SideBar = () => {
                   />
                 </NavGroup>
 
-                
+
               </> : <>
                 <NavButton
                   as={NavLink}
@@ -131,6 +131,12 @@ export const SideBar = () => {
           </Stack>
           <Stack spacing={{ base: "5", sm: "6" }} alignItems={"center"}>
             {/* <CommandBar /> */}
+            <NavButton
+              as={NavLink}
+              to={"workspaces/" + currentWorkspace?.name + "/settings"}
+              label="Settings"
+              icon={FiSettings}
+            />
             <UserAndWorkspacesMenu />
           </Stack>
         </Stack>

@@ -100,7 +100,7 @@ const TeamMembers = () => {
     <Box>
       <InviteUser isOpen={isOpen} onClose={onClose} />
       <UpdateWorkspaceMember user={selectedUser} isOpen={isUpdateOpen} onClose={onUpdateClose} />
-      <Container maxW={"8xl"} px={0}>
+      <Container maxW="full" px={0}>
         <Box
           bg={"#1e1e1e"}
           boxShadow={useColorModeValue("sm", "sm-dark")}

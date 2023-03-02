@@ -52,7 +52,7 @@ function MarketplaceApplication() {
             <TabList color={"muted"} data-tauri-drag-region>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Overview</Tab>
               <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Resources</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Deployments</Tab>
+              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Builds & Versions</Tab>
             </TabList>
           </Stack>
         </Box>

@@ -117,7 +117,7 @@ const AccountSettings = () => {
             >
 
                 <Box as="section" w={"100%"}>
-                    <Container maxW={"8xl"} px={0}>
+                    <Container maxW={"full"} px={0}>
                         <Box
                             bg={"#1e1e1e"}
                             boxShadow={useColorModeValue("sm", "sm-dark")}
@@ -187,7 +187,7 @@ const AccountSettings = () => {
                     </Container>
                 </Box>
                 <Box as="section" mt={6}>
-                    <Container maxW={"8xl"} px={0}>
+                    <Container maxW={"full"} px={0}>
                         <Box
                             bg={"#1e1e1e"}
                             boxShadow={useColorModeValue("sm", "sm-dark")}

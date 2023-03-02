@@ -85,7 +85,7 @@ const Functions = () => {
           </Box>
 
         </Box>
-        <Divider />
+        <Divider color={"#303030"} />
         <Box display={"flex"} flexDirection={"column"} mb={6}>
           {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
           {query.data?.data?.data?.map((faasbaseFunction: any, index: number) => (
