@@ -496,6 +496,12 @@ impl ApplicationBuilder {
                         let aws_config_file_path =
                             format!("{}/.aws/config", std::env::var("HOME")?);
 
+                        if !Path::new(&format!("{}/.aws", std::env::var("HOME")?))
+                        .exists()
+                        {
+                            fs::create_dir_all(std::env::current_dir()?.join(format!("{}/.aws", std::env::var("HOME")?)))?;
+                        }
+
                         std::fs::write(aws_config_file_path, aws_config_file)?;
                     } else {
                         tracing::error!("No region found in cluster provider config");
