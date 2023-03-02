@@ -25,7 +25,7 @@ spec:
             - containerPort: 8000
           env:
           - name: PORT
-            value: 8000
+            value: "8000"
           - name: BUILD_REQUEST_SNS_TOPIC
             value: arn:aws:sns:us-west-2:735683458704:faasbase-build-request-sns-topic
           envFrom:
