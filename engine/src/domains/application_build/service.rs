@@ -164,9 +164,7 @@ impl ApplicationBuildService {
             // call build service api to build the application
             let config = aws_config::load_from_env().await;
             let client = sns::Client::new(&config);
-            let topic_arn = std::env::var("BUILD_REQUEST_SNS_TOPIC")
-                .expect("Please set BUILD_REQUEST_SNS_TOPIC in .env")
-                .parse::<String>()?;
+            let topic_arn = std::env::var("BUILD_REQUEST_SNS_TOPIC")?;
 
             let message = serde_json::to_string(&application_build_context)?;
 
