@@ -140,6 +140,7 @@ impl ApplicationBuildService {
 
             let application_build_context: ApplicationBuildContext = ApplicationBuildContext {
                 id: application.id,
+                application_build_id: results.id,
                 name: application.name.clone(),
                 build_version: application_build_payload.version.clone(),
                 resources: application_resources.clone(),

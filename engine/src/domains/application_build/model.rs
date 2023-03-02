@@ -114,6 +114,7 @@ pub struct ApplicationBuildWithUser {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ApplicationBuildContext {
     pub id: Uuid,
+    pub application_build_id: Uuid,
     pub name: String,
     pub application_type: String,
     pub build_version: String,

@@ -84,6 +84,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -123,6 +124,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -160,6 +162,7 @@ impl ApplicationBuilder {
                     };
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -198,6 +201,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -236,6 +240,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -268,6 +273,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -300,6 +306,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -341,6 +348,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -374,6 +382,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -412,6 +421,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )
@@ -445,6 +455,7 @@ impl ApplicationBuilder {
 
                     let _update_build_res = update_application_build(
                         application_build_context.id.to_string(),
+                        application_build_context.application_build_id.to_string(),
                         build_update_payload,
                         auth_token.clone(),
                     )

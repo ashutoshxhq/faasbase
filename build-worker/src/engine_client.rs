@@ -3,20 +3,22 @@
 use crate::types::{Error, FaasbaseError, UpdateApplicationBuild};
 
 pub async fn update_application_build(
+    application_id: String,
     application_build_id: String,
     application_build: UpdateApplicationBuild,
     access_token: String,
 ) -> Result<(), Error> {
     let client = reqwest::Client::new();
     let url = format!(
-        "{}/applications/builds/{}",
+        "{}/applications/{}/builds/{}",
         std::env::var("ENGINE_SERVICE_URL").unwrap(),
+        application_id,
         application_build_id
     );
     let response = client
         .patch(&url)
         .json(&application_build)
-        .header("Authorization", format!("Bearer {}", access_token))
+        .header("Authorization", format!("{}", access_token))
         .send()
         .await
         .map_err(|e| {
