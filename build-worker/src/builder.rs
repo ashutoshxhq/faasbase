@@ -496,9 +496,7 @@ impl ApplicationBuilder {
                         let aws_config_file_path =
                             format!("{}/.aws/config", std::env::var("HOME")?);
 
-                        if !Path::new(&format!("{}/.aws", std::env::var("HOME")?))
-                        .exists()
-                        {
+                        if !Path::new(&format!("{}/.aws", std::env::var("HOME")?)).is_dir() {
                             fs::create_dir_all(format!("{}/.aws", std::env::var("HOME")?))?;
                         }
 
@@ -1125,8 +1123,7 @@ impl ApplicationBuilder {
                                 .describe_repositories()
                                 .repository_names(self.context.name.clone())
                                 .send()
-                                .await
-                                ?;
+                                .await?;
                             // println!("Respositories: {:?}", respositories.repositories());
                             let mut application_repository_uri: Option<String> = None;
 
@@ -1144,8 +1141,7 @@ impl ApplicationBuilder {
                                     .create_repository()
                                     .repository_name(self.context.name.clone())
                                     .send()
-                                    .await
-                                    ?;
+                                    .await?;
                                 if let Some(repository) = create_repository_output.repository() {
                                     if let Some(repository_uri) = repository.repository_uri() {
                                         application_repository_uri =
@@ -1164,15 +1160,13 @@ impl ApplicationBuilder {
                                 application_variables = serde_json::from_value(variables)?;
                             }
 
-                            let kubeconfig =
-                                Kubeconfig::from_yaml(&cluster_data.cluster_config)?;
+                            let kubeconfig = Kubeconfig::from_yaml(&cluster_data.cluster_config)?;
 
                             // tracing::info!("Kubeconfig: {:?}", kubeconfig);
                             let options = KubeConfigOptions::default();
 
-                            let config = KubeConfig::from_custom_kubeconfig(kubeconfig, &options)
-                                .await
-                                ?;
+                            let config =
+                                KubeConfig::from_custom_kubeconfig(kubeconfig, &options).await?;
 
                             let client = KubeClient::try_from(config)?;
 
@@ -1257,8 +1251,7 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&deployment_config),
                                         )
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                                 Err(_e) => {
                                     tracing::info!(
@@ -1267,8 +1260,7 @@ impl ApplicationBuilder {
                                     );
                                     deployments
                                         .create(&PostParams::default(), &deployment_config)
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                             }
 
@@ -1304,8 +1296,7 @@ impl ApplicationBuilder {
                                         }
                                     ]
                                 }
-                            }))
-                            ?;
+                            }))?;
 
                             let service = services
                                 .get(&format!("{}-service", self.context.name))
@@ -1321,15 +1312,13 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&service_config),
                                         )
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                                 Err(_e) => {
                                     tracing::info!("Service does not exist, creating");
                                     services
                                         .create(&PostParams::default(), &service_config)
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                             }
 
@@ -1351,8 +1340,7 @@ impl ApplicationBuilder {
                                 },
                                 "type": "Opaque",
                                 "data": secret_map
-                            }))
-                            ?;
+                            }))?;
 
                             let secrets: Api<Secret> = Api::default_namespaced(client.clone());
 
@@ -1369,15 +1357,13 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&secret_config),
                                         )
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                                 Err(_e) => {
                                     tracing::info!("Secret does not exist, creating");
                                     secrets
                                         .create(&PostParams::default(), &secret_config)
-                                        .await
-                                        ?;
+                                        .await?;
                                 }
                             }
 

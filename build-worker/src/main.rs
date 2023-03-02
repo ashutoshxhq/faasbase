@@ -35,6 +35,7 @@ async fn main() {
         .load()
         .await;
     let client = sqs::Client::new(&shared_config);
+
     loop {
         let queue_url =
             std::env::var("BUILD_REQUEST_SQS_URL").expect("BUILD_REQUEST_SQS_URL must be set");
