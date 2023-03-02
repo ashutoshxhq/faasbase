@@ -72,7 +72,7 @@ const FeaturesSection = () => {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="lg:text-center">
                         <h2 className="text-lg font-semibold text-orange-600">How it works?</h2>
-                        <p className="mt-2 text-3xl font-bold leading-8 tracking-tight text-white sm:text-4xl">
+                        <p className="mt-2 text-3xl font-bold leading-8 tracking-tight text-white sm:text-4xl heading-mobile">
                             Discover {"->"} Develop {"->"} Deploy
                         </p>
                         <p className="mt-4 max-w-2xl text-xl text-zinc-500 lg:mx-auto">
@@ -81,7 +81,7 @@ const FeaturesSection = () => {
                     </div>
 
                     <div className="mt-10">
-                        <div className="flex justify-center items-center">
+                        <div className="flex justify-center items-center mobile-column">
                             <div className="flex-1">
                                 <img src="/develop.svg" className="w-full h-full" />
                             </div>
@@ -148,7 +148,7 @@ const OpenSourceSection = () => {
                     </div>
 
                     <div className="mt-10">
-                        <div className="flex justify-center items-center">
+                        <div className="flex justify-center items-center mobile-column">
 
                             <div className="space-y-10 flex-col flex-1 mt-8">
                                 {features.map((feature) => (
@@ -183,13 +183,13 @@ const CallToActionSection = () => {
     return (
         <section>
             <div className="my-16 container rounded-2xl mx-auto w-full p-16 pt-24">
-                <div className="flex flex-col justify-center items-center">
-                    <h2 className="mt-2 text-3xl font-bold leading-8 tracking-tight text-white sm:text-4xl">Join our Community</h2>
-                    <p className="mt-4 max-w-2xl text-xl text-center text-zinc-500 lg:mx-auto">
+                <div className="flex flex-col justify-center items-center mobile-mb-60">
+                    <h2 className="mt-2 text-3xl font-bold leading-8 tracking-tight text-white sm:text-4xl heading-mobile">Join our Community</h2>
+                    <p className="mt-4 max-w-2xl text-xl text-center text-zinc-500 lg:mx-auto text-mobile">
                         Join our open community of developers and companies to build functions and applications collaboratively.
                     </p>
                 </div>
-                <div className="flex justify-around items-center gap-12 p-20">
+                <div className="flex justify-around items-center gap-12 p-20 mobile-column mobile-p-0">
                     <div className="flex flex-col gap-6 justify-between items-start rounded-md bg-zinc-800 ring-zinc-700 ring-1 p-8 flex-1">
                         <div className="flex justify-center items-center w-16 h-16 bg-white rounded-md p-2">
                             <img src="/discord.svg" className="h-full w-full" />

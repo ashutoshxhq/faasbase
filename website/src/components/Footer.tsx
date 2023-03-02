@@ -38,7 +38,7 @@ export const Footer = () => {
                         </div>
                     </div>
                 </div> */}
-                <div className="flex justify-between items-center py-8 px-4 text-zinc-400">
+                <div className="flex justify-between items-center py-8 px-4 text-zinc-400  mobile-column">
                     <div className="text-block-17">Copyright © 2022 Faasbase. All rights reserved.</div>
                     <div className="text-block-17">support@faasbase.com</div>
                 </div>

@@ -17,9 +17,9 @@ async fn main() {
         .with_max_level(Level::TRACE)
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
-    let access_key_id = std::env::var("FAASLY_AWS_ACCESS_KEY_ID").expect("AWS_ACCESS_KEY_ID must be set");
-    let secret_access_key = std::env::var("FAASLY_AWS_SECRET_ACCESS_KEY").expect("AWS_SECRET_ACCESS_KEY must be set");
-    let aws_region = std::env::var("FAASLY_AWS_DEFAULT_REGION").expect("AWS_REGION must be set");
+    let access_key_id = std::env::var("FAASBASE_AWS_ACCESS_KEY_ID").expect("AWS_ACCESS_KEY_ID must be set");
+    let secret_access_key = std::env::var("FAASBASE_AWS_SECRET_ACCESS_KEY").expect("AWS_SECRET_ACCESS_KEY must be set");
+    let aws_region = std::env::var("FAASBASE_AWS_DEFAULT_REGION").expect("AWS_REGION must be set");
 
     let region_provider = RegionProviderChain::first_try(aws_types::region::Region::new(aws_region));
     let credentials_provider = Credentials::new(

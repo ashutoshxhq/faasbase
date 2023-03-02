@@ -41,3 +41,31 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #27272a; 
 }
+
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  .header-container {
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .heading-mobile {
+    font-size: 24px;
+  }
+
+  .text-mobile {
+    font-size: 14px;
+    line-height: normal;
+  }
+
+  .mobile-column {
+    flex-direction: column;
+  }
+  .mobile-p-0 {
+    padding: 0px !important;
+  }
+
+  .mobile-mb-60 {
+    margin-bottom: 60px !important;
+  }
+}
