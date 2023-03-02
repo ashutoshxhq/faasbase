@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: build-worker-pod
-          image: 735683458704.dkr.ecr.us-west-2.amazonaws.com/build-worker:4d185eb922e73abb38858cc894f2bd8e382d3e6a
+          image: 735683458704.dkr.ecr.us-west-2.amazonaws.com/build-worker:c289eb0359a8b2e64dc5bbb0f01d7a27e4342813
           ports:
             - containerPort: 8000
           env:
@@ -28,16 +28,26 @@ spec:
             value: "8000"
           - name: BUILD_REQUEST_SQS_URL
             value: https://sqs.us-west-2.amazonaws.com/735683458704/faasbase-build-request-queue
-          - name: BUILD_SERVICE_URL
-            value: http://build-worker-service
           - name: ENGINE_SERVICE_URL
-            value: http://faasbase-engine-service
-          - name: DOCKER_HOST 
+            value: https://api.faasbase.com
+          - name: DOCKER_HOST
             value: tcp://localhost:2375 
           envFrom:
           - secretRef:
               name: build-worker-secrets
-        - name: dind-daemon 
-          image: docker:20.10-dind
-          securityContext: 
-              privileged: true
+        - name: dind
+          image: "docker:dind"
+          imagePullPolicy: Always
+          command: ["dockerd", "--host", "tcp://127.0.0.1:2375"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: build-worker-storage
+              mountPath: /var/lib/docker
+              subPath: docker
+            - name: build-worker-storage
+              mountPath: /opt/build-worker
+              subPath: build-worker
+      volumes:
+       - name: build-worker-storage
+         emptyDir: {}

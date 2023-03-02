@@ -744,7 +744,7 @@ impl ApplicationBuilder {
     pub async fn build_docker_image(&self) -> Result<Vec<Value>, Error> {
         let application = self.context.clone();
 
-        let docker = Docker::connect_with_socket_defaults()?;
+        let docker = Docker::connect_with_http_defaults()?;
 
         let application_path = std::env::current_dir()?.join(format!(
             "temp/applications/{}/{}/",
@@ -946,7 +946,7 @@ impl ApplicationBuilder {
                             .load()
                             .await;
 
-                        let docker = Docker::connect_with_socket_defaults()?;
+                        let docker = Docker::connect_with_http_defaults()?;
                         let ecr_client = aws_sdk_ecr::Client::new(&shared_config);
 
                         let respositories = ecr_client

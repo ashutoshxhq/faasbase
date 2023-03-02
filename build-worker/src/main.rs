@@ -2,6 +2,7 @@ mod builder;
 mod engine_client;
 mod generator;
 mod types;
+
 use aws_config::meta::region::RegionProviderChain;
 use aws_credential_types::Credentials;
 use aws_sdk_sqs as sqs;
@@ -34,7 +35,6 @@ async fn main() {
         .load()
         .await;
     let client = sqs::Client::new(&shared_config);
-
     loop {
         let queue_url =
             std::env::var("BUILD_REQUEST_SQS_URL").expect("BUILD_REQUEST_SQS_URL must be set");
@@ -79,7 +79,10 @@ async fn main() {
                                         .send()
                                         .await
                                         .unwrap();
-                                    tracing::info!("Deleted the message: {:#?}", delete_message_output);
+                                    tracing::info!(
+                                        "Deleted the message: {:#?}",
+                                        delete_message_output
+                                    );
                                 }
                                 Err(_) => {
                                     tracing::error!("Error while building the application");
@@ -87,10 +90,7 @@ async fn main() {
                             }
                         }
                         Err(err) => {
-                            tracing::error!(
-                                "Error while parsing the message: {:#?}",
-                                err
-                            );
+                            tracing::error!("Error while parsing the message: {:#?}", err);
                             let _delete_message_output = client
                                 .delete_message()
                                 .queue_url(queue_url.clone())
