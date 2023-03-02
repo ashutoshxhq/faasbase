@@ -12,7 +12,7 @@ FROM debian:bullseye-slim
 ARG APP=/usr/src/app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates tzdata libpq-dev gcc libc6-dev curl gnupg lsb-release \
+    && apt-get install -y --no-install-recommends ca-certificates tzdata libpq-dev gcc libc6-dev curl unzip gnupg lsb-release \
     && rm -rf /var/lib/apt/lists/*
     # && sudo mkdir -p /etc/apt/keyrings
     # && curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -22,6 +22,9 @@ RUN apt-get update \
     # && sudo apt-get update
     # && sudo apt-get install docker-ce docker-ce-cli containerd.io
     
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
 
 EXPOSE 8000
 

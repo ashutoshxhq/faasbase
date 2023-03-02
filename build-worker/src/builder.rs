@@ -482,35 +482,42 @@ impl ApplicationBuilder {
             let secret_access_key = application_cluster_provider_config.aws_secret_access_key;
             let aws_region = application_cluster_provider_config.region;
 
-            if let Some(access_key_id) = access_key_id {
-                std::env::set_var("AWS_ACCESS_KEY_ID", access_key_id);
+            if let Some(access_key_id) = access_key_id.clone() {
+                if let Some(secret_access_key) = secret_access_key.clone() {
+                    if let Some(aws_region) = aws_region.clone() {
+                        std::env::set_var("AWS_ACCESS_KEY_ID", access_key_id.clone());
+                        std::env::set_var("AWS_SECRET_ACCESS_KEY", secret_access_key.clone());
+                        std::env::set_var("AWS_REGION", aws_region.clone());
+                        let aws_config_file = format!(
+                            "[default]\naws_access_key_id = {}\naws_secret_access_key = {}\nregion = {}\noutput = json",
+                            access_key_id, secret_access_key, aws_region
+                        );
+
+                        let aws_config_file_path =
+                            format!("{}/.aws/config", std::env::var("HOME")?);
+
+                        std::fs::write(aws_config_file_path, aws_config_file)?;
+                    } else {
+                        tracing::error!("No region found in cluster provider config");
+                        return Err(FaasbaseError::new(
+                            "BAD_CLUSTER_CONFIG".to_string(),
+                            "No region found in cluster provider config".to_string(),
+                            400,
+                        ));
+                    }
+                } else {
+                    tracing::error!("No secret access key found in cluster provider config");
+                    return Err(FaasbaseError::new(
+                        "BAD_CLUSTER_CONFIG".to_string(),
+                        "No secret access key found in cluster provider config".to_string(),
+                        400,
+                    ));
+                }
             } else {
                 tracing::error!("No access key found in cluster provider config");
                 return Err(FaasbaseError::new(
                     "BAD_CLUSTER_CONFIG".to_string(),
                     "No access key found in cluster provider config".to_string(),
-                    400,
-                ));
-            }
-
-            if let Some(secret_access_key) = secret_access_key {
-                std::env::set_var("AWS_SECRET_ACCESS_KEY", secret_access_key);
-            } else {
-                tracing::error!("No secret access key found in cluster provider config");
-                return Err(FaasbaseError::new(
-                    "BAD_CLUSTER_CONFIG".to_string(),
-                    "No secret access key found in cluster provider config".to_string(),
-                    400,
-                ));
-            }
-
-            if let Some(aws_region) = aws_region {
-                std::env::set_var("AWS_REGION", aws_region);
-            } else {
-                tracing::error!("No region found in cluster provider config");
-                return Err(FaasbaseError::new(
-                    "BAD_CLUSTER_CONFIG".to_string(),
-                    "No region found in cluster provider config".to_string(),
                     400,
                 ));
             }
@@ -557,20 +564,13 @@ impl ApplicationBuilder {
     }
 
     pub async fn download_functions(&self) -> Result<(), Error> {
-
-        
         let application = self.context.clone();
         let access_key_id = std::env::var("FAASBASE_AWS_ACCESS_KEY_ID")?;
         let secret_access_key = std::env::var("FAASBASE_AWS_SECRET_ACCESS_KEY")?;
         let aws_region = std::env::var("FAASBASE_AWS_DEFAULT_REGION")?;
         let region_provider = RegionProviderChain::first_try(Region::new(aws_region));
-        let credentials_provider = Credentials::new(
-            access_key_id,
-            secret_access_key,
-            None,
-            None,
-            "faasbase",
-        );
+        let credentials_provider =
+            Credentials::new(access_key_id, secret_access_key, None, None, "faasbase");
 
         let shared_config = aws_config::from_env()
             .credentials_provider(credentials_provider)
@@ -720,13 +720,8 @@ impl ApplicationBuilder {
         let secret_access_key = std::env::var("FAASBASE_AWS_SECRET_ACCESS_KEY")?;
         let aws_region = std::env::var("FAASBASE_AWS_DEFAULT_REGION")?;
         let region_provider = RegionProviderChain::first_try(Region::new(aws_region));
-        let credentials_provider = Credentials::new(
-            access_key_id,
-            secret_access_key,
-            None,
-            None,
-            "faasbase",
-        );
+        let credentials_provider =
+            Credentials::new(access_key_id, secret_access_key, None, None, "faasbase");
 
         let shared_config = aws_config::from_env()
             .credentials_provider(credentials_provider)
@@ -1124,7 +1119,8 @@ impl ApplicationBuilder {
                                 .describe_repositories()
                                 .repository_names(self.context.name.clone())
                                 .send()
-                                .await.unwrap();
+                                .await
+                                .unwrap();
                             // println!("Respositories: {:.unwrap()}", respositories.repositories());
                             let mut application_repository_uri: Option<String> = None;
 
@@ -1142,7 +1138,8 @@ impl ApplicationBuilder {
                                     .create_repository()
                                     .repository_name(self.context.name.clone())
                                     .send()
-                                    .await.unwrap();
+                                    .await
+                                    .unwrap();
                                 if let Some(repository) = create_repository_output.repository() {
                                     if let Some(repository_uri) = repository.repository_uri() {
                                         application_repository_uri =
@@ -1161,13 +1158,15 @@ impl ApplicationBuilder {
                                 application_variables = serde_json::from_value(variables).unwrap();
                             }
 
-                            let kubeconfig = Kubeconfig::from_yaml(&cluster_data.cluster_config).unwrap();
+                            let kubeconfig =
+                                Kubeconfig::from_yaml(&cluster_data.cluster_config).unwrap();
 
                             // tracing::info!("Kubeconfig: {:.unwrap()}", kubeconfig);
                             let options = KubeConfigOptions::default();
 
-                            let config =
-                                KubeConfig::from_custom_kubeconfig(kubeconfig, &options).await.unwrap();
+                            let config = KubeConfig::from_custom_kubeconfig(kubeconfig, &options)
+                                .await
+                                .unwrap();
 
                             let client = KubeClient::try_from(config).unwrap();
 
@@ -1252,7 +1251,8 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&deployment_config),
                                         )
-                                        .await.unwrap();
+                                        .await
+                                        .unwrap();
                                 }
                                 Err(_e) => {
                                     tracing::info!(
@@ -1261,7 +1261,8 @@ impl ApplicationBuilder {
                                     );
                                     deployments
                                         .create(&PostParams::default(), &deployment_config)
-                                        .await.unwrap();
+                                        .await
+                                        .unwrap();
                                 }
                             }
 
@@ -1297,7 +1298,8 @@ impl ApplicationBuilder {
                                         }
                                     ]
                                 }
-                            })).unwrap();
+                            }))
+                            .unwrap();
 
                             let service = services
                                 .get(&format!("{}-service", self.context.name))
@@ -1313,13 +1315,15 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&service_config),
                                         )
-                                        .await.unwrap();
+                                        .await
+                                        .unwrap();
                                 }
                                 Err(_e) => {
                                     tracing::info!("Service does not exist, creating");
                                     services
                                         .create(&PostParams::default(), &service_config)
-                                        .await.unwrap();
+                                        .await
+                                        .unwrap();
                                 }
                             }
 
@@ -1341,7 +1345,8 @@ impl ApplicationBuilder {
                                 },
                                 "type": "Opaque",
                                 "data": secret_map
-                            })).unwrap();
+                            }))
+                            .unwrap();
 
                             let secrets: Api<Secret> = Api::default_namespaced(client.clone());
 
@@ -1358,13 +1363,15 @@ impl ApplicationBuilder {
                                             &patchparams,
                                             &Patch::Merge(&secret_config),
                                         )
-                                        .await.unwrap();
+                                        .await
+                                        .unwrap();
                                 }
                                 Err(_e) => {
                                     tracing::info!("Secret does not exist, creating");
                                     secrets
                                         .create(&PostParams::default(), &secret_config)
-                                        .await.unwrap();
+                                        .await
+                                        .unwrap();
                                 }
                             }
 
