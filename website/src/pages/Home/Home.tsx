@@ -22,7 +22,7 @@ const HeroSection = () => {
                     <span className="block">Build applications <span className="block mt-1 text-orange-400 lg:inline lg:mt-0" data-primary="orange-500"> blazing fast.</span></span>
                 </h1>
                 <p className="w-full mx-auto text-base text-left text-zinc-500 sm:text-lg lg:text-xl md:max-w-3xl md:text-center">
-                    Develop backend services, third party integrations and data pipelines blazing fast using functions as building blocks.
+                    Develop backend services, third party integrations and data pipelines using functions as building blocks.
                 </p>
                 <div className="flex flex-col justify-center md:flex-row md:space-x-4">
                     <a href="https://app.faasbase.com/auth/signup" target={"_blank"} className="flex items-center font-medium w-full px-6 py-3 mb-3 text-lg text-white bg-orange-500 rounded-md md:mb-0 hover:bg-orange-600 md:w-auto" data-primary="orange-500" data-rounded="rounded-md">
