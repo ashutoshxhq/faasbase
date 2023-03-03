@@ -19,8 +19,10 @@ async fn main() {
         .with_level(true)
         .with_line_number(true)
         .with_file(true)
-        .with_ansi(true)
+        .with_ansi(false)
+        .compact()
         .finish();
+    
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let access_key_id =
         std::env::var("FAASBASE_AWS_ACCESS_KEY_ID").expect("AWS_ACCESS_KEY_ID must be set");

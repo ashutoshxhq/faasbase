@@ -538,29 +538,7 @@ impl ApplicationBuilder {
                         std::env::set_var("AWS_ACCESS_KEY_ID", access_key_id.clone());
                         std::env::set_var("AWS_SECRET_ACCESS_KEY", secret_access_key.clone());
                         std::env::set_var("AWS_REGION", aws_region.clone());
-                        let aws_config_file = format!(
-                            "[default]\naws_access_key_id = {}\naws_secret_access_key = {}\nregion = {}\noutput = json",
-                            access_key_id, secret_access_key, aws_region
-                        );
                         
-                        let home_dir_path = dirs::home_dir();
-
-                        if let Some(home_dir_path) = home_dir_path {
-                            let mut config_path = home_dir_path.clone();
-                            config_path.push(Path::new(".aws/config"));
-
-                            let aws_dir_path = format!("{}/.aws", home_dir_path.to_str().unwrap());
-                            tracing::info!("Creating aws config file at {}", config_path.to_str().unwrap());
-                            fs::create_dir_all(aws_dir_path).unwrap();
-                            std::fs::write(config_path, aws_config_file).unwrap();
-                        } else {
-                            tracing::error!("No home directory found");
-                            return Err(FaasbaseError::new(
-                                "BAD_HOME_DIR".to_string(),
-                                "No home directory found".to_string(),
-                                400,
-                            ));
-                        }
                     } else {
                         tracing::error!("No region found in cluster provider config");
                         return Err(FaasbaseError::new(
