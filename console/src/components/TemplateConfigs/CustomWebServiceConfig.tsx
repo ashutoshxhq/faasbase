@@ -38,7 +38,7 @@ const CustomWebServiceConfig = (props: CustomWebServiceConfigProps) => {
                 </Box>
 
                 <Box display="flex" justifyContent={"start"} alignItems={"start"} flexDir={"column"} w={"100%"}>
-                    <FormControl mb={4} mt={4} maxW={"200px"}>
+                    <FormControl mb={4} mt={4} maxW={"200px"} isRequired>
                         <FormLabel htmlFor={"jwt"}>Enable JWT Auth ?</FormLabel>
                         <Switch my="4px" id="jwt" size='lg' isChecked={config?.jwt_auth_enabled || false} onChange={(e) => {
                             setConfig({
@@ -48,9 +48,9 @@ const CustomWebServiceConfig = (props: CustomWebServiceConfigProps) => {
                         }} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
                     </FormControl>
                     <Box display="flex" justifyContent={"start"} alignItems={"start"} flexDir={"row"} gap="6" flex="1" w={"100%"}>
-                        {config?.jwt_auth_enabled ? <FormControl mb={4} mt={4} maxW={"200px"}>
+                        {config?.jwt_auth_enabled ? <FormControl mb={4} mt={4} maxW={"200px"} isRequired>
                             <FormLabel htmlFor={"jwt"}>JWT Algorithm</FormLabel>
-                            <CustomSelect value={config?.jwt_algorithm} onChange={(val) => {
+                            <CustomSelect value={config?.jwt_algorithm} isRequired onChange={(val) => {
                                 setConfig({
                                     ...config,
                                     jwt_algorithm: val
@@ -60,9 +60,9 @@ const CustomWebServiceConfig = (props: CustomWebServiceConfigProps) => {
                                 <Option value="RS256" />
                             </CustomSelect>
                         </FormControl> : null}
-                        {config?.jwt_algorithm === "HS256" && config?.jwt_auth_enabled ? <FormControl mb={4} mt={4} maxW={"50%"}>
+                        {config?.jwt_algorithm === "HS256" && config?.jwt_auth_enabled ? <FormControl mb={4} mt={4} maxW={"50%"} isRequired>
                             <FormLabel htmlFor={"jwt"}>JWT Secret</FormLabel>
-                            <Input type="secret" variant={"outline"} value={config?.jwt_secret} onChange={(e) => {
+                            <Input type="secret" variant={"outline"} isRequired value={config?.jwt_secret} onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     jwt_secret: e.target.value
@@ -70,9 +70,9 @@ const CustomWebServiceConfig = (props: CustomWebServiceConfigProps) => {
                             }} />
                         </FormControl> : null}
 
-                        {config?.jwt_algorithm === "RS256" && config?.jwt_auth_enabled ? <FormControl mb={4} mt={4}>
+                        {config?.jwt_algorithm === "RS256" && config?.jwt_auth_enabled ? <FormControl mb={4} mt={4} isRequired>
                             <FormLabel htmlFor={"jwt"}>JSON Web Key Set URI</FormLabel>
-                            <Input type="secret" variant={"outline"} value={config?.jwks_uri} onChange={(e) => {
+                            <Input type="secret" variant={"outline"} isRequired value={config?.jwks_uri} onChange={(e) => {
                                 setConfig({
                                     ...config,
                                     jwks_uri: e.target.value
