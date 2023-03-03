@@ -14,13 +14,6 @@ ARG APP=/usr/src/app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates tzdata libpq-dev gcc libc6-dev curl unzip gnupg lsb-release \
     && rm -rf /var/lib/apt/lists/*
-    # && sudo mkdir -p /etc/apt/keyrings
-    # && curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    # && echo \
-    # "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-    # $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    # && sudo apt-get update
-    # && sudo apt-get install docker-ce docker-ce-cli containerd.io
     
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip

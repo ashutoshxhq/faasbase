@@ -78,7 +78,7 @@ impl ApplicationBuilder {
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
                         built_at: None,
                     };
 
@@ -124,7 +124,7 @@ impl ApplicationBuilder {
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
                         built_at: None,
                     };
 
@@ -169,7 +169,7 @@ impl ApplicationBuilder {
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
                         built_at: None,
                     };
                     let _update_build_res = update_application_build(
@@ -213,7 +213,7 @@ impl ApplicationBuilder {
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
                         built_at: None,
                     };
 
@@ -258,7 +258,7 @@ impl ApplicationBuilder {
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
                         built_at: None,
                     };
 
@@ -291,13 +291,13 @@ impl ApplicationBuilder {
                     tracing::info!("Docker image built successfully");
                     let build_update_payload = UpdateApplicationBuild {
                         version: application_build_context.build_version.clone(),
-                        build_status: Some("SUCCESS".to_string()),
-                        deployment_status: Some("DEPLOYING".to_string()),
+                        build_status: None,
+                        deployment_status: None,
                         changelog: None,
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        built_at: Some(Utc::now().naive_utc()),
+                        built_at: None,
                         deployed_at: None,
                     };
 
@@ -412,7 +412,7 @@ impl ApplicationBuilder {
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
                         built_at: None,
                     };
 
@@ -452,13 +452,13 @@ impl ApplicationBuilder {
                     let build_update_payload = UpdateApplicationBuild {
                         version: application_build_context.build_version.clone(),
                         build_status: Some("SUCCESS".to_string()),
-                        deployment_status: Some("DEPLOYING".to_string()),
+                        deployment_status: Some("SUCCESS".to_string()),
                         changelog: None,
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        built_at: Some(Utc::now().naive_utc()),
-                        deployed_at: None,
+                        built_at: None,
+                        deployed_at: Some(Utc::now().naive_utc()),
                     };
 
                     let _update_build_res = update_application_build(
@@ -487,13 +487,13 @@ impl ApplicationBuilder {
                     tracing::error!("Error deploying application");
                     let build_update_payload = UpdateApplicationBuild {
                         version: application_build_context.build_version.clone(),
-                        build_status: Some("ERROR".to_string()),
+                        build_status: Some("SUCCESS".to_string()),
                         deployment_status: Some("ERROR".to_string()),
                         changelog: None,
                         config: None,
                         logs: Some(logs),
                         deleted_at: None,
-                        deployed_at: Some(Utc::now().naive_utc()),
+                        deployed_at: None,
                         built_at: None,
                     };
 
