@@ -421,7 +421,7 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
     setVersion(props?.data?.config?.version || "")
     setEndpoint(props?.data?.config?.endpoint || "")
     setMethod(props.data?.config?.method || "")
-    setIsAuthEnabled(props.data?.config?.isAuthEnabled || true)
+    setIsAuthEnabled(props.data?.config?.isAuthEnabled?true:false)
   }, [props.data])
 
 
@@ -488,7 +488,7 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
             <Box mt={10}>
               <FormControl maxW={"200px"}>
                 <FormLabel htmlFor={"jwt"}>Enable AuthZ for Endpoint?</FormLabel>
-                <Switch my="4px" id="jwt" size='lg' isChecked={isAuthEnabled || false} onChange={(e) => setIsAuthEnabled(!isAuthEnabled)} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
+                <Switch my="4px" id="jwt" size='lg' isChecked={isAuthEnabled} onChange={(e) => setIsAuthEnabled(!isAuthEnabled)} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
               </FormControl>
             </Box>
 
