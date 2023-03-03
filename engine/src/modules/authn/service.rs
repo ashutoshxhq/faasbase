@@ -1,5 +1,5 @@
 use crate::{
-    domains::{
+    modules::{
         user::model::{NewUser, UpdateUser, User},
         workspace_members::model::{NewWorkspaceMember, WorkspaceMember},
         workspaces::model::{NewWorkspace, Workspace},

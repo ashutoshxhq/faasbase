@@ -11,7 +11,7 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
-    authz::TokenClaims, domains::function_build::model::NewFunctionBuild,
+    authz::TokenClaims, modules::function_build::model::NewFunctionBuild,
     extras::types::{GetWorkspaceResourceQuery, SearchWorkspaceResourceQuery}, state::FaasbaseState,
 };
 

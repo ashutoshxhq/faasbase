@@ -1,5 +1,5 @@
-use crate::domains::function_build::model::FunctionBuild;
-use crate::domains::function_collaborator::model::{FunctionCollaborator, NewFunctionCollaborator};
+use crate::modules::function_build::model::FunctionBuild;
+use crate::modules::function_collaborator::model::{FunctionCollaborator, NewFunctionCollaborator};
 use crate::extras::types::{Error, FaasbaseError};
 use crate::schema::function_builds::{dsl as function_builds_dsl};
 use crate::schema::function_collaborators;

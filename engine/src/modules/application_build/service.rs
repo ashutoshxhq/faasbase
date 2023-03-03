@@ -2,9 +2,9 @@ use super::model::{
     ApplicationBuild, ApplicationBuildContext, ApplicationBuildWithUser, ApplicationConfig,
     NewApplicationBuild, UpdateApplicationBuild,
 };
-use crate::domains::application::model::Application;
-use crate::domains::application_resource::model::ApplicationResourceWithFunction;
-use crate::domains::cluster::model::Cluster;
+use crate::modules::application::model::Application;
+use crate::modules::application_resource::model::ApplicationResourceWithFunction;
+use crate::modules::cluster::model::Cluster;
 use crate::extras::types::Error;
 use crate::schema::application_builds::{self, dsl};
 use crate::schema::applications::dsl as application_dsl;

@@ -1,4 +1,4 @@
-use crate::domains::function::model::Function;
+use crate::modules::function::model::Function;
 use crate::schema::application_resources;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;

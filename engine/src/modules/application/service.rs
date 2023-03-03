@@ -1,4 +1,4 @@
-use crate::domains::application_collaborator::model::{ApplicationCollaborator, NewApplicationCollaborator};
+use crate::modules::application_collaborator::model::{ApplicationCollaborator, NewApplicationCollaborator};
 use crate::extras::types::Error;
 use crate::schema::application_collaborators;
 use crate::schema::applications::{self, dsl};

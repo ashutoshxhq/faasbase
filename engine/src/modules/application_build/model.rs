@@ -1,5 +1,5 @@
 use crate::{
-    domains::{
+    modules::{
         application_resource::model::ApplicationResourceWithFunction, cluster::model::Cluster,
     },
     schema::application_builds,

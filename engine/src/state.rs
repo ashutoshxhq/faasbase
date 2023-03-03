@@ -3,7 +3,7 @@ use diesel::{
     PgConnection,
 };
 
-use crate::domains::service::FaasbaseService;
+use crate::modules::service::FaasbaseService;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 

@@ -1,4 +1,4 @@
-use crate::{schema::functions, domains::function_build::model::FunctionBuild};
+use crate::{schema::functions, modules::function_build::model::FunctionBuild};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};

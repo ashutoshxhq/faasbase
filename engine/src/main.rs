@@ -1,10 +1,10 @@
 mod authz;
-mod domains;
+mod modules;
 mod extras;
 mod schema;
 mod state;
 use axum::{error_handling::HandleErrorLayer, http::StatusCode, BoxError, Extension, Router};
-use domains::*;
+use modules::*;
 use dotenvy::dotenv;
 use state::FaasbaseState;
 use std::{env, net::SocketAddr, time::Duration};
