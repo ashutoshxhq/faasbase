@@ -188,7 +188,7 @@ const CallToActionSection = () => {
                         <div className="flex flex-col gap-5">
                             <div> <span className="text-xl font-semibold text-white">Discord Community</span></div>
                             <div> <p className="text-zinc-400 text-sm">Get live support, and stay up to date on product and event announcements.</p> </div>
-                            <div> <a href="#" className="flex items-center justify-center rounded-md bg-indigo-400 px-4 py-2 font-medium text-white shadow-sm">Join Server</a></div>
+                            <div> <a href="https://discord.gg/zqRbq5JDQ7" target={"_blank"} className="flex items-center justify-center rounded-md bg-indigo-400 px-4 py-2 font-medium text-white shadow-sm">Join Server</a></div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-6 justify-between items-start rounded-md bg-zinc-800 ring-zinc-700 ring-1 p-8 flex-1">
