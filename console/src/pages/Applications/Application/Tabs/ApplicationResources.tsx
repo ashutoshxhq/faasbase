@@ -262,7 +262,7 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
           <DrawerBody>
             <FormControl isRequired mt={6}>
               <FormLabel htmlFor="resource-type">Resource Type</FormLabel>
-              <Select placeholder='Select resource type' border={"2px"} value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
+              <Select placeholder='Select resource type' isRequired border={"2px"} value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
                 <option value="FUNCTION_ENDPOINT"> Function Endpoint</option>
               </Select>
             </FormControl>
@@ -274,6 +274,7 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
                   <FormLabel htmlFor="endpoint">Endpoint</FormLabel>
                   <Input
                     id="endpoint"
+                    isRequired
                     value={endpoint}
                     onChange={(e) => setEndpoint(e.target.value)}
                   />
@@ -282,7 +283,7 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
               <Box w={"30%"}>
                 <FormControl isRequired>
                   <FormLabel htmlFor="method">Method</FormLabel>
-                  <Select placeholder='Select method' border={"2px"} value={method} onChange={(e) => setMethod(e.target.value)}>
+                  <Select placeholder='Select method' isRequired border={"2px"} value={method} onChange={(e) => setMethod(e.target.value)}>
                     <option value="GET"> GET</option>
                     <option value="POST"> POST</option>
                     <option value="PATCH"> PATCH</option>
@@ -296,7 +297,7 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
               <Box flex={1}>
                 <FormControl isRequired>
                   <FormLabel htmlFor="function">Function</FormLabel>
-                  <Select placeholder='Select Function' border={"2px"} value={functionId} onChange={(e) => setFunctionId(e.target.value)}>
+                  <Select placeholder='Select Function' isRequired border={"2px"} value={functionId} onChange={(e) => setFunctionId(e.target.value)}>
                     {functionsQuery.data?.data.data?.map((functionData: any, index: number) => <option key={index} value={functionData?.id}> {functionData?.name}</option>)}
                   </Select>
                 </FormControl>
@@ -305,7 +306,7 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
               <Box w={"30%"}>
                 <FormControl isRequired>
                   <FormLabel htmlFor="version">Version</FormLabel>
-                  <Select placeholder='Select version' border={"2px"} value={version} onChange={(e) => setVersion(e.target.value)}>
+                  <Select placeholder='Select version' isRequired border={"2px"} value={version} onChange={(e) => setVersion(e.target.value)}>
                     {functionsQuery.data?.data.data?.find((functionData: any) => functionData.id === functionId)?.builds?.map((build: any) => <option value={build?.version}>{build?.version}</option>)}
                   </Select>
                 </FormControl>
@@ -313,9 +314,9 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
               </Box>
             </Box>
 
-            <Box>
-              <FormControl mb={4} mt={4} maxW={"200px"}>
-                <FormLabel htmlFor={"jwt"}>Enable JWT Auth for Endpoint?</FormLabel>
+            <Box mt={10}>
+              <FormControl maxW={"200px"}>
+                <FormLabel htmlFor={"jwt"}>Enable AuthZ for Endpoint?</FormLabel>
                 <Switch my="4px" id="jwt" size='lg' isChecked={isAuthEnabled || false} onChange={(e) => setIsAuthEnabled(!isAuthEnabled)} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
               </FormControl>
             </Box>
@@ -375,6 +376,7 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
   const [resourceType, setResourceType] = useState("")
   const [endpoint, setEndpoint] = useState("")
   const [method, setMethod] = useState("")
+  const [isAuthEnabled, setIsAuthEnabled] = useState(true)
 
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
 
@@ -419,6 +421,7 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
     setVersion(props?.data?.config?.version || "")
     setEndpoint(props?.data?.config?.endpoint || "")
     setMethod(props.data?.config?.method || "")
+    setIsAuthEnabled(props.data?.config?.isAuthEnabled || true)
   }, [props.data])
 
 
@@ -482,6 +485,13 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
               </Box>
             </Box>
 
+            <Box mt={10}>
+              <FormControl maxW={"200px"}>
+                <FormLabel htmlFor={"jwt"}>Enable AuthZ for Endpoint?</FormLabel>
+                <Switch my="4px" id="jwt" size='lg' isChecked={isAuthEnabled || false} onChange={(e) => setIsAuthEnabled(!isAuthEnabled)} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
+              </FormControl>
+            </Box>
+
 
           </DrawerBody>
           <DrawerFooter>
@@ -498,7 +508,8 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
                   config: {
                     version: version,
                     method: method,
-                    endpoint: endpoint
+                    endpoint: endpoint,
+                    isAuthEnabled: isAuthEnabled
                   },
                   resource_id: functionId,
                   application_id: applicationId,
