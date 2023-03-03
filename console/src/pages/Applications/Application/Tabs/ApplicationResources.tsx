@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Container, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, FormControl, FormLabel, Icon, IconButton, Image, Input, Link, Menu, MenuButton, MenuItem, MenuList, Select, Skeleton, Stack, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Container, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, FormControl, FormLabel, Icon, IconButton, Image, Input, Link, Menu, MenuButton, MenuItem, MenuList, Select, Skeleton, Stack, Switch, Tag, Text, Textarea, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { FiCommand, FiSettings } from 'react-icons/fi';
@@ -123,8 +123,8 @@ function ApplicationResources() {
                 <Tag>
                   {resource?.resource_type === "FUNCTION_ENDPOINT" ? "Function Endpoint" : null}
                 </Tag>
-                {resource?.config?.version?<Tag>v{resource?.config?.version}</Tag>:null}
-                
+                {resource?.config?.version ? <Tag>v{resource?.config?.version}</Tag> : null}
+
                 <Box display={"flex"}>
                   <IconButton
                     _hover={{ backgroundColor: "whiteAlpha.200" }}
@@ -213,6 +213,7 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
   const [resourceType, setResourceType] = useState("")
   const [endpoint, setEndpoint] = useState("")
   const [method, setMethod] = useState("")
+  const [isAuthEnabled, setIsAuthEnabled] = useState(true)
 
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
 
@@ -312,6 +313,13 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
               </Box>
             </Box>
 
+            <Box>
+              <FormControl mb={4} mt={4} maxW={"200px"}>
+                <FormLabel htmlFor={"jwt"}>Enable JWT Auth for Endpoint?</FormLabel>
+                <Switch my="4px" id="jwt" size='lg' isChecked={isAuthEnabled || false} onChange={(e) => setIsAuthEnabled(!isAuthEnabled)} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
+              </FormControl>
+            </Box>
+
 
           </DrawerBody>
           <DrawerFooter>
@@ -328,7 +336,8 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
                   config: {
                     version: version,
                     method: method,
-                    endpoint: endpoint
+                    endpoint: endpoint,
+                    isAuthEnabled
                   },
                   resource_id: functionId,
                   application_id: applicationId,
