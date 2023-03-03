@@ -1,8 +1,5 @@
-import React from 'react'
-import { FiGlobe, FiTool, FiServer, FiUsers, FiChevronRight } from 'react-icons/fi'
-import { Link } from 'react-router-dom'
-import { ApplicationItem } from '../../components/ApplicationItem'
-import { FunctionItem } from '../../components/FunctionItem'
+import { FiGlobe, FiTool, FiServer} from 'react-icons/fi'
+
 
 function Home() {
     return (<>
