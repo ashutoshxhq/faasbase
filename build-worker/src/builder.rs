@@ -523,7 +523,7 @@ impl ApplicationBuilder {
 
         if let Some(cluster_data) = cluster_data {
             application_cluster_provider_config =
-                Some(serde_json::from_value(cluster_data.provider_config)?);
+                Some(serde_json::from_value(cluster_data.provider_config).unwrap());
         }
 
         if let Some(application_cluster_provider_config) = application_cluster_provider_config {
@@ -551,8 +551,8 @@ impl ApplicationBuilder {
 
                             let aws_dir_path = format!("{}/.aws", home_dir_path.to_str().unwrap());
 
-                            fs::create_dir_all(aws_dir_path)?;
-                            std::fs::write(config_path, aws_config_file)?;
+                            fs::create_dir_all(aws_dir_path).unwrap();
+                            std::fs::write(config_path, aws_config_file).unwrap();
                         } else {
                             tracing::error!("No home directory found");
                             return Err(FaasbaseError::new(
