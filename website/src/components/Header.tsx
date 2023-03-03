@@ -19,9 +19,8 @@ export const Header = () => {
                     </div>
                 </div> */}
                 <div className="flex justify-center items-center gap-4">
-                    <a href="#" className="flex items-center justify-center rounded-md px-4 py-2  bg-zinc-700 font-medium text-white shadow-sm hover:bg-zinc-700">Sign In</a>
-                    <a href="#" className="flex items-center justify-center rounded-md bg-orange-500 px-4 py-2 font-medium text-white shadow-sm hover:bg-orange-600">Get Started</a>
-
+                    <a href="https://app.faasbase.com/auth/login" target={"_blank"} className="flex items-center justify-center rounded-md px-4 py-2  bg-zinc-700 font-medium text-white shadow-sm hover:bg-zinc-700">Sign In</a>
+                    <a href="https://app.faasbase.com/auth/signup" target={"_blank"} className="flex items-center justify-center rounded-md bg-orange-500 px-4 py-2 font-medium text-white shadow-sm hover:bg-orange-600">Get Started</a>
                 </div>
             </div>
         </div>

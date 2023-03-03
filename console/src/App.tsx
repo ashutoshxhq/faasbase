@@ -30,6 +30,7 @@ import DatabaseTable from './pages/Databases/Database/DatabaseTable/DatabaseTabl
 import Databases from './pages/Databases/Databases'
 import FaasbaseExperts from './pages/Experts/Experts'
 import DatabaseDetails from './pages/Databases/Database/DatabaseDetails'
+import Signup from './pages/Signup/Signup'
 
 const queryClient = new QueryClient()
 
@@ -67,6 +68,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/auth/login" element={<Login />} />
+              <Route path="/auth/signup" element={<Signup />} />
               <Route path="/auth/callback" element={<LoginCallback />} />
               <Route path="/" element={<Layout />}>
                 <Route index element={<FaasbaseRoot />} />
