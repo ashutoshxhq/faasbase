@@ -38,7 +38,8 @@ RUN groupadd $APP_USER \
 COPY --from=builder /build-worker/target/release/build-worker ${APP}/build-worker
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
-
+RUN mkdir -p ~/.aws
+RUN chown -R $APP_USER:$APP_USER ~/.aws
 USER $APP_USER
 WORKDIR ${APP}
 

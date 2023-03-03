@@ -550,7 +550,7 @@ impl ApplicationBuilder {
                             config_path.push(Path::new(".aws/config"));
 
                             let aws_dir_path = format!("{}/.aws", home_dir_path.to_str().unwrap());
-
+                            tracing::info!("Creating aws config file at {}", config_path.to_str().unwrap());
                             fs::create_dir_all(aws_dir_path).unwrap();
                             std::fs::write(config_path, aws_config_file).unwrap();
                         } else {

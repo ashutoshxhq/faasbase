@@ -14,7 +14,6 @@ jobs:
       AWS_REGION: us-west-2
       KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       KUBE_NAMESPACE: default
-      ECR_REPOSITORY: faasbase-engine-service
     steps:
       - name: Cancel Previous Runs               
         uses: styfle/cancel-workflow-action@0.4.1
