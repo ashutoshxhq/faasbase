@@ -16,6 +16,10 @@ async fn main() {
     dotenv().ok();
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::DEBUG)
+        .with_level(true)
+        .with_line_number(true)
+        .with_file(true)
+        .with_ansi(true)
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let access_key_id =
