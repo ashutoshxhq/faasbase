@@ -108,9 +108,10 @@ pub async fn get_workspaces(
 
 pub async fn create_workspace(
     Extension(faasbase): Extension<FaasbaseState>,
+    Extension(claims): Extension<TokenClaims>,
     Json(payload): Json<NewWorkspace>,
 ) -> impl IntoResponse {
-    let res = faasbase.services.workspace.create_workspace(payload);
+    let res = faasbase.services.workspace.create_workspace(payload, claims.user_id);
     match res {
         Ok(res) => (
             StatusCode::OK,

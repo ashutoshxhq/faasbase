@@ -1,5 +1,7 @@
 use crate::extras::types::Error;
+use crate::modules::workspace_members::model::{WorkspaceMember, NewWorkspaceMember};
 use crate::schema::workspaces::{self, dsl};
+use crate::schema::workspace_members;
 use crate::state::DbPool;
 use diesel::{prelude::*, sql_query};
 use uuid::Uuid;
@@ -53,13 +55,23 @@ impl WorkspaceService {
         Ok(results)
     }
 
-    pub fn create_workspace(&self, data: NewWorkspace) -> Result<Workspace, Error> {
+    pub fn create_workspace(&self, data: NewWorkspace, user_id: Uuid) -> Result<Workspace, Error> {
         let mut conn = self.pool.clone().get()?;
 
         let results: Workspace = diesel::insert_into(workspaces::table)
             .values(&data)
-            .get_result(&mut conn)
-            .expect("Error saving new Workspace");
+            .get_result(&mut conn)?;
+
+        let wm_data = NewWorkspaceMember {
+            user_id,
+            workspace_id: results.id,
+            role: "OWNER".to_string(),
+        };
+        
+        let _wm_results: WorkspaceMember = diesel::insert_into(workspace_members::table)
+            .values(&wm_data)
+            .get_result(&mut conn)?;
+
         Ok(results)
     }
 
