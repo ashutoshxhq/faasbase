@@ -89,7 +89,7 @@ const Functions = () => {
         <Box display={"flex"} flexDirection={"column"} mb={6}>
           {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
           {query.data?.data?.data?.map((faasbaseFunction: any, index: number) => (
-            <Box display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
+            <Box key={faasbaseFunction.id+"$"+ index} display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
               <Box cursor={"pointer"} onClick={() => {
                 navigate(`/workspaces/${currentWorkspace?.name}/functions/${faasbaseFunction.id}`)
               }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
