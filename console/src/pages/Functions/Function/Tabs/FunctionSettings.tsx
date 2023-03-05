@@ -10,7 +10,7 @@ const FunctionSettings = (props: any) => {
   const { functionId } = useParams();
   const [functionName, setFunctionName] = useState("");
   const [functionDescription, setFunctionDescription] = useState("");
-  const [visibility, setVisibility] = useState("PUBLIC")
+  const [visibility, setVisibility] = useState("PRIVATE")
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast()
   const cancelRef = React.useRef<any>();

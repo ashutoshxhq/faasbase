@@ -259,7 +259,7 @@ export function CreateApplication(props: CreateApplicationProp) {
   const toast = useToast();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState("PUBLIC")
+  const [visibility, setVisibility] = useState("PRIVATE")
   const [applicationType, setApplicationType] = useState("WEB_SERVICE");
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);

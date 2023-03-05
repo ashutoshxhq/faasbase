@@ -31,7 +31,7 @@ export function CreateFunction(props: CreateFunctionProp) {
   const toast = useToast();
   const [functionName, setFunctionName] = useState("");
   const [functionDesc, setFunctionDesc] = useState("");
-  const [visibility, setVisibility] = useState("PUBLIC")
+  const [visibility, setVisibility] = useState("PRIVATE")
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
   const queryClient = useQueryClient()

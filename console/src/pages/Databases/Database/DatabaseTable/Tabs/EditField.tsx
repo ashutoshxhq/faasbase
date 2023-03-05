@@ -41,7 +41,7 @@ export function EditField(props: EditFieldProp) {
   const toast = useToast();
   const [dataType, setDataType] = useState("INT");
   const [name, setName] = useState("");
-  const [visibility, setVisibility] = useState("PUBLIC");
+  const [visibility, setVisibility] = useState("PRIVATE");
   const [defaultValue, setDefaultValue] = useState("0");
   const [refereceTable, setReferenceTable] = useState("");
   const [refereceField, setRefereceField] = useState("");
@@ -63,7 +63,7 @@ export function EditField(props: EditFieldProp) {
       setDefaultValue("");
       setReferenceTable("");
       setDataType("");
-      setVisibility("PUBLIC");
+      setVisibility("PRIVATE");
       props.onClose()
     },
     onError: () => {

@@ -44,7 +44,7 @@ function ApplicationSettings() {
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState("PUBLIC")
+  const [visibility, setVisibility] = useState("PRIVATE")
   const cancelRef = useRef<any>();
   const navigate = useNavigate();
   const query = useQuery([`application-${applicationId}`, { getAccessTokenSilently, applicationId }], getApplication)

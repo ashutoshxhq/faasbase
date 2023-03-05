@@ -37,7 +37,7 @@ export function AddField(props: AddFieldProp) {
   const { getAccessTokenSilently, getIdTokenClaims } = useAuth0()
   const toast = useToast();
   const [dataType, setDataType] = useState("INT");
-  const [visibility, setVisibility] = useState("PUBLIC");
+  const [visibility, setVisibility] = useState("PRIVATE");
   const [defaultValue, setDefaultValue] = useState("0");
   const [refereceTable, setReferenceTable] = useState("");
   const [refereceField, setRefereceField] = useState("");
@@ -64,7 +64,7 @@ export function AddField(props: AddFieldProp) {
       setDefaultValue("");
       setReferenceTable("");
       setDataType("");
-      setVisibility("PUBLIC");
+      setVisibility("PRIVATE");
       props.onClose()
     },
     onError: () => {

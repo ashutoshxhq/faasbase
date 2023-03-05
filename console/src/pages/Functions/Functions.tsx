@@ -87,20 +87,26 @@ const Functions = () => {
         </Box>
         <Divider color={"#303030"} />
         <Box display={"flex"} flexDirection={"column"} mb={6}>
-          {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
           {query.data?.data?.data?.map((faasbaseFunction: any, index: number) => (
-            <Box key={faasbaseFunction.id+"$"+ index} display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
-              <Box cursor={"pointer"} onClick={() => {
-                navigate(`/workspaces/${currentWorkspace?.name}/functions/${faasbaseFunction.id}`)
-              }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
-                <Text fontSize={"lg"} fontWeight={"medium"}>{faasbaseFunction.name}</Text>
-                <Text fontSize={"xs"} color={"subtle"}>{faasbaseFunction.description}</Text>
+            <Box key={faasbaseFunction.id + "$" + index} display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
+              <Box display={"flex"} alignItems={"center"}>
+                <Box bg={"whiteAlpha.200"} p={2} borderRadius={6} mx={6}>
+                  <FiCommand size={24} />
+                </Box>
+                <Box cursor={"pointer"} onClick={() => {
+                  navigate(`/workspaces/${currentWorkspace?.name}/functions/${faasbaseFunction.id}`)
+                }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={6} px={2}>
+
+                  <Text fontSize={"lg"} color={"whiteAlpha.900"} fontWeight={"medium"}>{faasbaseFunction.name}</Text>
+                  <Text fontSize={"xs"} color={"subtle"}>{faasbaseFunction.description}</Text>
+                </Box>
               </Box>
+
               <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
                 <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
                   {faasbaseFunction.visibility === "PUBLIC" ? "Public" : "Private"}
                 </Tag>
-                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>{faasbaseFunction.latest_version === "" || !faasbaseFunction.latest_version ? "No Builds" : "v"+faasbaseFunction.latest_version}</Tag>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>{faasbaseFunction.latest_version === "" || !faasbaseFunction.latest_version ? "No Builds" : "v" + faasbaseFunction.latest_version}</Tag>
                 <Menu size={"2xl"}>
                   <MenuButton
                     as={IconButton}
