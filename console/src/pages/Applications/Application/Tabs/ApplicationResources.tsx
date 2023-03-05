@@ -113,15 +113,15 @@ function ApplicationResources() {
                 </Box>
                 <Box display={"flex"} flexDirection='column' justifyContent={"center"}>
                   <Text fontSize="md" fontWeight="medium">
-                    {resource?.resource_name}
+                    {resource?.config?.method} : {resource?.config?.endpoint}
                   </Text>
                 </Box>
 
               </Stack>
               <Stack direction="row" spacing={4}>
-                <Tag>{resource?.config?.method} : {resource?.config?.endpoint}</Tag>
+                <Tag>fn: {resource?.resource_name}</Tag>
                 <Tag>
-                  {resource?.resource_type === "FUNCTION_ENDPOINT" ? "Function Endpoint" : null}
+                  {resource?.resource_type === "HTTP_ENDPOINT" ? "HTTP Endpoint" : null}
                 </Tag>
                 {resource?.config?.version ? <Tag>v{resource?.config?.version}</Tag> : null}
 
@@ -261,9 +261,9 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
           <DrawerHeader data-tauri-drag-region>Add New Resource</DrawerHeader>
           <DrawerBody>
             <FormControl isRequired mt={6}>
-              <FormLabel htmlFor="resource-type">Resource Type</FormLabel>
-              <Select placeholder='Select resource type' isRequired border={"2px"} value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
-                <option value="FUNCTION_ENDPOINT"> Function Endpoint</option>
+              <FormLabel htmlFor="resource-type">Trigger Type</FormLabel>
+              <Select placeholder='Select trigger type' isRequired border={"2px"} value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
+                <option value="HTTP_ENDPOINT"> HTTP Endpoint</option>
               </Select>
             </FormControl>
 
@@ -433,10 +433,10 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
           <DrawerCloseButton />
           <DrawerHeader data-tauri-drag-region>Configure Resource</DrawerHeader>
           <DrawerBody>
-            <FormControl isRequired mt={6}>
-              <FormLabel htmlFor="resource-type">Resource Type</FormLabel>
-              <Select placeholder='Select resource type' border={"2px"} value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
-                <option value="FUNCTION_ENDPOINT"> Function Endpoint</option>
+          <FormControl isRequired mt={6}>
+              <FormLabel htmlFor="resource-type">Trigger Type</FormLabel>
+              <Select placeholder='Select trigger type' isRequired border={"2px"} value={resourceType} onChange={(e) => setResourceType(e.target.value)}>
+                <option value="HTTP_ENDPOINT"> HTTP Endpoint</option>
               </Select>
             </FormControl>
 
