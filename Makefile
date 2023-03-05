@@ -1,7 +1,7 @@
 NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
 MAKEFLAGS += -j$(NPROCS)
 
-dev: dev-engine dev-console dev-worker
+dev: dev-engine dev-console
 
 .PHONY: dev-engine
 dev-engine:
