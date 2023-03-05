@@ -87,19 +87,19 @@ const Applications = () => {
           </Box>
 
         </Box>
-        <Divider  color={"#303030"} />
+        <Divider color={"#303030"} />
         <Box display={"flex"} flexDirection={"column"} mb={6}>
           {/* create a list of applications where name if application is in left and some other details like application type, version, stars and forks and three dot menu on the right */}
           {query.data?.data?.data?.map((faasbaseApplication: any, index: number) => (
             <Box display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
-              <Box cursor={"pointer"} onClick={()=>{
+              <Box cursor={"pointer"} onClick={() => {
                 navigate(`/workspaces/${currentWorkspace?.name}/applications/${faasbaseApplication.id}`)
               }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
                 <Text fontSize={"lg"} fontWeight={"medium"}>{faasbaseApplication.name}</Text>
                 <Text fontSize={"xs"} color={"subtle"}>{faasbaseApplication.description}</Text>
               </Box>
               <Box display={"flex"} justifyContent={"end"} alignItems={"center"} flex={1} gap={4} p={4}>
-                <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>
+                <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
                   {faasbaseApplication.application_type === "WEB_SERVICE" ? "Custom Web Service" : null}
                   {faasbaseApplication.application_type === "CLOUD_FUNCTION" ? "Cloud Function" : null}
                   {faasbaseApplication.application_type === "DOCKER" ? "Docker" : null}
@@ -109,7 +109,7 @@ const Applications = () => {
                 <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>
                   {faasbaseApplication.visibility === "PUBLIC" ? "Public" : "Private"}
                 </Tag>
-                {faasbaseApplication.deployed_version === "" || !faasbaseApplication.deployed_version ? <Tag py={2} px={4}  letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faasbaseApplication.deployed_version}</Tag>}
+                {faasbaseApplication.deployed_version === "" || !faasbaseApplication.deployed_version ? <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>No Builds</Tag> : <Tag py={2} px={4} letterSpacing={"0.2px"} fontSize={"sm"}>Version: {faasbaseApplication.deployed_version}</Tag>}
                 <Menu size={"2xl"}>
                   <MenuButton
                     color={"whiteAlpha.800"}
@@ -323,6 +323,16 @@ export function CreateApplication(props: CreateApplicationProp) {
             </FormControl>
 
             <FormControl isRequired mt={8}>
+              <FormLabel htmlFor="function-desc">Visibility</FormLabel>
+              <CustomSelect value={visibility} onChange={(val) => {
+                setVisibility(val)
+              }}>
+                <Option value={"PUBLIC"}>Public</Option>
+                <Option value={"PRIVATE"}>Private</Option>
+              </CustomSelect>
+            </FormControl>
+
+            <FormControl isRequired mt={8}>
               <FormLabel htmlFor="application_type" fontSize={"xl"} mb="4">Application Type</FormLabel>
               <RadioCardGroup id="application_type" value={applicationType} onChange={(value) => setApplicationType(value)}>
 
@@ -335,45 +345,37 @@ export function CreateApplication(props: CreateApplicationProp) {
                   </Text>
                 </RadioCard>
 
-                <RadioCard value={"CLOUD_FUNCTION"}>
+                {/* <RadioCard value={"CLOUD_FUNCTION"}>
                   <Text color="emphasized" fontWeight="medium" fontSize="sm">
-                    Cloud Function
+                    Cloud Function (Soon)
                   </Text>
                   <Text color="muted" fontSize="sm" mt={2}>
                     Build a cloud function from faasbase functions.
                   </Text>
-                </RadioCard>
+                </RadioCard> */}
 
-                <RadioCard value={"DOCKER"}>
+                {/* <RadioCard value={"DOCKER"}>
                   <Text color="emphasized" fontWeight="medium" fontSize="sm">
                     Docker
                   </Text>
                   <Text color="muted" fontSize="sm" mt={2}>
                     Build an application with a docker file.
                   </Text>
-                </RadioCard>
+                </RadioCard> */}
 
-                <RadioCard value={"SINGLE_PAGE_APPLICATION"}>
+                {/* <RadioCard value={"SINGLE_PAGE_APPLICATION"}>
                   <Text color="emphasized" fontWeight="medium" fontSize="sm">
-                    Single page application
+                    Single page application (Soon)
                   </Text>
                   <Text color="muted" fontSize="sm" mt={2}>
                     Deploy a SPA using S3 and cloudfront
                   </Text>
-                </RadioCard>
+                </RadioCard> */}
 
               </RadioCardGroup>
             </FormControl>
 
-            <FormControl isRequired mt={8}>
-              <FormLabel htmlFor="function-desc">Visibility</FormLabel>
-              <CustomSelect value={visibility} onChange={(val) => {
-                setVisibility(val)
-              }}>
-                <Option value={"PUBLIC"}>Public</Option>
-                <Option value={"PRIVATE"}>Private</Option>
-              </CustomSelect>
-            </FormControl>
+
           </DrawerBody>
           <DrawerFooter>
             <Button variant='solid' colorScheme={"gray"} mr={3} onClick={() => props?.onClose()}>

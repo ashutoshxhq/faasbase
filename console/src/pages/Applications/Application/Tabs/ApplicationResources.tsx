@@ -315,8 +315,8 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
             </Box>
 
             <Box mt={10}>
-              <FormControl maxW={"200px"}>
-                <FormLabel htmlFor={"jwt"}>Enable AuthZ for Endpoint?</FormLabel>
+              <FormControl maxW={"300px"}>
+                <FormLabel htmlFor={"jwt"}>Enable Authorization ?</FormLabel>
                 <Switch my="4px" id="jwt" size='lg' isChecked={isAuthEnabled || false} onChange={(e) => setIsAuthEnabled(!isAuthEnabled)} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
               </FormControl>
             </Box>
@@ -487,7 +487,7 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
 
             <Box mt={10}>
               <FormControl maxW={"200px"}>
-                <FormLabel htmlFor={"jwt"}>Enable AuthZ for Endpoint?</FormLabel>
+                <FormLabel htmlFor={"jwt"}>Enable Authorization ?</FormLabel>
                 <Switch my="4px" id="jwt" size='lg' isChecked={isAuthEnabled} onChange={(e) => setIsAuthEnabled(!isAuthEnabled)} sx={{ 'span.chakra-switch__track[data-checked]': { backgroundColor: 'orange.500' } }} colorScheme='orange' />
               </FormControl>
             </Box>
