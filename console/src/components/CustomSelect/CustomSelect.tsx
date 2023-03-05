@@ -61,7 +61,7 @@ export const CustomSelect = React.forwardRef<HTMLButtonElement, SelectProps>((pr
 
     return (
         <chakra.div position="relative" bg={"#1e1e1e"}>
-            <chakra.button bg={"#1e1e1e"} ref={toggleButtonRef} __css={styles.field} border={"solid 1.5px"} {...toggleButtonProps}>
+            <chakra.button bg={"#1e1e1e"} ref={toggleButtonRef} __css={styles.field} border={"solid 1.5px"} borderColor="whiteAlpha.400" {...toggleButtonProps}>
                 {validChildren.find((child) => child.props.value === selectedItem)?.props.children ||
                     selectedItem || <chakra.span>{placeholder}</chakra.span>}
                 <SelectIcon />

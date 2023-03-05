@@ -26,6 +26,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { v4 } from "uuid";
 import { deleteApplication, getApplication, updateApplication } from "../../../../api/applications";
+import { CustomSelect, Option } from "../../../../components/CustomSelect/CustomSelect";
 import CustomWebServiceConfig from "../../../../components/TemplateConfigs/CustomWebServiceConfig";
 import { currentWorkspaceState } from "../../../../store/workspaces";
 export interface Variable {
@@ -43,6 +44,7 @@ function ApplicationSettings() {
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [visibility, setVisibility] = useState("PUBLIC")
   const cancelRef = useRef<any>();
   const navigate = useNavigate();
   const query = useQuery([`application-${applicationId}`, { getAccessTokenSilently, applicationId }], getApplication)
@@ -107,6 +109,7 @@ function ApplicationSettings() {
   useEffect(() => {
     setName(query?.data?.data?.data?.name || "");
     setDescription(query?.data?.data?.data?.description || "");
+    setVisibility(query?.data?.data?.data?.visibility || "PUBLIC")
     setVariables(query.data?.data?.data?.variables?.config_vars?.sort() || [])
     setSecrets(query.data?.data?.data?.variables?.secrets?.sort() || [])
     setConfig(query.data?.data?.data?.config || {})
@@ -123,7 +126,7 @@ function ApplicationSettings() {
         >
 
           <Text mb={8} fontWeight="medium" fontSize={"xl"}>Update Application Details</Text>
-          <Stack direction={"column"} display={"flex"} alignItems={"center"}>
+          <Stack direction={"column"} display={"flex"} alignItems={"start"}>
             <FormControl mb={4}>
               <FormLabel htmlFor={"name"}>Name</FormLabel>
               <Input
@@ -140,6 +143,18 @@ function ApplicationSettings() {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </FormControl>
+            <Box w={"40%"}>
+              <FormControl isRequired mt={8}>
+                <FormLabel htmlFor="function-desc">Visibility</FormLabel>
+                <CustomSelect value={visibility} onChange={(val) => {
+                  setVisibility(val)
+                }}>
+                  <Option value={"PUBLIC"}>Public</Option>
+                  <Option value={"PRIVATE"}>Private</Option>
+                </CustomSelect>
+              </FormControl>
+            </Box>
+
           </Stack>
           {query.data?.data.data?.application_type === "WEB_SERVICE" ? <CustomWebServiceConfig config={config} setConfig={setConfig} /> : null}
           <Box mt={8}>
@@ -152,6 +167,7 @@ function ApplicationSettings() {
                 ...query.data?.data?.data,
                 name: name,
                 description: description,
+                visibility: visibility,
                 config,
                 variables: {
                   secrets: secrets,
@@ -167,7 +183,7 @@ function ApplicationSettings() {
           </Box>
         </Box>
 
-        
+
         <Box as="section" my={6}>
           <Container px={0} maxW={"full"}>
             <Box

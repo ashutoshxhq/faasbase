@@ -4,11 +4,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { deleteFunction, getFunction, updateFunction } from '../../../../api/functions';
+import { CustomSelect, Option } from '../../../../components/CustomSelect/CustomSelect';
 
 const FunctionSettings = (props: any) => {
   const { functionId } = useParams();
   const [functionName, setFunctionName] = useState("");
   const [functionDescription, setFunctionDescription] = useState("");
+  const [visibility, setVisibility] = useState("PUBLIC")
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast()
   const cancelRef = React.useRef<any>();
@@ -74,6 +76,7 @@ const FunctionSettings = (props: any) => {
     if (query.data?.data) {
       setFunctionName(query.data?.data?.data?.name || "")
       setFunctionDescription(query.data?.data?.data?.description || "")
+      setVisibility(query.data?.data?.data?.visibility || "PUBLIC")
     }
   }, [query.data])
 
@@ -109,6 +112,16 @@ const FunctionSettings = (props: any) => {
               />
             </FormControl>
 
+            <FormControl isRequired mt={8}>
+              <FormLabel htmlFor="function-desc">Visibility</FormLabel>
+              <CustomSelect value={visibility} onChange={(val) => {
+                setVisibility(val)
+              }}>
+                <Option value={"PUBLIC"}>Public Function</Option>
+                <Option value={"PRIVATE"}>Private Function</Option>
+              </CustomSelect>
+            </FormControl>
+
             <Box display={"flex"} justifyContent="left" mt={8}>
               <Button
                 variant="solid"
@@ -119,6 +132,7 @@ const FunctionSettings = (props: any) => {
                   mutation.mutate({
                     name: functionName,
                     description: functionDescription,
+                    visibility,
                   })
                 }}
 

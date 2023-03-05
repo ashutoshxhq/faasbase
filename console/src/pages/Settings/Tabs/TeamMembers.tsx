@@ -299,7 +299,7 @@ export function InviteUser(props: InviteUserProp) {
           <ModalBody py={6}>
             <FormControl isRequired>
               <FormLabel htmlFor="role">User</FormLabel>
-              <AsyncSelect cacheOptions loadOptions={loadOptions} colorScheme="orange" isClearable={true} />
+              <AsyncSelect cacheOptions value={userId} onChange={(e:any)=>setUserId(e?.value || "")} loadOptions={loadOptions} colorScheme="orange" isClearable={true} />
 
             </FormControl>
 
