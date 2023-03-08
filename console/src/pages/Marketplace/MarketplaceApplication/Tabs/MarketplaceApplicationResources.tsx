@@ -20,12 +20,12 @@ function MarketplaceApplicationResources() {
         alignContent={"start"}
         flexWrap={"wrap"}
         px={0}
-        maxW={"8xl"}
+        maxW={"full"}
         gap={"30px"}
       >
        
 
-        {query.data?.data.data?.map((resource: any, index: number) => (
+       {query.data?.data.data?.map((resource: any, index: number) => (
           <Box
             key={index}
             as="section"
@@ -51,23 +51,23 @@ function MarketplaceApplicationResources() {
                 spacing={'6'}
               >
                 <Box bg={"whiteAlpha.200"} p={2} borderRadius={6}>
-                  <FiCommand size={18} />
+                  <FiCommand size={24} />
                 </Box>
                 <Box display={"flex"} flexDirection='column' justifyContent={"center"}>
                   <Text fontSize="md" fontWeight="medium">
-                    {resource?.resource_name}
+                    {resource?.config?.method} : {resource?.config?.endpoint}
                   </Text>
                 </Box>
 
               </Stack>
               <Stack direction="row" spacing={4}>
-                <Tag>{resource?.config?.method} : {resource?.config?.endpoint}</Tag>
+                <Tag>fn: {resource?.resource_name}</Tag>
                 <Tag>
-                  {resource?.resource_type === "FUNCTION_ENDPOINT" ? "Function Endpoint" : null}
+                  {resource?.resource_type === "HTTP_ENDPOINT" ? "HTTP Endpoint" : null}
                 </Tag>
-                {resource?.config?.version?<Tag>v{resource?.config?.version}</Tag>:null}
+                {resource?.config?.version ? <Tag>v{resource?.config?.version}</Tag> : null}
+
                 
-               
               </Stack>
             </Stack>
           </Box>))

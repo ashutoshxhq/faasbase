@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Avatar, Box, Button, Circle, Container, FormControl, FormLabel, Icon,  Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Stack, Tag, Text, useDisclosure, useToast } from '@chakra-ui/react'
+import { Avatar, Box, Button, Circle, Container, Flex, FormControl, FormLabel, Icon, IconButton, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Stack, Tag, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -8,7 +8,8 @@ import moment from 'moment';
 import { useRecoilState } from 'recoil';
 import { currentWorkspaceState } from '../../../../store/workspaces';
 import { getKubernetesClusters } from '../../../../api/integrations';
-import { HiX } from 'react-icons/hi';
+import { HiCheck, HiDotsHorizontal, HiX } from 'react-icons/hi';
+import { FiMoreVertical } from 'react-icons/fi';
 
 function MarketplaceApplicationBuildsAndDeployments() {
   const { applicationId } = useParams();
@@ -24,7 +25,7 @@ function MarketplaceApplicationBuildsAndDeployments() {
         alignContent={"start"}
         flexWrap={"wrap"}
         px={0}
-        maxW={"8xl"}
+        maxW={"full"}
         gap={"30px"}
       >
 
@@ -53,32 +54,71 @@ function MarketplaceApplicationBuildsAndDeployments() {
                 justifyContent={'center'}
                 spacing={'4'}
               >
-                <Circle
-                  size="8"
-                  bg={'red.500'}
-                  borderWidth={'0'}
-                  borderColor={"red.500"}
-                >
-                  <Icon as={HiX} color="inverted" boxSize="5" />
+                <Flex gap={4}>
 
-                </Circle>
+
+                  <Box display={"flex"} flexDirection={"column"} justifyContent="space-around" alignItems={"center"} gap={2}>
+
+                    {build?.build_status === "SUCCESS" ? <Circle
+                      size="8"
+                      bg={'green.500'}
+                      borderWidth={'0'}
+                      borderColor={"green.500"}
+                    >
+                      <Icon as={HiCheck} color="inverted" boxSize="5" />
+                    </Circle> : null}
+
+                    {build?.build_status === "ERROR" ? <Circle
+                      size="8"
+                      bg={'red.500'}
+                      borderWidth={'0'}
+                      borderColor={"red.500"}
+                    >
+                      <Icon as={HiX} color="inverted" boxSize="5" />
+                    </Circle> : null}
+
+                    {build?.build_status === "BUILDING" ? <Circle
+                      size="8"
+                      bg={'blue.500'}
+                      borderWidth={'0'}
+                      borderColor={"blue.500"}
+                    >
+                      <Icon as={HiDotsHorizontal} color="white" boxSize="5" />
+                    </Circle> : null}
+
+                    <Text
+                      px="2"
+                      fontSize="10px"
+                      fontWeight="semibold"
+                      textTransform="uppercase"
+                      letterSpacing="widest"
+                      color="subtle"
+
+                    >
+                      BUILD
+                    </Text>
+
+                  </Box>
+
+
+                </Flex>
+
                 <Box display={"flex"} alignItems={"center"} justifyContent={"center"} gap={3}>
                   <Text fontSize="xl" fontWeight="medium">
                     {build.version}
                   </Text>
                   <Text fontSize="md" color="muted" fontWeight="medium">
-                    build failed {moment(build.created_at).fromNow()}
+
+                    {build?.build_status === "BUILDING" ? `build started ${moment.utc(build.created_at).local().fromNow()}` :
+                      build?.build_status === "ERROR" ? `build failed ${moment.utc(build.deployed_at).local().fromNow()}` :
+                        build?.build_status === "SUCCESS" ? `built ${moment.utc(build.deployed_at).local().fromNow()}` : ""}
+
+
                   </Text>
-                 
+
                 </Box>
               </Stack>
               <Box display="flex" gap={4}>
-                <Box display="flex" justifyContent={"center"} alignItems={"center"}>
-                  <Tag colorScheme={"green"}>currently deployed</Tag>
-                </Box>
-                <Box display="flex" justifyContent={"center"} alignItems={"center"}>
-                  <Tag >by {build?.firstname} {build?.lastname}</Tag>
-                </Box>
                 <Box
                   display="flex"
                   alignItems={"center"}
@@ -86,6 +126,24 @@ function MarketplaceApplicationBuildsAndDeployments() {
                 >
                   <Avatar size={"sm"} name={build.firstname} />
                 </Box>
+                <Menu size={"2xl"}>
+                  <MenuButton
+                    as={IconButton}
+                    _hover={{ backgroundColor: "whiteAlpha.200" }}
+                    _active={{ backgroundColor: "whiteAlpha.200" }}
+                    aria-label="Options"
+                    icon={<FiMoreVertical size={26} />}
+                    variant="ghost"
+                  />
+                  <MenuList bg={"#1e1e1e"} minW={"10px"}>
+                    <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={() => { }}
+                    >
+                      Download Build
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+                {/* <Button variant="solid" bgGradient='linear(to-r, orange.500, orange.600)' _hover={{ backgroundColor: "orange.500" }} _active={{ backgroundColor: "orange.500" }}>Deploy / Rollback</Button> */}
               </Box>
             </Stack>
           </Box>))
