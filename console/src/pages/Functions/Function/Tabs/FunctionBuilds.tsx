@@ -109,7 +109,7 @@ const FunctionBuilds = () => {
                   />
                   <MenuList bg={"#1e1e1e"} minW={"10px"}>
                     <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                      onClick={() => { }}
+                      as={Link} href={`https://function-assets.faasbase.com/${build?.function_id}/${build?.version}/function.zip`} download
                     >
                       Download Build
                     </MenuItem>

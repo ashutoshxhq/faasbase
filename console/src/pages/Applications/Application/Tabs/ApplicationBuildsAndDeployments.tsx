@@ -242,6 +242,12 @@ function ApplicationBuildsAndDeployments() {
                       Deploy Build
                     </MenuItem>
 
+                    <MenuItem as={Link} href={`https://application-assets.faasbase.com/${build?.application_id}/${build?.version}/application.zip`} download bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
+                      onClick={() => { }}
+                    >
+                      Download Build
+                    </MenuItem>
+
                     <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
                       onClick={() => {
                         setSelectedEvent(build.logs)
