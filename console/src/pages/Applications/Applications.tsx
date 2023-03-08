@@ -93,7 +93,7 @@ const Applications = () => {
           {query.data?.data?.data?.map((faasbaseApplication: any, index: number) => (
             <Box display={"flex"} justifyContent={"start"} alignItems={"center"} borderBottom={"solid 1px"} borderColor={"#303030"} _hover={{ backgroundColor: "whiteAlpha.100" }}>
               <Box cursor={"pointer"} onClick={() => {
-                navigate(`/workspaces/${currentWorkspace?.name}/applications/${faasbaseApplication.id}`)
+                navigate(`/workspaces/${currentWorkspace?.name}/applications/${faasbaseApplication.id}/overview`)
               }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={4} px={8}>
                 <Text fontSize={"lg"} fontWeight={"medium"}>{faasbaseApplication.name}</Text>
                 <Text fontSize={"xs"} color={"subtle"}>{faasbaseApplication.description}</Text>
@@ -122,7 +122,9 @@ const Applications = () => {
                   />
                   <MenuList bg={"#1e1e1e"} minW={"10px"}>
                     <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                      onClick={() => { }}
+                      onClick={() => {
+                        navigate(`/workspaces/${currentWorkspace?.name}/applications/${faasbaseApplication.id}/settings`)
+                      }}
                     >
                       Settings
                     </MenuItem>

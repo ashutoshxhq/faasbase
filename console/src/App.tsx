@@ -31,12 +31,27 @@ import Databases from './pages/Databases/Databases'
 import FaasbaseExperts from './pages/Experts/Experts'
 import DatabaseDetails from './pages/Databases/Database/DatabaseDetails'
 import Signup from './pages/Signup/Signup'
+import ApplicationsOverview from './pages/Applications/Application/Tabs/ApplicationOverview'
+import ApplicationResources from './pages/Applications/Application/Tabs/ApplicationResources'
+import ApplicationBuildsAndDeployments from './pages/Applications/Application/Tabs/ApplicationBuildsAndDeployments'
+import { ApplicationCollaborator } from './pages/Applications/Application/Tabs/ApplicationCollaborator'
+import ApplicationVariables from './pages/Applications/Application/Tabs/ApplicationVariables'
+import ApplicationSettings from './pages/Applications/Application/Tabs/ApplicationSettings'
+import FunctionOverview from './pages/Functions/Function/Tabs/FunctionOverview'
+import FunctionBuilds from './pages/Functions/Function/Tabs/FunctionBuilds'
+import FunctionSettings from './pages/Functions/Function/Tabs/FunctionSettings'
+import FunctionCollaborators from './pages/Functions/Function/Tabs/FunctionCollaborators'
+import MarketplaceFunctionOverview from './pages/Marketplace/MarketplaceFunction/Tabs/MarketplaceFunctionOverview'
+import MarketplaceFunctionBuilds from './pages/Marketplace/MarketplaceFunction/Tabs/MarketplaceFunctionBuilds'
+import MarketplaceApplicationsOverview from './pages/Marketplace/MarketplaceApplication/Tabs/MarketplaceApplicationOverview'
+import MarketplaceApplicationResources from './pages/Marketplace/MarketplaceApplication/Tabs/MarketplaceApplicationResources'
+import MarketplaceApplicationBuildsAndDeployments from './pages/Marketplace/MarketplaceApplication/Tabs/MarketplaceApplicationBuildsAndDeployments'
 
 const queryClient = new QueryClient()
 
 function App() {
   const [isOnline, setIsOnline] = useState(true)
-  
+
   useEffect(() => {
     if (navigator.onLine) {
       setIsOnline(true)
@@ -75,19 +90,38 @@ function App() {
                 <Route path="workspaces" element={<Workspaces />} />
                 <Route path="workspaces/:workspaceName/dashboard" element={<Dashboard />} />
                 <Route path="workspaces/:workspaceName/applications" element={<Applications />} />
-                <Route path="workspaces/:workspaceName/applications/:applicationId" element={<Application />} />
+                <Route path="workspaces/:workspaceName/applications/:applicationId/" element={<Application />} >
+                  <Route path="overview" element={<ApplicationsOverview />} />
+                  <Route path="resources" element={<ApplicationResources />} />
+                  <Route path="builds" element={<ApplicationBuildsAndDeployments />} />
+                  <Route path="collaborators" element={<ApplicationCollaborator />} />
+                  <Route path="variables" element={<ApplicationVariables />} />
+                  <Route path="settings" element={<ApplicationSettings />} />
+                </Route>
                 <Route path="workspaces/:workspaceName/functions" element={<Functions />} />
-                <Route path="workspaces/:workspaceName/functions/:functionId" element={<Function />} />
+                <Route path="workspaces/:workspaceName/functions/:functionId/" element={<Function />} >
+                  <Route path="overview" element={<FunctionOverview />} />
+                  <Route path="builds" element={<FunctionBuilds />} />
+                  <Route path="collaborators" element={<FunctionCollaborators />} />
+                  <Route path="settings" element={<FunctionSettings />} />
+                </Route>
                 <Route path="workspaces/:workspaceName/databases" element={<Databases />} />
                 <Route path="workspaces/:workspaceName/databases/:databaseId" element={<Database />}>
-                  <Route index element={<DatabaseDetails />}/>
-                  <Route path="tables/:tableId" element={<DatabaseTable />}/>
+                  <Route index element={<DatabaseDetails />} />
+                  <Route path="tables/:tableId" element={<DatabaseTable />} />
                 </Route>
                 <Route path="experts" element={<FaasbaseExperts />} />
                 <Route path="workspaces/:workspaceName/settings" element={<WorkspaceSettings />} />
                 <Route path="marketplace" element={<Marketplace />} />
-                <Route path="marketplace/functions/:functionId" element={<MarketplaceFunction />} />
-                <Route path="marketplace/applications/:applicationId" element={<MarketplaceApplication />} />
+                <Route path="marketplace/functions/:functionId/" element={<MarketplaceFunction />} >
+                  <Route path="overview" element={<MarketplaceFunctionOverview />} />
+                  <Route path="builds" element={<MarketplaceFunctionBuilds />} />
+                </Route>
+                <Route path="marketplace/applications/:applicationId/" element={<MarketplaceApplication />} >
+                  <Route path="overview" element={<MarketplaceApplicationsOverview />} />
+                  <Route path="resources" element={<MarketplaceApplicationResources />} />
+                  <Route path="builds" element={<MarketplaceApplicationBuildsAndDeployments />} />
+                </Route>
                 <Route path="account" element={<AccountSettings />} />
                 <Route path="no-internet" element={<NoInternet />} />
               </Route>
@@ -108,9 +142,9 @@ export const FaasbaseRoot = () => {
   const [currentWorkspace,] = useRecoilState(currentWorkspaceState);
 
   useEffect(() => {
-    if(currentWorkspace){
+    if (currentWorkspace) {
       navigate("workspaces/" + currentWorkspace?.name + "/applications")
-    } else{
+    } else {
       navigate("/workspaces")
     }
   }, [currentWorkspace])

@@ -1,7 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { Box, Skeleton, Stack, Tab, TabList, TabPanels, Tabs, Text, TabPanel } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getApplication } from '../../../api/applications';
 import ApplicationBuildsAndDeployments from './Tabs/ApplicationBuildsAndDeployments';
 import ApplicationOverview from './Tabs/ApplicationOverview';
@@ -12,7 +12,9 @@ import { ApplicationCollaborator } from './Tabs/ApplicationCollaborator';
 import ApplicationVariables from './Tabs/ApplicationVariables';
 
 function Application() {
-  const { applicationId } = useParams();
+  const { applicationId, workspaceName } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [tabIndex, setTabIndex] = useState(0)
   const { getAccessTokenSilently } = useAuth0();
   const query = useQuery([`application-${applicationId}`, { getAccessTokenSilently, applicationId }], getApplication)
@@ -23,7 +25,24 @@ function Application() {
 
   useEffect(() => {
     document.title = "Faasbase Console | Applications | " + query?.data?.data?.data?.name
-  }, [query?.data])
+
+    if (location.pathname.includes("overview")) {
+      setTabIndex(0)
+    } else if (location.pathname.includes("resources")) {
+      setTabIndex(1)
+    } else if (location.pathname.includes("builds")) {
+      setTabIndex(2)
+    } else if (location.pathname.includes("collaborators")) {
+      setTabIndex(3)
+    } else if (location.pathname.includes("variables")) {
+      setTabIndex(4)
+    } else if (location.pathname.includes("settings")) {
+      setTabIndex(5)
+    } else {
+      navigate(`/workspaces/${workspaceName}/applications/${applicationId}/overview`)
+    }
+
+  }, [query?.data, location.pathname])
 
 
   return (
@@ -52,13 +71,13 @@ function Application() {
                   </Stack>}
               </Box>
             </Stack>
-            <TabList  color={"muted"} data-tauri-drag-region>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Overview</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Resources</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Builds & Deployment</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Collaborators</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Variables</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Settings</Tab>
+            <TabList color={"muted"} data-tauri-drag-region>
+              <Tab onClick={() => navigate(`/workspaces/${workspaceName}/applications/${applicationId}/overview`)} _selected={{ color: "orange.500", borderColor: "orange.500", fontWeight: "bold" }}>Overview</Tab>
+              <Tab onClick={() => navigate(`/workspaces/${workspaceName}/applications/${applicationId}/resources`)} _selected={{ color: "orange.500", borderColor: "orange.500", fontWeight: "bold" }}>Resources</Tab>
+              <Tab onClick={() => navigate(`/workspaces/${workspaceName}/applications/${applicationId}/builds`)} _selected={{ color: "orange.500", borderColor: "orange.500", fontWeight: "bold" }}>Builds & Deployment</Tab>
+              <Tab onClick={() => navigate(`/workspaces/${workspaceName}/applications/${applicationId}/collaborators`)} _selected={{ color: "orange.500", borderColor: "orange.500", fontWeight: "bold" }}>Collaborators</Tab>
+              <Tab onClick={() => navigate(`/workspaces/${workspaceName}/applications/${applicationId}/variables`)} _selected={{ color: "orange.500", borderColor: "orange.500", fontWeight: "bold" }}>Variables</Tab>
+              <Tab onClick={() => navigate(`/workspaces/${workspaceName}/applications/${applicationId}/settings`)} _selected={{ color: "orange.500", borderColor: "orange.500", fontWeight: "bold" }}>Settings</Tab>
             </TabList>
           </Stack>
         </Box>
@@ -68,26 +87,7 @@ function Application() {
           alignContent={"start"}
           flexDirection={"column"}
         >
-          <TabPanels >
-            <TabPanel>
-              <ApplicationOverview />
-            </TabPanel>
-            <TabPanel>
-              <ApplicationResources />
-            </TabPanel>
-            <TabPanel>
-              <ApplicationBuildsAndDeployments />
-            </TabPanel>
-            <TabPanel>
-              <ApplicationCollaborator />
-            </TabPanel>
-            <TabPanel>
-              <ApplicationVariables />
-            </TabPanel>
-            <TabPanel>
-              <ApplicationSettings />
-            </TabPanel>
-          </TabPanels>
+          <Outlet />
         </Box>
       </Tabs>
     </Box>

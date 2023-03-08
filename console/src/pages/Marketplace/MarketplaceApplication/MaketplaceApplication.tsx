@@ -1,16 +1,16 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { Box, Skeleton, Stack, Tab, TabList, TabPanels, Tabs, Text, TabPanel } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getApplication } from '../../../api/applications';
-import MarketplaceApplicationBuildsAndDeployments from './Tabs/MarketplaceApplicationBuildsAndDeployments';
-import MarketplaceApplicationOverview from './Tabs/MarketplaceApplicationOverview';
-import MarketplaceApplicationResources from './Tabs/MarketplaceApplicationResources';
 import { useQuery } from '@tanstack/react-query';
 
 function MarketplaceApplication() {
   const { applicationId } = useParams();
   const [tabIndex, setTabIndex] = useState(0)
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { getAccessTokenSilently } = useAuth0();
   const query = useQuery([`application-${applicationId}`, { getAccessTokenSilently, applicationId }], getApplication)
 
@@ -20,7 +20,18 @@ function MarketplaceApplication() {
 
   useEffect(() => {
     document.title = "Faasbase Console | Applications | " + query?.data?.data?.data?.name
-  }, [query?.data])
+
+    if (location.pathname.includes("overview")) {
+      setTabIndex(0)
+    } else if (location.pathname.includes("resources")) {
+      setTabIndex(1)
+    } else if (location.pathname.includes("builds")) {
+      setTabIndex(2)
+    } else {
+      navigate(`/marketplace/applications/${applicationId}/overview`)
+    }
+
+  }, [query?.data, location.pathname])
 
 
   return (
@@ -50,9 +61,9 @@ function MarketplaceApplication() {
               </Box>
             </Stack>
             <TabList color={"muted"} data-tauri-drag-region>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Overview</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Resources</Tab>
-              <Tab _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Builds & Versions</Tab>
+              <Tab onClick={()=> navigate(`/marketplace/applications/${applicationId}/overview`)} _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Overview</Tab>
+              <Tab onClick={()=> navigate(`/marketplace/applications/${applicationId}/resources`)} _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Resources</Tab>
+              <Tab onClick={()=> navigate(`/marketplace/applications/${applicationId}/builds`)} _selected={{color: "orange.500", borderColor:"orange.500", fontWeight:"bold"}}>Builds & Versions</Tab>
             </TabList>
           </Stack>
         </Box>
@@ -62,17 +73,7 @@ function MarketplaceApplication() {
           alignContent={"start"}
           flexDirection={"column"}
         >
-          <TabPanels >
-            <TabPanel>
-              <MarketplaceApplicationOverview />
-            </TabPanel>
-            <TabPanel>
-              <MarketplaceApplicationResources />
-            </TabPanel>
-            <TabPanel>
-              <MarketplaceApplicationBuildsAndDeployments />
-            </TabPanel>
-          </TabPanels>
+          <Outlet/>
         </Box>
       </Tabs>
     </Box>

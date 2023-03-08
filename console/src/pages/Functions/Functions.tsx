@@ -94,7 +94,7 @@ const Functions = () => {
                   <FiCommand size={24} />
                 </Box>
                 <Box cursor={"pointer"} onClick={() => {
-                  navigate(`/workspaces/${currentWorkspace?.name}/functions/${faasbaseFunction.id}`)
+                  navigate(`/workspaces/${currentWorkspace?.name}/functions/${faasbaseFunction.id}/overview`)
                 }} display={"flex"} justifyContent={"start"} flexDirection={"column"} alignItems={"start"} gap={1} py={6} px={2}>
 
                   <Text fontSize={"lg"} color={"whiteAlpha.900"} fontWeight={"medium"}>{faasbaseFunction.name}</Text>
@@ -123,7 +123,9 @@ const Functions = () => {
                       Clone
                     </MenuItem>
                     <MenuItem bg={"#1e1e1e"} _hover={{ backgroundColor: "whiteAlpha.200" }}
-                      onClick={() => { }}
+                      onClick={() => {
+                        navigate(`/workspaces/${currentWorkspace?.name}/functions/${faasbaseFunction.id}/settings`)
+                      }}
                     >
                       Settings
                     </MenuItem>
