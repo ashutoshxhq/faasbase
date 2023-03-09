@@ -421,7 +421,7 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
     setVersion(props?.data?.config?.version || "")
     setEndpoint(props?.data?.config?.endpoint || "")
     setMethod(props.data?.config?.method || "")
-    setIsAuthEnabled(props.data?.config?.isAuthEnabled?true:false)
+    setIsAuthEnabled(props.data?.config?.is_auth_enabled?true:false)
   }, [props.data])
 
 
