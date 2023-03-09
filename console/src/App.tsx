@@ -46,8 +46,21 @@ import MarketplaceFunctionBuilds from './pages/Marketplace/MarketplaceFunction/T
 import MarketplaceApplicationsOverview from './pages/Marketplace/MarketplaceApplication/Tabs/MarketplaceApplicationOverview'
 import MarketplaceApplicationResources from './pages/Marketplace/MarketplaceApplication/Tabs/MarketplaceApplicationResources'
 import MarketplaceApplicationBuildsAndDeployments from './pages/Marketplace/MarketplaceApplication/Tabs/MarketplaceApplicationBuildsAndDeployments'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+    },
+  },
+})
+
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage
+})
 
 function App() {
   const [isOnline, setIsOnline] = useState(true)
@@ -67,10 +80,10 @@ function App() {
       console.log("Back Online")
     };
   }, [])
-
+  
   return (
     isOnline ? (
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: asyncStoragePersister }}>
         <Auth0Provider
           domain={AUTH0_DOMAIN}
           clientId={AUTH0_CLIENT_ID}
@@ -128,7 +141,7 @@ function App() {
             </Routes>
           </BrowserRouter>
         </Auth0Provider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     ) :
       <Offline />
   )
