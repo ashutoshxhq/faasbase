@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-use crate::types::{ApplicationBuildContext, Error, ApplicationResourceConfig};
+use crate::types::{ApplicationBuildContext, ApplicationResourceConfig, Error};
 
 #[derive(Clone)]
 pub struct ApplicationGeneratorService {}
@@ -94,6 +94,8 @@ async fn main() {{
         );
 
         let mut jwks_uri = String::new();
+        let mut jwt_algorithm = String::new();
+        let mut jwt_secret = String::new();
 
         if let Some(config) = context.config {
             if let Some(jwt_enabled) = config.jwt_auth_enabled {
@@ -101,16 +103,110 @@ async fn main() {{
                     if let Some(jwks_uri_string) = config.jwks_uri {
                         jwks_uri = jwks_uri_string;
                     }
+
+                    if let Some(jwt_algorithm_string) = config.jwt_algorithm {
+                        jwt_algorithm = jwt_algorithm_string;
+                    }
+
+                    if let Some(jwt_secret_string) = config.jwt_secret {
+                        jwt_secret = jwt_secret_string;
+                    }
                 }
             }
         }
 
-
         if jwks_uri.is_empty() {
-            jwks_uri.push_str(r#"format!(
+            jwks_uri.push_str(
+                r#"format!(
                 "https://{}/.well-known/jwks.json",
                 std::env::var("JWKS_URI").expect("Unable to get JWKS_URI")
-            )"#);
+            )"#,
+            );
+        }
+        let authz_func: String;
+        if jwt_algorithm == "HS256".to_string() {
+            authz_func = format!(
+                r#"
+
+async fn is_autorized(token: &str) -> Result<bool, Box<dyn Error>> {{
+    let mut validation = Validation::new(Algorithm::HS256);
+
+    let jwt_secret = "{}".to_string();
+
+    match std::env::var("JWT_AUDIENCE") {{
+        Ok(audience) => {{
+            validation.set_audience(&[&audience]);
+        }}
+        Err(_err) => {{}}
+    }}
+
+    match std::env::var("JWT_ISSUER") {{
+        Ok(issuer) => {{
+            validation.set_issuer(&[Uri::builder()
+                .scheme("https")
+                .authority(issuer)
+                .path_and_query("/")
+                .build()?]);
+        }}
+        Err(_err) => {{}}
+    }}
+
+    decode::<Claims>(
+        &token,
+        &DecodingKey::from_secret(&jwt_secret),
+        &validation,
+    )?;
+    return Ok(true);
+}}
+            "#,
+                jwt_secret
+            );
+        } else {
+            authz_func = format!(
+                r#"
+async fn is_autorized(token: &str) -> Result<bool, Box<dyn Error>> {{
+    let kid = get_kid_from_token(token)?;
+    if let Some(kid) = kid {{
+        let jwks = reqwest::get({})
+        .await?
+        .json::<JwkSet>()
+        .await?;
+        if let Some(jwk) = jwks.find(&kid) {{
+            match jwk.clone().algorithm {{
+                AlgorithmParameters::RSA(ref rsa) => {{
+                    let mut validation = Validation::new(Algorithm::RS256);
+                    
+                    match std::env::var("JWT_AUDIENCE") {{
+                        Ok(audience) => {{
+                            validation.set_audience(&[&audience]);
+                        }}
+                        Err(_err) => {{}}
+                    }}
+
+                    match std::env::var("JWT_ISSUER") {{
+                        Ok(issuer) => {{
+                            validation.set_issuer(&[Uri::builder()
+                                .scheme("https")
+                                .authority(issuer)
+                                .path_and_query("/")
+                                .build()?]);
+                        }}
+                        Err(_err) => {{}}
+                    }}
+
+                    let key = DecodingKey::from_rsa_components(&rsa.n, &rsa.e)?;
+                    decode::<TokenClaims>(token, &key, &validation)?;
+                    return Ok(true);
+                }}
+                _ => return Ok(false),
+            }}
+        }}
+    }}
+    Ok(false)
+}}
+            "#,
+                jwks_uri,
+            );
         }
 
         let authz_rs = format!(
@@ -213,48 +309,7 @@ pub async fn auth<B>(req: Request<B>, next: Next<B>) -> Response {{
             .into_response();
     }}
 }}
-
-async fn is_autorized(token: &str) -> Result<bool, Box<dyn Error>> {{
-    let kid = get_kid_from_token(token)?;
-    if let Some(kid) = kid {{
-        let jwks = reqwest::get({})
-        .await?
-        .json::<JwkSet>()
-        .await?;
-        if let Some(jwk) = jwks.find(&kid) {{
-            match jwk.clone().algorithm {{
-                AlgorithmParameters::RSA(ref rsa) => {{
-                    let mut validation = Validation::new(Algorithm::RS256);
-                  
-                    match std::env::var("JWT_AUDIENCE") {{
-                        Ok(audience) => {{
-                            validation.set_audience(&[&audience]);
-                        }}
-                        Err(_err) => {{}}
-                    }}
-
-                    match std::env::var("JWT_ISSUER") {{
-                        Ok(issuer) => {{
-                            validation.set_issuer(&[Uri::builder()
-                                .scheme("https")
-                                .authority(issuer)
-                                .path_and_query("/")
-                                .build()?]);
-                        }}
-                        Err(_err) => {{}}
-                    }}
-
-                    let key = DecodingKey::from_rsa_components(&rsa.n, &rsa.e)?;
-                    decode::<TokenClaims>(token, &key, &validation)?;
-                    return Ok(true);
-                }}
-                _ => return Ok(false),
-            }}
-        }}
-    }}
-    Ok(false)
-}}
-
+{}
 pub fn decode_token(auth_token: &str) -> Result<TokenClaims, Box<dyn Error>> {{
     let unverified: Token<Header, TokenClaims, _> = Token::parse_unverified(auth_token)?;
     Ok(unverified.claims().clone())
@@ -265,7 +320,7 @@ pub fn get_kid_from_token(auth_token: &str) -> Result<Option<String>, Box<dyn Er
     Ok(header.kid)
 }}
 "#,
-            jwks_uri
+            authz_func
         );
 
         let mut function_imports = String::new();
@@ -314,26 +369,67 @@ itertools = "0.10.5"
             context.name, function_imports
         );
 
-        let mut routes = String::new();
-        for resource in context.resources {
+        let mut routes_with_auth = String::new();
+        for resource in context.resources.clone() {
             if let Some(resource_config) = resource.config {
                 let resource_config: ApplicationResourceConfig =
                     serde_json::from_value(resource_config)?;
-                if let Some(endpoint) = resource_config.endpoint {
-                    if let Some(method) = resource_config.method {
-                        routes.push_str(&format!(
-                            "\n\t.route(\"{}\", routing::{}({}::handler))",
-                            endpoint, method.to_lowercase(), resource.resource_name
-                        ));
+                if resource_config.is_auth_enabled {
+                    if let Some(endpoint) = resource_config.endpoint {
+                        if let Some(method) = resource_config.method {
+                            routes_with_auth.push_str(&format!(
+                                "\n\t.route(\"{}\", routing::{}({}::handler))",
+                                endpoint,
+                                method.to_lowercase(),
+                                resource.resource_name
+                            ));
+                        } else {
+                            tracing::warn!(
+                                "No method specified for resource {}",
+                                resource.resource_name
+                            );
+                        }
                     } else {
                         tracing::warn!(
-                            "No method specified for resource {}",
+                            "No endpoint specified for resource {}",
                             resource.resource_name
                         );
                     }
                 } else {
-                    tracing::warn!(
-                        "No endpoint specified for resource {}",
+                    tracing::info!("No auth specified for resource {}", resource.resource_name);
+                }
+            }
+        }
+
+        let mut routes_without_auth = String::new();
+        for resource in context.resources {
+            if let Some(resource_config) = resource.config {
+                let resource_config: ApplicationResourceConfig =
+                    serde_json::from_value(resource_config)?;
+                if !resource_config.is_auth_enabled {
+                    if let Some(endpoint) = resource_config.endpoint {
+                        if let Some(method) = resource_config.method {
+                            routes_without_auth.push_str(&format!(
+                                "\n\t.route(\"{}\", routing::{}({}::handler))",
+                                endpoint,
+                                method.to_lowercase(),
+                                resource.resource_name
+                            ));
+                        } else {
+                            tracing::warn!(
+                                "No method specified for resource {}",
+                                resource.resource_name
+                            );
+                        }
+                    } else {
+                        tracing::warn!(
+                            "No endpoint specified for resource {}",
+                            resource.resource_name
+                        );
+                    }
+                } else {
+                    tracing::info!(
+                        "Skipping: Auth is enabled for resource {}",
                         resource.resource_name
                     );
                 }
@@ -347,9 +443,11 @@ use crate::authz::auth;
 pub fn router() -> Router {{
     Router::new(){}
     .route_layer(middleware::from_fn(auth))
+    {}
 }}
         "#,
-            routes
+            routes_with_auth,
+            routes_without_auth
         );
 
         let dockerfile = format!(
@@ -403,24 +501,36 @@ CMD ["./{}"]"#,
             context.name
         );
 
-        
-        let mut file = File::create(&format!("temp/applications/{}/{}/Dockerfile", context.id, context.name))?;
+        let mut file = File::create(&format!(
+            "temp/applications/{}/{}/Dockerfile",
+            context.id, context.name
+        ))?;
         file.write_all(dockerfile.as_bytes())?;
 
-        let mut file = File::create(&format!("temp/applications/{}/{}/Cargo.toml", context.id, context.name))?;
+        let mut file = File::create(&format!(
+            "temp/applications/{}/{}/Cargo.toml",
+            context.id, context.name
+        ))?;
         file.write_all(cargo_toml.as_bytes())?;
-        
-        let mut file = File::create(&format!("temp/applications/{}/{}/src/main.rs", context.id, context.name))?;
+
+        let mut file = File::create(&format!(
+            "temp/applications/{}/{}/src/main.rs",
+            context.id, context.name
+        ))?;
         file.write_all(main_rs.as_bytes())?;
 
-        let mut file = File::create(&format!("temp/applications/{}/{}/src/router.rs", context.id, context.name))?;
+        let mut file = File::create(&format!(
+            "temp/applications/{}/{}/src/router.rs",
+            context.id, context.name
+        ))?;
         file.write_all(router_rs.as_bytes())?;
 
-        let mut file = File::create(&format!("temp/applications/{}/{}/src/authz.rs", context.id, context.name))?;
+        let mut file = File::create(&format!(
+            "temp/applications/{}/{}/src/authz.rs",
+            context.id, context.name
+        ))?;
         file.write_all(authz_rs.as_bytes())?;
 
-        
         Ok(())
-
     }
 }

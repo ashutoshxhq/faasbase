@@ -70,6 +70,7 @@ pub struct ApplicationConfig {
     pub jwks_uri: Option<String>,
     pub jwt_algorithm: Option<String>,
     pub jwt_auth_enabled: Option<bool>,
+    pub jwt_secret: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -84,6 +85,7 @@ pub struct ApplicationResourceConfig {
     pub endpoint: Option<String>,
     pub method: Option<String>,
     pub version: Option<String>,
+    pub is_auth_enabled: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -338,7 +338,7 @@ export function CreateApplicationResource(props: CreateApplicationResourceProp) 
                     version: version,
                     method: method,
                     endpoint: endpoint,
-                    isAuthEnabled
+                    is_auth_enabled: isAuthEnabled,
                   },
                   resource_id: functionId,
                   application_id: applicationId,
@@ -509,7 +509,7 @@ export function UpdateteApplicationResource(props: UpdateApplicationResourceProp
                     version: version,
                     method: method,
                     endpoint: endpoint,
-                    isAuthEnabled: isAuthEnabled
+                    is_auth_enabled: isAuthEnabled
                   },
                   resource_id: functionId,
                   application_id: applicationId,
