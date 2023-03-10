@@ -3,4 +3,5 @@
 members = [
     "engine",
     "build-worker",
+    "proxy",
 ]
