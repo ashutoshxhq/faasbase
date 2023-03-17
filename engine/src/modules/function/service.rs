@@ -2,7 +2,7 @@ use crate::extras::types::{Error, FaasbaseError};
 use crate::modules::function_build::model::FunctionBuild;
 use crate::modules::function_collaborator::model::{FunctionCollaborator, NewFunctionCollaborator};
 use crate::schema::function_builds::dsl as function_builds_dsl;
-use crate::schema::function_collaborators;
+use crate::schema::{function_collaborators, function_stars};
 use crate::schema::function_forks::dsl as function_forks_dsl;
 use crate::schema::functions::{self, dsl};
 use crate::state::DbPool;
@@ -19,7 +19,7 @@ use uuid::Uuid;
 
 use super::model::{
     CreateFunctionFork, ForkFunction, Function, FunctionFork, FunctionWithBuilds, NewFunction,
-    UpdateFunction,
+    UpdateFunction, CreateFunctionStar, FunctionStar,
 };
 
 #[derive(Clone)]
@@ -259,6 +259,19 @@ impl FunctionService {
                 user_id: data.user_id,
             })
             .get_result::<FunctionFork>(&mut conn)?;
+        Ok(())
+    }
+
+    pub fn star_function(&self, function_id: Uuid, user_id: Uuid) -> Result<(), Error> {
+        let mut conn = self.pool.clone().get()?;
+        
+        let _function_statement = diesel::insert_into(function_stars::dsl::function_stars)
+            .values(&CreateFunctionStar{
+                function_id,
+                user_id,
+            })
+            .get_result::<FunctionStar>(&mut conn)?;
+
         Ok(())
     }
 }

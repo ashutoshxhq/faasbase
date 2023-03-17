@@ -254,3 +254,43 @@ pub async fn fork_application(
         ),
     }
 }
+
+
+pub async fn star_application(
+    Extension(faasbase): Extension<FaasbaseState>,
+    Extension(_claims): Extension<TokenClaims>,
+    Path(application_id): Path<String>,
+) -> impl IntoResponse {
+    let application_id = Uuid::from_str(&application_id);
+    match application_id {
+        Ok(application_id) => {
+            let res = faasbase
+                .services
+                .application
+                .star_application(application_id, _claims.user_id);
+            match res {
+                Ok(res) => (
+                    StatusCode::OK,
+                    Json(json!({
+                        "status": "ok",
+                        "data": res,
+                    })),
+                ),
+                Err(err) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({
+                        "status": "error",
+                        "error": err.to_string()
+                    })),
+                ),
+            }
+        }
+        Err(_err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({
+                "status": "error",
+                "error": "bad application id in url",
+            })),
+        ),
+    }
+}

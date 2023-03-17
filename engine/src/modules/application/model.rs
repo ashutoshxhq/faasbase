@@ -1,5 +1,6 @@
 use crate::schema::applications;
 use crate::schema::application_forks;
+use crate::schema::application_stars;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -73,6 +74,24 @@ pub struct ApplicationFork {
     pub deleted_at: Option<NaiveDateTime>,
 }
 
+#[derive(Debug,Insertable, Serialize, Deserialize)]
+#[diesel(table_name = application_stars)]
+pub struct CreateApplicationStar {
+    pub application_id: Uuid,
+    pub user_id: Uuid,
+}
+
+
+#[derive(Debug,Queryable, Serialize, Deserialize)]
+#[diesel(table_name = application_stars)]
+pub struct ApplicationStar {
+    pub id: Uuid,
+    pub application_id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
+}
 #[derive(Debug, Queryable, Insertable, Serialize, Deserialize, Clone)]
 #[diesel(table_name = applications)]
 pub struct Application {

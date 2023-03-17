@@ -4,13 +4,15 @@ use crate::modules::application_collaborator::model::{
 };
 use crate::schema::application_collaborators;
 use crate::schema::applications::{self, dsl};
+use crate::schema::application_stars::dsl::application_stars;
+
 
 use crate::schema::application_forks::dsl as application_forks_dsl;
 use crate::state::DbPool;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-use super::model::{Application, ForkApplication, NewApplication, UpdateApplication, CreateApplicationFork, ApplicationFork};
+use super::model::{Application, ForkApplication, NewApplication, UpdateApplication, CreateApplicationFork, ApplicationFork, CreateApplicationStar, ApplicationStar};
 
 #[derive(Clone)]
 pub struct ApplicationService {
@@ -161,6 +163,19 @@ impl ApplicationService {
                 user_id: data.user_id,
             })
             .get_result::<ApplicationFork>(&mut conn)?;
+        Ok(())
+    }
+
+    pub fn star_application(&self, application_id: Uuid, user_id: Uuid) -> Result<(), Error> {
+        let mut conn = self.pool.clone().get()?;
+        
+        let _application_statement = diesel::insert_into(application_stars)
+            .values(&CreateApplicationStar{
+                application_id,
+                user_id,
+            })
+            .get_result::<ApplicationStar>(&mut conn)?;
+
         Ok(())
     }
 }

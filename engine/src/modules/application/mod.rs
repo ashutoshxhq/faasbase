@@ -25,7 +25,10 @@ pub fn router() -> Router {
         )
         .route("/applications/search", get(controller::search_applications))
         .route("/applications/:application_id/fork", post(controller::fork_application))
-
+        .route(
+            "/applications/:application_id/star",
+            get(controller::star_application),
+        )
         .route_layer(middleware::from_fn(auth))
         .route(
             "/applications/:application_id",
