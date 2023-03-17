@@ -24,6 +24,7 @@ pub fn router() -> Router {
             delete(controller::delete_application),
         )
         .route("/applications/search", get(controller::search_applications))
+        .route("/applications/:application_id/fork", post(controller::fork_application))
 
         .route_layer(middleware::from_fn(auth))
         .route(

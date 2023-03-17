@@ -1,4 +1,5 @@
 use crate::schema::applications;
+use crate::schema::application_forks;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -39,6 +40,36 @@ pub struct UpdateApplication {
     pub variables: Option<Value>,
     pub user_id: Option<Uuid>,
     pub workspace_id: Option<Uuid>,
+    pub deleted_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ForkApplication {
+    pub name: String,
+    pub application_id: Uuid,
+    pub user_id: Uuid,
+    pub workspace_id: Uuid,
+}
+
+#[derive(Debug,Insertable, Serialize, Deserialize)]
+#[diesel(table_name = application_forks)]
+pub struct CreateApplicationFork {
+    pub source_application_id: Uuid,
+    pub target_application_id: Uuid,
+    pub user_id: Uuid,
+    pub workspace_id: Uuid,
+}
+
+#[derive(Debug,Queryable, Serialize, Deserialize)]
+#[diesel(table_name = application_forks)]
+pub struct ApplicationFork {
+    pub id: Uuid,
+    pub source_application_id: Uuid,
+    pub target_application_id: Uuid,
+    pub user_id: Uuid,
+    pub workspace_id: Uuid,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
 }
 

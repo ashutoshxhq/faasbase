@@ -1,8 +1,9 @@
+use crate::extras::types::{Error, FaasbaseError};
 use crate::modules::function_build::model::FunctionBuild;
 use crate::modules::function_collaborator::model::{FunctionCollaborator, NewFunctionCollaborator};
-use crate::extras::types::{Error, FaasbaseError};
-use crate::schema::function_builds::{dsl as function_builds_dsl};
+use crate::schema::function_builds::dsl as function_builds_dsl;
 use crate::schema::function_collaborators;
+use crate::schema::function_forks::dsl as function_forks_dsl;
 use crate::schema::functions::{self, dsl};
 use crate::state::DbPool;
 use aws_config::meta::region::RegionProviderChain;
@@ -16,7 +17,10 @@ use std::io::prelude::*;
 use std::path::Path;
 use uuid::Uuid;
 
-use super::model::{Function, FunctionWithBuilds, NewFunction, UpdateFunction};
+use super::model::{
+    CreateFunctionFork, ForkFunction, Function, FunctionFork, FunctionWithBuilds, NewFunction,
+    UpdateFunction,
+};
 
 #[derive(Clone)]
 pub struct FunctionService {
@@ -220,6 +224,41 @@ impl FunctionService {
 
         fs::remove_file(&current_dir.join(format!("temp/functions/{}/function.zip", id)))?;
 
+        Ok(())
+    }
+
+    pub async fn fork_function(&self, data: ForkFunction) -> Result<(), Error> {
+        let mut conn = self.pool.clone().get()?;
+
+        let function: Function = dsl::functions
+            .filter(dsl::id.eq(data.function_id))
+            .first(&mut conn)?;
+
+        let new_function = NewFunction {
+            name: data.name,
+            description: function.description,
+            readme: function.readme,
+            visibility: function.visibility,
+            workspace_id: Some(data.workspace_id),
+            user_id: Some(data.user_id),
+            latest_version: function.latest_version,
+            size: function.size,
+            repository: function.repository,
+            website: function.website,
+        };
+
+        let results: Function = diesel::insert_into(functions::table)
+            .values(&new_function)
+            .get_result(&mut conn)?;
+
+        let _function_fork_statement = diesel::insert_into(function_forks_dsl::function_forks)
+            .values(&CreateFunctionFork {
+                source_function_id: data.function_id,
+                target_function_id: results.id,
+                workspace_id: data.workspace_id,
+                user_id: data.user_id,
+            })
+            .get_result::<FunctionFork>(&mut conn)?;
         Ok(())
     }
 }

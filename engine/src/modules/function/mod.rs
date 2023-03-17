@@ -27,6 +27,10 @@ pub fn router() -> Router {
             "/functions/:function_id/upload",
             post(controller::upload_function),
         )
+        .route(
+            "/functions/:function_id/fork",
+            post(controller::fork_function),
+        )
         .route("/functions/search", get(controller::search_functions))
         .route_layer(middleware::from_fn(auth))
         .route("/functions/:function_id", get(controller::get_function))

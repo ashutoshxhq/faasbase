@@ -122,8 +122,10 @@ create table application_stars (
 
 create table application_forks (
     id uuid default uuid_generate_v4() not null primary key,
-    application_id uuid not null references applications ON DELETE CASCADE,
+    source_application_id uuid not null references applications ON DELETE CASCADE,
+    target_application_id uuid not null references applications ON DELETE CASCADE,
     user_id uuid not null references users,
+    workspace_id uuid not null references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
     deleted_at timestamp
@@ -179,8 +181,10 @@ create table function_stars (
 
 create table function_forks (
     id uuid default uuid_generate_v4() not null primary key,
-    function_id uuid not null references functions,
+    source_function_id uuid not null references functions ON DELETE CASCADE,
+    target_function_id uuid not null references functions ON DELETE CASCADE,
     user_id uuid not null references users,
+    workspace_id uuid not null references users,
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
     deleted_at timestamp

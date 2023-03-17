@@ -13,7 +13,7 @@ use crate::{
     authz::TokenClaims, extras::types::{GetWorkspaceResourceQuery, SearchApplicationQuery}, state::FaasbaseState,
 };
 
-use super::model::{NewApplication, UpdateApplication};
+use super::model::{NewApplication, UpdateApplication, ForkApplication};
 
 pub async fn get_application(
     Extension(faasbase): Extension<FaasbaseState>,
@@ -175,6 +175,7 @@ pub async fn update_application(
 
 pub async fn delete_application(
     Extension(faasbase): Extension<FaasbaseState>,
+    
     Path(application_id): Path<String>,
 ) -> impl IntoResponse {
     let application_id = Uuid::from_str(&application_id);
@@ -191,6 +192,48 @@ pub async fn delete_application(
                     Json(json!({
                         "status": "ok",
                         "data": "application deleted successfully",
+                    })),
+                ),
+                Err(err) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({
+                        "status": "error",
+                        "error": err.to_string()
+                    })),
+                ),
+            }
+        }
+        Err(_err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({
+                "status": "error",
+                "error": "bad application id in url",
+            })),
+        ),
+    }
+}
+
+
+pub async fn fork_application(
+    Extension(faasbase): Extension<FaasbaseState>,
+    Extension(_claims): Extension<TokenClaims>,
+    Path(application_id): Path<String>,
+    Json(data): Json<ForkApplication>,
+) -> impl IntoResponse {
+    let application_id = Uuid::from_str(&application_id);
+    match application_id {
+        Ok(_application_id) => {
+            let res = faasbase
+                .services
+                .application
+                .fork_application(data);
+
+            match res {
+                Ok(_res) => (
+                    StatusCode::OK,
+                    Json(json!({
+                        "status": "ok",
+                        "data": "application fork successfully",
                     })),
                 ),
                 Err(err) => (

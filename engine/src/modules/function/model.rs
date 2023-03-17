@@ -1,4 +1,4 @@
-use crate::{schema::functions, modules::function_build::model::FunctionBuild};
+use crate::{schema::functions, schema::function_forks, modules::function_build::model::FunctionBuild};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -68,6 +68,37 @@ pub struct FunctionWithBuilds {
     pub builds: Vec<FunctionBuild>,
     pub user_id: Option<Uuid>,
     pub workspace_id: Option<Uuid>,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ForkFunction {
+    pub name: String,
+    pub function_id: Uuid,
+    pub user_id: Uuid,
+    pub workspace_id: Uuid,
+}
+
+#[derive(Debug,Insertable, Serialize, Deserialize)]
+#[diesel(table_name = function_forks)]
+pub struct CreateFunctionFork {
+    pub source_function_id: Uuid,
+    pub target_function_id: Uuid,
+    pub user_id: Uuid,
+    pub workspace_id: Uuid,
+}
+
+#[derive(Debug,Queryable, Serialize, Deserialize)]
+#[diesel(table_name = function_forks)]
+pub struct FunctionFork {
+    pub id: Uuid,
+    pub source_function_id: Uuid,
+    pub target_function_id: Uuid,
+    pub user_id: Uuid,
+    pub workspace_id: Uuid,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,

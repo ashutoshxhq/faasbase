@@ -34,8 +34,10 @@ diesel::table! {
 diesel::table! {
     application_forks (id) {
         id -> Uuid,
-        application_id -> Uuid,
+        source_application_id -> Uuid,
+        target_application_id -> Uuid,
         user_id -> Uuid,
+        workspace_id -> Uuid,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,
@@ -192,8 +194,10 @@ diesel::table! {
 diesel::table! {
     function_forks (id) {
         id -> Uuid,
-        function_id -> Uuid,
+        source_function_id -> Uuid,
+        target_function_id -> Uuid,
         user_id -> Uuid,
+        workspace_id -> Uuid,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,
@@ -294,8 +298,6 @@ diesel::joinable!(application_builds -> applications (application_id));
 diesel::joinable!(application_builds -> users (user_id));
 diesel::joinable!(application_collaborators -> applications (application_id));
 diesel::joinable!(application_collaborators -> users (collaborator_id));
-diesel::joinable!(application_forks -> applications (application_id));
-diesel::joinable!(application_forks -> users (user_id));
 diesel::joinable!(application_logs -> applications (application_id));
 diesel::joinable!(application_resources -> applications (application_id));
 diesel::joinable!(application_stars -> applications (application_id));
@@ -313,8 +315,6 @@ diesel::joinable!(function_builds -> functions (function_id));
 diesel::joinable!(function_builds -> users (user_id));
 diesel::joinable!(function_collaborators -> functions (function_id));
 diesel::joinable!(function_collaborators -> users (collaborator_id));
-diesel::joinable!(function_forks -> functions (function_id));
-diesel::joinable!(function_forks -> users (user_id));
 diesel::joinable!(function_stars -> functions (function_id));
 diesel::joinable!(function_stars -> users (user_id));
 diesel::joinable!(functions -> users (user_id));

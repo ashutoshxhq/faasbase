@@ -15,7 +15,7 @@ use crate::{
     extras::types::{GetWorkspaceResourceQuery, SearchWorkspaceResourceQuery}, state::FaasbaseState,
 };
 
-use super::model::{NewFunction, UpdateFunction};
+use super::model::{NewFunction, UpdateFunction, ForkFunction};
 
 pub async fn get_function(
     Extension(faasbase): Extension<FaasbaseState>,
@@ -308,5 +308,47 @@ pub async fn upload_function(
                 })),
             )
         }
+    }
+}
+
+
+
+pub async fn fork_function(
+    Extension(faasbase): Extension<FaasbaseState>,
+    Path(function_id): Path<String>,
+    Json(data): Json<ForkFunction>,
+) -> impl IntoResponse {
+    let function_id = Uuid::from_str(&function_id);
+    match function_id {
+        Ok(_function_id) => {
+            let res = faasbase
+                .services
+                .function
+                .fork_function(data).await;
+
+            match res {
+                Ok(_res) => (
+                    StatusCode::OK,
+                    Json(json!({
+                        "status": "ok",
+                        "data": "function forked successfully",
+                    })),
+                ),
+                Err(err) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({
+                        "status": "error",
+                        "error": err.to_string()
+                    })),
+                ),
+            }
+        }
+        Err(_err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({
+                "status": "error",
+                "error": "bad function id in url",
+            })),
+        ),
     }
 }
