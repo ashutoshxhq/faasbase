@@ -1,35 +1,35 @@
-name: Deploy Faasbase Website to S3
-on:
-  push:
-    paths:
-      - "website/**"
-    branches:
-      - main
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      CI: false
-    steps:
-      - uses: actions/checkout@v2
+# name: Deploy Faasbase Website to S3
+# on:
+#   push:
+#     paths:
+#       - "website/**"
+#     branches:
+#       - main
+# jobs:
+#   run:
+#     runs-on: ubuntu-latest
+#     env:
+#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       CI: false
+#     steps:
+#       - uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: cd website && npm install
+#       - name: Install dependencies
+#         run: cd website && npm install
 
-      - name: Build
-        run: cd website && npm run build
+#       - name: Build
+#         run: cd website && npm run build
       
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: us-west-2
 
-      - name: Deploy Website to Bucket
-        run: aws s3 sync ./website/dist/ s3://faasbase.com/
+#       - name: Deploy Website to Bucket
+#         run: aws s3 sync ./website/dist/ s3://faasbase.com/
 
-      - name: Invalidate dashboard cloudfront
-        run: aws cloudfront create-invalidation --distribution-id E1U5S37K12XSJR --paths "/*"
+#       - name: Invalidate dashboard cloudfront
+#         run: aws cloudfront create-invalidation --distribution-id E1U5S37K12XSJR --paths "/*"
